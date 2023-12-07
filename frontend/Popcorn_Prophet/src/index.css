@@ -1,0 +1,80 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  /* 1rem = 10px; */
+  font-size: 62.5%;
+  height: 100%;
+}
+body {
+  font-family: "Montserrat" sans-serif;
+  height: 100%;
+  font-size: var(--mantine-font-size-md);
+  line-height: var(--mantine-line-height);
+  background-color: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border: 0;
+  background-color: transparent;
+  @mixin hover {
+    text-decoration: underline;
+  }
+}
+button {
+  color: inherit;
+  border-width: 0;
+  cursor: pointer;
+}
+ul,
+ol {
+  list-style: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+  font-weight: bold;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-style: none;
+}
+
+main {
+  display: block;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+select {
+  text-transform: none;
+}

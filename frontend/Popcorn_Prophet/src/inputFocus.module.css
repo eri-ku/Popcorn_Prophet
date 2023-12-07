@@ -1,0 +1,5 @@
+.input {
+  &:focus-within {
+    border-color: var(--mantine-color-green-5);
+  }
+}

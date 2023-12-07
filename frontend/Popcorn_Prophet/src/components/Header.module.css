@@ -1,0 +1,20 @@
+.header {
+  flex-direction: column;
+  background-image: linear-gradient(
+      to right bottom,
+      var(--mantine-color-red-light-hover),
+      var(--mantine-color-black)
+    ),
+    url(../assets/wallpaper.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+  background-position: center center;
+}
+
+.titleHeader {
+  text-align: center;
+  @media (max-width: $mantine-breakpoint-sm) {
+    font-size: 3em !important;
+  }
+}
