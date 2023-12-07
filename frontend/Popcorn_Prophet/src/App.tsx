@@ -2,14 +2,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Api from "./components/Api";
 import Register from "./components/Register";
-import { useDisclosure } from "@mantine/hooks";
 
 export function getAuth() {
   return sessionStorage.getItem("authMember");
 }
 
 function ProtectedRoute({ children }: { children: any }) {
-  return getAuth() ? children : <Navigate to="/register" />;
+  return getAuth() ? children : <Navigate to="/" />;
 }
 
 function App() {

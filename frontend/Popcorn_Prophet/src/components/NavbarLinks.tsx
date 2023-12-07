@@ -54,7 +54,19 @@ function NavbarLinks({ burger }: { burger: boolean }) {
           </Button>
         )}
 
-        <NavButton to="/api">Api</NavButton>
+        {!isAuth ? (
+          <Button
+            variant="outline"
+            color="red.2"
+            radius="lg"
+            size="compact-xl"
+            onClick={handlers.toggle}
+          >
+            Api
+          </Button>
+        ) : (
+          <NavButton to="/api">Api</NavButton>
+        )}
       </Flex>
       {opened && <Login handlers={handlers} opened={opened} />}
     </>

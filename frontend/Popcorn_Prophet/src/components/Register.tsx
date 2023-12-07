@@ -145,7 +145,7 @@ function Register() {
       localStorage.setItem("token", `Basic ${base64Credentials}`);
       sessionStorage.setItem("authMember", values.username);
 
-      navigate("/");
+      navigate("/api");
     } catch (error: any) {
       console.error("Fetch error:", error);
     }
