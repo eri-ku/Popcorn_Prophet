@@ -46,6 +46,11 @@ public class MemberRestController {
         if (!Objects.equals(member.getPassword(), member.getConfirmPassword())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new MemberResponse("Passwords do not match", null, null));
         }
+        if(roleRepository.findByRoleName("User").isEmpty()){
+            Role role = new Role();
+            role.setRoleName("User");
+            roleRepository.save(role);
+        }
 
 
         Role role = roleRepository.findByRoleName("User").orElseThrow(() -> new RuntimeException("Role not found"));
