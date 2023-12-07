@@ -1,6 +1,6 @@
 # Popcorn_Prophet
 
-Start for backend :
+Start for frontend :
 
 ```js
 npm install
