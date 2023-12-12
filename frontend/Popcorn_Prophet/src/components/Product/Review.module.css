@@ -1,0 +1,9 @@
+.content {
+  width: 800px !important;
+  @media (max-width: $mantine-breakpoint-md) {
+    width: 400px !important;
+  }
+  @media (max-width: $mantine-breakpoint-xs) {
+    width: 300px !important;
+  }
+}

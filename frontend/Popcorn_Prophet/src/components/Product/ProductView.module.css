@@ -1,0 +1,29 @@
+.main {
+  grid-row: 2;
+  justify-content: center;
+  grid-column: 2/-1;
+  overflow-y: auto;
+  @media (max-width: $mantine-breakpoint-sm) {
+    grid-column: 1/-1;
+  }
+}
+
+.acc {
+  width: 400px !important;
+  @media (max-width: $mantine-breakpoint-md) {
+    width: 200px !important;
+  }
+  @media (max-width: $mantine-breakpoint-xs) {
+    width: 150px !important;
+  }
+}
+
+.content {
+  width: 800px !important;
+  @media (max-width: $mantine-breakpoint-md) {
+    width: 400px !important;
+  }
+  @media (max-width: $mantine-breakpoint-xs) {
+    width: 300px !important;
+  }
+}

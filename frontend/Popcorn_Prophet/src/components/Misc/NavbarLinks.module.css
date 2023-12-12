@@ -1,0 +1,5 @@
+.rootButton {
+  &:hover {
+    color: var(--mantine-color-red-7);
+  }
+}

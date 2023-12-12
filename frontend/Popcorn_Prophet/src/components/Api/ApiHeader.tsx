@@ -6,16 +6,16 @@ import {
   Autocomplete,
   rem,
   Drawer,
-  Center,
   Button,
+  Flex,
 } from "@mantine/core";
-import Icon from "./Icon";
+import Icon from "../Misc/Icon";
 import { IconSearch } from "@tabler/icons-react";
-import NavbarLinks from "./NavbarLinks";
-import { getAuth } from "../App";
+import NavbarLinks from "../Misc/NavbarLinks";
+import { getAuth } from "../../App";
 
 // const links = [{ link: "/", label: "Homepage" }];
-function ApiHeader({ children }: { children: any }) {
+function ApiHeader({ open }: { open: any }) {
   const [opened, { toggle, close }] = useDisclosure(false);
 
   // const items = links.map((link) => (
@@ -50,7 +50,7 @@ function ApiHeader({ children }: { children: any }) {
               </Drawer.Content>
             </Drawer.Root>
           )}
-          <Icon inApi={true} />
+          <Icon />
           <Button variant="outline" color="red.2" radius="lg" size="compact-xl">
             {getAuth()}
           </Button>
@@ -60,24 +60,29 @@ function ApiHeader({ children }: { children: any }) {
          {items}
         </Group> */}
 
-        <Group mb={5}>
-          <Center>
-            {children}
-            <Autocomplete
-              ml={10}
-              maw={rem(200)}
-              className={styles.search}
-              placeholder="Search"
-              leftSection={
-                <IconSearch
-                  style={{ width: rem(16), height: rem(16) }}
-                  stroke={1.5}
-                />
-              }
-              data={["Movies", "Tv Shows", "Limited Series", "Theater"]}
-            />
-          </Center>
-        </Group>
+        <Flex className={styles.actionHeader}>
+          <Button
+            variant="outline"
+            color="red.2"
+            radius="lg"
+            size="compact-xl"
+            onClick={open}
+          >
+            Create Product
+          </Button>
+          <Autocomplete
+            classNames={{ input: styles.inputAutoComplete }}
+            placeholder="Search"
+            mb={10}
+            leftSection={
+              <IconSearch
+                style={{ width: rem(16), height: rem(16) }}
+                stroke={1.5}
+              />
+            }
+            data={["Movies", "Tv Shows", "Limited Series", "Theater"]}
+          />
+        </Flex>
       </div>
     </header>
   );

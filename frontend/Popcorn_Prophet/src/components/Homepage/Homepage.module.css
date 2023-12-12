@@ -1,15 +1,15 @@
 .header {
-  flex-direction: column;
   background-image: linear-gradient(
       to right bottom,
       var(--mantine-color-red-light-hover),
       var(--mantine-color-black)
     ),
-    url(../assets/wallpaper.jpg);
+    url(../../assets/wallpaper.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   height: 100vh;
   background-position: center center;
+  display: grid;
 }
 
 .titleHeader {

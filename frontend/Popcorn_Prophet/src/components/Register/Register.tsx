@@ -9,18 +9,18 @@ import {
   Progress,
   Popover,
   rem,
-  Center,
+  Portal,
   Text,
   Flex,
   Anchor,
 } from "@mantine/core";
 import styles from "./Register.module.css";
 import { useNavigate } from "react-router-dom";
-import HeaderNav from "./HeaderNav";
+import HeaderNav from "../Homepage/HeaderNav";
 import { useState } from "react";
 import { IconX, IconCheck } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
-import Login from "./Login";
+import Login from "../Login/Login";
 import { useDisclosure } from "@mantine/hooks";
 
 function PasswordRequirement({
@@ -153,108 +153,105 @@ function Register() {
 
   return (
     <>
-      <Center>
-        <HeaderNav />
-      </Center>
-      <form onSubmit={form.onSubmit((values) => createUser(values))}>
-        <div className={styles.wrapper}>
-          <Paper className={styles.form} radius={0} p={30}>
-            <Title
-              order={2}
-              className={styles.title}
-              ta="center"
-              mt="md"
-              mb={50}
-            >
-              Welcome back to Popcorn Prophet!
-            </Title>
+      <Box className={styles.wrapper}>
+        <Flex justify={"space-between"}>
+          <HeaderNav />
+        </Flex>
 
-            {validationMessage && (
-              <Flex justify="center" align="center">
-                <Text c="red">{validationMessage}</Text>
-              </Flex>
-            )}
+        <Flex justify={"center"} className={styles.dirChange}>
+          <form onSubmit={form.onSubmit((values) => createUser(values))}>
+            <Paper className={styles.form} radius={0} p={30}>
+              <Title order={2} className={styles.title} ta="center" mb={50}>
+                Welcome back to Popcorn Prophet!
+              </Title>
 
-            <TextInput
-              required
-              label="Username"
-              placeholder="Your Username"
-              size="md"
-              {...form.getInputProps("username")}
-            />
+              {validationMessage && (
+                <Flex justify="center" align="center">
+                  <Text c="red">{validationMessage}</Text>
+                </Flex>
+              )}
 
-            <TextInput
-              required
-              label="Email address"
-              placeholder="hello@gmail.com"
-              size="md"
-              mt="md"
-              {...form.getInputProps("email")}
-            />
-            <Popover
-              opened={popoverOpened}
-              position="bottom"
-              width="target"
-              transitionProps={{ transition: "pop" }}
-            >
-              <Popover.Target>
-                <div
-                  onFocusCapture={() => setPopoverOpened(true)}
-                  onBlurCapture={() => setPopoverOpened(false)}
-                >
-                  <PasswordInput
-                    required
-                    label="Password"
-                    placeholder="Your password"
-                    mt="md"
-                    size="md"
-                    {...form.getInputProps("password")}
+              <TextInput
+                required
+                label="Username"
+                placeholder="Your Username"
+                size="md"
+                {...form.getInputProps("username")}
+              />
+
+              <TextInput
+                required
+                label="Email address"
+                placeholder="hello@gmail.com"
+                size="md"
+                mt="md"
+                {...form.getInputProps("email")}
+              />
+              <Popover
+                opened={popoverOpened}
+                position="bottom"
+                width="target"
+                transitionProps={{ transition: "pop" }}
+              >
+                <Popover.Target>
+                  <div
+                    onFocusCapture={() => setPopoverOpened(true)}
+                    onBlurCapture={() => setPopoverOpened(false)}
+                  >
+                    <PasswordInput
+                      required
+                      label="Password"
+                      placeholder="Your password"
+                      mt="md"
+                      size="md"
+                      {...form.getInputProps("password")}
+                    />
+                  </div>
+                </Popover.Target>
+                <Popover.Dropdown>
+                  <Progress color={color} value={strength} size={5} mb="xs" />
+                  <PasswordRequirement
+                    label="Includes at least 6 characters"
+                    meets={form.values.password.length > 5}
                   />
-                </div>
-              </Popover.Target>
-              <Popover.Dropdown>
-                <Progress color={color} value={strength} size={5} mb="xs" />
-                <PasswordRequirement
-                  label="Includes at least 6 characters"
-                  meets={form.values.password.length > 5}
-                />
-                {checks}
-              </Popover.Dropdown>
-            </Popover>
+                  {checks}
+                </Popover.Dropdown>
+              </Popover>
 
-            <PasswordInput
-              required
-              label="Repeat Password"
-              placeholder="Your password again"
-              mt="md"
-              size="md"
-              {...form.getInputProps("confirmPassword")}
-            />
-            <Button type="submit" fullWidth mt="xl" size="md">
-              Register
-            </Button>
+              <PasswordInput
+                required
+                label="Repeat Password"
+                placeholder="Your password again"
+                mt="md"
+                size="md"
+                {...form.getInputProps("confirmPassword")}
+              />
+              <Button type="submit" fullWidth mt="xl" size="md">
+                Register
+              </Button>
 
-            <Text ta="center" mt="md">
-              Already have an account?{" "}
-              <Anchor onClick={handlers.toggle}>Login</Anchor>
-            </Text>
+              <Text ta="center" mt="md">
+                Already have an account?{" "}
+                <Anchor onClick={handlers.toggle}>Login</Anchor>
+              </Text>
 
-            {validationErrors &&
-              validationErrors.map((error: any) => (
-                <Text mt={10} c={"red"} key={error}>
-                  {error}
-                </Text>
-              ))}
-          </Paper>
-          <Box className={styles.imgBox}>
+              {validationErrors &&
+                validationErrors.map((error: any) => (
+                  <Text mt={10} c={"red"} key={error}>
+                    {error}
+                  </Text>
+                ))}
+            </Paper>
+          </form>
+          <Box>
             <Image
               className={styles.imger}
               src="src/assets/_7c2842ac-2a6b-4420-86a6-c8d3ac7eae70.jpg"
             />
           </Box>
-        </div>
-      </form>
-      {opened && <Login opened={opened} handlers={handlers}></Login>}
+        </Flex>
+      </Box>
+      <Portal>{opened && <Login handlers={handlers} opened={opened} />}</Portal>
     </>
   );
 }

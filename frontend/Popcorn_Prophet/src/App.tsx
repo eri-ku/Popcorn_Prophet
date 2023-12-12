@@ -1,30 +1,42 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Header from "./components/Header";
-import Api from "./components/Api";
-import Register from "./components/Register";
+import Api from "./components/Api/Api";
+import Register from "./components/Register/Register";
+import ApiLayout from "./components/Api/ApiLayout";
+import Homepage from "./components/Homepage/Homepage";
+import { useDisclosure } from "@mantine/hooks";
+import ProductView from "./components/Product/ProductView";
 
 export function getAuth() {
   return sessionStorage.getItem("authMember");
 }
 
 function ProtectedRoute({ children }: { children: any }) {
-  return getAuth() ? children : <Navigate to="/" />;
+  return getAuth() ? children : <Navigate replace to="homepage" />;
 }
 
 function App() {
+  const [opened, { open, close }] = useDisclosure(false);
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Header />}></Route>
+        <Route index element={<Navigate replace to="homepage" />} />
+        <Route path="homepage" element={<Homepage />}></Route>
+        <Route path="register" element={<Register />}></Route>
         <Route
-          path="/api"
           element={
             <ProtectedRoute>
-              <Api />
+              <ApiLayout open={open} />
             </ProtectedRoute>
           }
-        ></Route>
-        <Route path="/register" element={<Register />}></Route>
+        >
+          {/* children start*/}
+          <Route
+            path="api"
+            element={<Api opened={opened} close={close} open={open} />}
+          />
+          <Route path="api/products/:productId" element={<ProductView />} />
+          {/* children end */}
+        </Route>
       </Routes>
     </BrowserRouter>
   );

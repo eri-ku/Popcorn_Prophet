@@ -1,15 +1,39 @@
-import { Burger, Drawer } from "@mantine/core";
+import { Burger, Drawer, Flex, Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import styles from "./HeaderNav.module.css";
-import NavbarLinks from "./NavbarLinks";
-import Icon from "./Icon";
+import NavbarLinks from "../Misc/NavbarLinks";
+import Icon from "../Misc/Icon";
+import { getAuth } from "../../App";
+import { useNavigate } from "react-router-dom";
 
 function HeaderNav() {
   const [opened, { toggle, close }] = useDisclosure();
+  const navigate = useNavigate();
 
   return (
     <>
-      <Icon />
+      <Flex>
+        <Icon />
+        {getAuth() && (
+          <Button
+            mt={15}
+            variant="outline"
+            color="red.2"
+            radius="lg"
+            size="compact-xl"
+            onClick={() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              navigate("/");
+            }}
+          >
+            Logout - {getAuth()}
+          </Button>
+        )}
+      </Flex>
+
+      <NavbarLinks burger={false} />
+
       <Burger
         className={styles.burger}
         opened={opened}
@@ -37,8 +61,6 @@ function HeaderNav() {
           </Drawer.Body>
         </Drawer.Content>
       </Drawer.Root>
-
-      <NavbarLinks burger={false} />
     </>
   );
 }

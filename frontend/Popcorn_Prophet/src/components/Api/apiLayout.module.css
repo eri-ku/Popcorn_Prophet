@@ -1,0 +1,11 @@
+.gridContainer {
+  display: grid;
+  grid-template-columns: rem(80px) 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  background-image: linear-gradient(
+    to bottom left,
+    rgba(255, 0, 0, 0.3),
+    rgba(0, 0, 0, 0.5)
+  );
+}

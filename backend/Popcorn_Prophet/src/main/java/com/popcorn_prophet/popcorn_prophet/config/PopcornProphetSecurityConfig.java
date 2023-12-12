@@ -24,8 +24,10 @@ public class PopcornProphetSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf((csrf) -> csrf.disable()).authorizeHttpRequests((requests) -> {
-                    requests.requestMatchers("/auth/**").permitAll();
+                     requests.requestMatchers("/auth/**").permitAll();
+                     requests.requestMatchers("/api/products/download/**").permitAll();
                     requests.anyRequest().authenticated();
+//                    requests.requestMatchers("/**").permitAll();
                 })
                 .httpBasic(Customizer.withDefaults());
         return http.build();

@@ -1,8 +1,11 @@
 package com.popcorn_prophet.popcorn_prophet.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
+
+import java.sql.Date;
+import java.util.List;
 
 
 @Getter
@@ -20,17 +23,23 @@ public class Product {
     private String title;
     @Column(nullable = false)
     private String rated;
+    @Transient
     private String released;
+    private Date releasedDate;
     private String runtime;
-    private String genre;
-    private String director;
-    private String writer;
-    private String actors;
+    @ElementCollection
+    private List<String> genre;
     @Column(nullable = false)
     private String plot;
-    private String language;
+    @ElementCollection
+    private List<String> language;
     @Column(nullable = false)
     private String country;
     private String poster;
     private String type;
+
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL, targetEntity = ProductImage.class)
+    @JsonIgnore
+    @JoinColumn(name = "product_image_id", referencedColumnName = "id")
+    private ProductImage productImage;
 }

@@ -17,8 +17,8 @@ function NavButton({ children, to }: { children: any; to: string }) {
       variant="outline"
       color="red.2"
       radius="lg"
-      className={styles.rootButton}
       size="compact-xl"
+      className={styles.rootButton}
     >
       {children}
     </Button>

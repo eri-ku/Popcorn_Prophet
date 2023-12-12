@@ -5,6 +5,7 @@ import "./index.css";
 import "@mantine/core/styles.css";
 import { Input } from "@mantine/core";
 import input from "./inputFocus.module.css";
+import "@mantine/dates/styles.css";
 import {
   MantineProvider,
   CSSVariablesResolver,

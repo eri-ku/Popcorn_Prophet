@@ -35,7 +35,7 @@ function NavbarLink({ icon: Icon, label, to, active, onClick }: ApiLinkProps) {
 }
 
 const mockdata = [
-  { icon: IconHome2, label: "Homepage", to: "/" },
+  { icon: IconHome2, label: "Homepage", to: "/homepage" },
   { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api" },
   { icon: IconUser, label: "Account", to: "/register" },
   { icon: IconSettings, label: "Settings" },

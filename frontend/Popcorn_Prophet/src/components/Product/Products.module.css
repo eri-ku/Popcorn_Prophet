@@ -3,9 +3,9 @@
     var(--mantine-color-white),
     var(--mantine-color-dark-7)
   );
-  box-shadow: 0 0 0px 1.5px var(--mantine-primary-color-filled) !important;
-  max-width: 32rem;
-  min-height: 40rem;
+  box-shadow: 0 0 0px 1px var(--mantine-primary-color-filled) !important;
+  width: 35rem;
+  height: 86rem;
 }
 
 .section {
@@ -14,6 +14,10 @@
   padding-left: var(--mantine-spacing-md);
   padding-right: var(--mantine-spacing-md);
   padding-bottom: var(--mantine-spacing-md);
+}
+
+.last {
+  border-bottom: none !important;
 }
 
 .like {
@@ -26,4 +30,13 @@
   text-transform: uppercase;
   font-size: var(--mantine-font-size-xs);
   font-weight: 700;
+}
+
+.img {
+  cursor: pointer;
+}
+
+.cardRoot {
+  overflow-y: auto !important;
+  padding: 0 !important;
 }
