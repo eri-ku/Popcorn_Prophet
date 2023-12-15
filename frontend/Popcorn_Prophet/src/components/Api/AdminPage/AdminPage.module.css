@@ -1,0 +1,18 @@
+.container {
+  overflow-y: auto;
+
+  height: 50rem;
+  width: 90rem;
+  padding-right: 3rem;
+  margin: auto auto;
+  @media (max-width: $mantine-breakpoint-md) {
+    width: 60rem;
+  }
+  @media (max-width: $mantine-breakpoint-xs) {
+    width: 40rem;
+  }
+}
+
+.item {
+  border: 3px solid var(--mantine-color-gray-7);
+}

@@ -5,6 +5,7 @@ import {
   IconDeviceDesktopAnalytics,
   IconUser,
   IconSettings,
+  IconUsers,
   IconLogout,
 } from "@tabler/icons-react";
 import styles from "./ApiNavbar.module.css";
@@ -37,8 +38,6 @@ function NavbarLink({ icon: Icon, label, to, active, onClick }: ApiLinkProps) {
 const mockdata = [
   { icon: IconHome2, label: "Homepage", to: "/homepage" },
   { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api" },
-  { icon: IconUser, label: "Account", to: "/register" },
-  { icon: IconSettings, label: "Settings" },
 ];
 
 export function ApiNavbar() {
@@ -67,6 +66,7 @@ export function ApiNavbar() {
       </div>
 
       <Stack justify="center" gap={0}>
+        <NavbarLink icon={IconUsers} to="/adminPage" label="Adminpage" />
         <NavbarLink icon={IconLogout} to="/" label="Logout" onClick={clean} />
       </Stack>
     </nav>

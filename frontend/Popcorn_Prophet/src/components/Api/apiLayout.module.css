@@ -1,5 +1,8 @@
 .gridContainer {
   display: grid;
+
+  padding-bottom: 2rem;
+  overflow-y: auto;
   grid-template-columns: rem(80px) 1fr;
   grid-template-rows: auto 1fr;
   height: 100vh;

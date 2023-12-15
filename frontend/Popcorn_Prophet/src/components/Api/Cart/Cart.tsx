@@ -1,16 +1,10 @@
-import {
-  Box,
-  Stepper,
-  Group,
-  Button,
-  Flex,
-  Fieldset,
-  TextInput,
-} from "@mantine/core";
+import { Box, Stepper, Group, Button, Flex } from "@mantine/core";
 import styles from "./Cart.module.css";
 import { useEffect, useState } from "react";
-import FirstStep from "./FirstSTep";
+import FirstStep from "./FirstStep";
 import SecondStep from "./SecondStep";
+import ThirdStep from "./ThirdStep";
+import LastStep from "./LastStep";
 
 function Cart() {
   const [active, setActive] = useState(0);
@@ -40,36 +34,50 @@ function Cart() {
   return (
     <Box className={styles.container}>
       <Flex direction={"column"}>
-        <Stepper
-          className={styles.stepper}
-          ta={"center"}
-          active={active}
-          onStepClick={setActive}
-          allowNextStepsSelect={false}
-          orientation={!isSmallScreen ? "horizontal" : "vertical"}
-        >
-          <Stepper.Step label="First step" description="Create an account">
-            Step 1 : Check your Order
-          </Stepper.Step>
-          <Stepper.Step label="Second step" description="Verify email">
-            Step 2 : Verify your address
-          </Stepper.Step>
-          <Stepper.Step label="Final step" description="Get full access">
-            Step 3 content: Set your delivery method
-          </Stepper.Step>
-          <Stepper.Completed>Completed</Stepper.Completed>
-        </Stepper>
+        {active < 3 && (
+          <Stepper
+            className={styles.stepper}
+            ta={"center"}
+            active={active}
+            onStepClick={setActive}
+            allowNextStepsSelect={false}
+            orientation={!isSmallScreen ? "horizontal" : "vertical"}
+          >
+            <Stepper.Step label="First step">
+              <strong>Check your Order</strong>
+            </Stepper.Step>
+            <Stepper.Step label="Second step">
+              <strong>Verify your billing address</strong>
+            </Stepper.Step>
+            <Stepper.Step label="Final step">
+              <strong>Set payment method</strong>
+            </Stepper.Step>
+            <Stepper.Completed>
+              <strong>Completed</strong>
+            </Stepper.Completed>
+          </Stepper>
+        )}
 
         {active == 0 && <FirstStep />}
         {active == 1 && <SecondStep />}
-        {active == 2 && <FirstStep />}
+        {active == 2 && <ThirdStep />}
+        {active == 3 && <LastStep />}
 
-        <Group bg={"gray"} justify="center" mt="xl">
-          <Button variant="default" onClick={prevStep}>
-            Back
-          </Button>
-          <Button onClick={nextStep}>Next step</Button>
-        </Group>
+        {active != 3 && (
+          <Group justify="center" mt="xl">
+            <Button
+              variant="default"
+              onClick={prevStep}
+              disabled={active < 1 ? true : false}
+            >
+              Back
+            </Button>
+
+            <Button onClick={nextStep}>
+              {active == 2 ? "Finish order" : "Next step"}
+            </Button>
+          </Group>
+        )}
       </Flex>
     </Box>
   );

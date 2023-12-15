@@ -60,6 +60,15 @@ public class MemberRestController {
         return ResponseEntity.ok(new MemberResponse("Member registered", memberRepository.save(member), null));
     }
 
+    @GetMapping()
+    public ResponseEntity<List<Member>> getMembers() {
+        List<Member> members = memberRepository.findAll();
+        for (Member member : members) {
+            member.setPassword(null);
+        }
+        return ResponseEntity.ok(members);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<MemberResponse> loginMember(@Valid @RequestBody Member member, Errors errors){
         ResponseEntity<MemberResponse> mapErrors = getMemberResponseResponseEntity(errors);

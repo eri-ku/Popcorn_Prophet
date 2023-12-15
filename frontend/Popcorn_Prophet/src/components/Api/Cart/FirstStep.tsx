@@ -1,120 +1,51 @@
-import styles from "./FirstStep.module.css";
-
 import {
-  ScrollArea,
-  Group,
-  Avatar,
-  Table,
-  Checkbox,
-  rem,
-  Text,
+  Box,
+  Flex,
+  NumberFormatter,
+  NumberInput,
+  CloseButton,
 } from "@mantine/core";
-import { useState } from "react";
-import cx from "clsx";
-
-const data = [
-  {
-    id: "1",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
-    name: "Robert Wolfkisser",
-    job: "Engineer",
-    email: "rob_wolf@gmail.com",
-  },
-  {
-    id: "2",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png",
-    name: "Jill Jailbreaker",
-    job: "Engineer",
-    email: "jj@breaker.com",
-  },
-  {
-    id: "3",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
-    name: "Henry Silkeater",
-    job: "Designer",
-    email: "henry@silkeater.io",
-  },
-  {
-    id: "4",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png",
-    name: "Bill Horsefighter",
-    job: "Designer",
-    email: "bhorsefighter@gmail.com",
-  },
-  {
-    id: "5",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-10.png",
-    name: "Jeremy Footviewer",
-    job: "Manager",
-    email: "jeremy@foot.dev",
-  },
+import styles from "./FirstStep.module.css";
+const arr = [
+  { id: 1, name: "Deadpool", volume: 1, price: "100" },
+  { id: 2, name: "HP", volume: 7, price: "1004" },
+  { id: 3, name: "Game of Thrones", volume: 2, price: "300" },
+  { id: 31, name: "Game of Thrones", volume: 2, price: "300" },
+  { id: 32, name: "Game of Thrones", volume: 2, price: "300" },
+  { id: 33, name: "Game of Thrones", volume: 2, price: "300" },
+  { id: 34, name: "Game of Thrones", volume: 2, price: "300" },
+  { id: 35, name: "Game of Thrones", volume: 2, price: "300" },
+  { id: 36, name: "Game of Thrones", volume: 2, price: "300" },
 ];
-function FirstStep() {
-  const [selection, setSelection] = useState([""]);
-  const toggleRow = (id: string) =>
-    setSelection((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id]
-    );
-  const toggleAll = () =>
-    setSelection((current) =>
-      current.length === data.length ? [] : data.map((item) => item.id)
-    );
 
-  const rows = data.map((item) => {
-    const selected = selection.includes(item.id);
-    return (
-      <Table.Tr
-        key={item.id}
-        className={cx({ [styles.rowSelected]: selected })}
-      >
-        <Table.Td>
-          <Checkbox
-            checked={selection.includes(item.id)}
-            onChange={() => toggleRow(item.id)}
-          />
-        </Table.Td>
-        <Table.Td>
-          <Group gap="sm">
-            <Avatar size={26} src={item.avatar} radius={26} />
-            <Text size="sm" fw={500}>
-              {item.name}
-            </Text>
-          </Group>
-        </Table.Td>
-        <Table.Td>{item.email}</Table.Td>
-        <Table.Td>{item.job}</Table.Td>
-      </Table.Tr>
-    );
-  });
+function FirstStep() {
   return (
-    <ScrollArea>
-      <Table miw={800} verticalSpacing="sm">
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th style={{ width: rem(40) }}>
-              <Checkbox
-                onChange={toggleAll}
-                checked={selection.length === data.length}
-                indeterminate={
-                  selection.length > 0 && selection.length !== data.length
-                }
-              />
-            </Table.Th>
-            <Table.Th>User</Table.Th>
-            <Table.Th>Email</Table.Th>
-            <Table.Th>Job</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
-      </Table>
-    </ScrollArea>
+    <Flex direction={"column"} gap={15} mt={20} className={styles.container}>
+      {arr.map((el) => (
+        <Flex className={styles.row} key={el.id}>
+          <Flex className={styles.title}>
+            <CloseButton c="red" />
+            {el.name}
+          </Flex>
+          <Box className={`${styles.volumprice} ${styles.boxprice}`}>
+            <NumberInput
+              w={"50"}
+              size="xs"
+              variant="filled"
+              min={1}
+              max={99}
+              defaultValue={el.volume}
+            />
+            <NumberFormatter
+              thousandSeparator=" "
+              decimalSeparator=","
+              suffix="€"
+              value={el.price}
+            ></NumberFormatter>{" "}
+          </Box>
+        </Flex>
+      ))}
+    </Flex>
   );
 }
 

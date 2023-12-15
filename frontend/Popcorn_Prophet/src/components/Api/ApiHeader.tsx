@@ -16,11 +16,21 @@ import Icon from "../Misc/Icon";
 import { IconSearch } from "@tabler/icons-react";
 import NavbarLinks from "../Misc/NavbarLinks";
 import { getAuth } from "../../App";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // const links = [{ link: "/", label: "Homepage" }];
 function ApiHeader({ open }: { open: any }) {
   const [opened, { toggle, close }] = useDisclosure(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleClick = () => {
+    if (location.pathname === "/api/cart") {
+      window.location.reload();
+    } else {
+      navigate("/api/cart");
+    }
+  };
 
   // const items = links.map((link) => (
   //   <Link key={link.label} to={link.link} className={styles.link}>
@@ -65,7 +75,16 @@ function ApiHeader({ open }: { open: any }) {
         </Group> */}
 
         <Flex className={styles.actionHeader} align={"center"}>
-          <Anchor component={Link} to="/api/cart">
+          <Button
+            variant="outline"
+            color="red.2"
+            radius="lg"
+            size="compact-xl"
+            onClick={open}
+          >
+            Create Product
+          </Button>
+          <Anchor component={Link} to="/api/cart" onClick={handleClick}>
             <Indicator
               processing
               mt={3}
@@ -77,15 +96,6 @@ function ApiHeader({ open }: { open: any }) {
               <Avatar src="/icons8-cart-48.png"></Avatar>
             </Indicator>
           </Anchor>
-          <Button
-            variant="outline"
-            color="red.2"
-            radius="lg"
-            size="compact-xl"
-            onClick={open}
-          >
-            Create Product
-          </Button>
           <Autocomplete
             classNames={{ input: styles.inputAutoComplete }}
             placeholder="Search"

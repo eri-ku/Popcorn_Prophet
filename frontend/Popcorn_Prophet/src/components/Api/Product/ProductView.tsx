@@ -71,8 +71,8 @@ function ProductView() {
   const items1 = [
     { emoji: "❤", value: "Type", description: type },
     { emoji: "⌛", value: "Released", description: releasedDate },
-    { emoji: "🎦", value: "Genre", description: genre },
-    { emoji: "🗣", value: "Language", description: language },
+    { emoji: "🎦", value: "Genre", description: genre.join(", ") },
+    { emoji: "🗣", value: "Language", description: language.join(", ") },
   ];
   const items2 = [
     { emoji: "🗺", value: "Country", description: country },

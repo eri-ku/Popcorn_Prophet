@@ -6,6 +6,7 @@ import Homepage from "./components/Homepage/Homepage";
 import { useDisclosure } from "@mantine/hooks";
 import ProductView from "./components/Api/Product/ProductView";
 import Cart from "./components/Api/Cart/Cart";
+import AdminPage from "./components/Api/AdminPage/AdminPage";
 
 export function getAuth() {
   return sessionStorage.getItem("authMember");
@@ -37,6 +38,7 @@ function App() {
           />
           <Route path="api/products/:productId" element={<ProductView />} />
           <Route path="api/cart" element={<Cart />} />
+          <Route path="adminpage" element={<AdminPage />} />
           {/* children end */}
         </Route>
       </Routes>

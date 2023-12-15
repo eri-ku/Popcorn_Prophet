@@ -89,7 +89,7 @@ function Product({
 
   return (
     <Card
-      mt={15}
+      my={15}
       radius="lg"
       className={styles.card}
       component="div"
