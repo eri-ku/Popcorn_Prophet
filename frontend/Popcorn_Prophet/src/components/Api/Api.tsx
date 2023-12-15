@@ -15,7 +15,7 @@ import {
   MultiSelect,
   NumberInput,
 } from "@mantine/core";
-import Product from "../Product/Product";
+import Product from "./Product/Product";
 import styles from "./Api.module.css";
 import { useState, useEffect } from "react";
 import { languages } from "../../util/languages";

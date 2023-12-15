@@ -1,7 +1,7 @@
 .main {
   grid-row: 2;
-  justify-content: center;
   grid-column: 2/-1;
+  justify-content: center;
   overflow-y: auto;
   @media (max-width: $mantine-breakpoint-sm) {
     grid-column: 1/-1;

@@ -14,7 +14,7 @@ import {
 import styles from "./Products.module.css";
 import { format } from "date-fns";
 
-import { ProductModel } from "../Api/Api";
+import { ProductModel } from "../Api";
 import { useDisclosure } from "@mantine/hooks";
 
 import { IconWorld, IconMovie } from "@tabler/icons-react";
@@ -89,6 +89,7 @@ function Product({
 
   return (
     <Card
+      mt={15}
       radius="lg"
       className={styles.card}
       component="div"

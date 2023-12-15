@@ -8,7 +8,7 @@ function Icon() {
     <Image
       className={styles.image}
       onClick={() => navigate("/homepage")}
-      src="..\..\src\assets\film-reel-svgrepo-com.png"
+      src="\film-reel-svgrepo-com.png"
       h={35}
       w={35}
       m="1rem"

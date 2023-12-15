@@ -4,7 +4,8 @@ import Register from "./components/Register/Register";
 import ApiLayout from "./components/Api/ApiLayout";
 import Homepage from "./components/Homepage/Homepage";
 import { useDisclosure } from "@mantine/hooks";
-import ProductView from "./components/Product/ProductView";
+import ProductView from "./components/Api/Product/ProductView";
+import Cart from "./components/Api/Cart/Cart";
 
 export function getAuth() {
   return sessionStorage.getItem("authMember");
@@ -35,6 +36,7 @@ function App() {
             element={<Api opened={opened} close={close} open={open} />}
           />
           <Route path="api/products/:productId" element={<ProductView />} />
+          <Route path="api/cart" element={<Cart />} />
           {/* children end */}
         </Route>
       </Routes>

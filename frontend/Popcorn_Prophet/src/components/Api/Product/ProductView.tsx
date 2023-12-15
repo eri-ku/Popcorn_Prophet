@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./ProductView.module.css";
 import { useEffect, useState } from "react";
+import { IconArrowLeft } from "@tabler/icons-react";
 import {
   Text,
   Flex,
@@ -14,13 +15,14 @@ import {
   Group,
   Button,
 } from "@mantine/core";
-import { ProductModel } from "../Api/Api";
+import { ProductModel } from "../Api";
 import { act } from "react-dom/test-utils";
 import Review from "./Review";
 function ProductView() {
   const { productId } = useParams();
   const [product, setProduct] = useState<ProductModel>();
   const [toggleComment, setToggleComment] = useState<boolean>(false);
+  const navigate = useNavigate();
   useEffect(() => {
     const headers = {
       "Content-Type": "application/json;charset=UTF-8",
@@ -81,8 +83,14 @@ function ProductView() {
 
   return (
     <Flex justify={"center"} className={styles.main}>
+      <Button mt={80} color="gray" onClick={() => navigate(-1)}>
+        <IconArrowLeft />
+      </Button>
       <Flex direction={"column"} gap={10} mt={80}>
         <Image ml={10} className={styles.content} src={poster}></Image>
+        <Button mih={30} color="blue">
+          Buy
+        </Button>
         <Title ta={"center"} order={2}>
           {title}
         </Title>

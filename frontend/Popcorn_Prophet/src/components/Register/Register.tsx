@@ -246,7 +246,7 @@ function Register() {
           <Box>
             <Image
               className={styles.imger}
-              src="src/assets/_7c2842ac-2a6b-4420-86a6-c8d3ac7eae70.jpg"
+              src="_7c2842ac-2a6b-4420-86a6-c8d3ac7eae70.jpg"
             />
           </Box>
         </Flex>

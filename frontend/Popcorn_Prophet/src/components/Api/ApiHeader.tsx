@@ -8,11 +8,15 @@ import {
   Drawer,
   Button,
   Flex,
+  Avatar,
+  Indicator,
+  Anchor,
 } from "@mantine/core";
 import Icon from "../Misc/Icon";
 import { IconSearch } from "@tabler/icons-react";
 import NavbarLinks from "../Misc/NavbarLinks";
 import { getAuth } from "../../App";
+import { Link, useNavigate } from "react-router-dom";
 
 // const links = [{ link: "/", label: "Homepage" }];
 function ApiHeader({ open }: { open: any }) {
@@ -60,7 +64,19 @@ function ApiHeader({ open }: { open: any }) {
          {items}
         </Group> */}
 
-        <Flex className={styles.actionHeader}>
+        <Flex className={styles.actionHeader} align={"center"}>
+          <Anchor component={Link} to="/api/cart">
+            <Indicator
+              processing
+              mt={3}
+              color="red"
+              position="top-start"
+              size={20}
+              label="1"
+            >
+              <Avatar src="/icons8-cart-48.png"></Avatar>
+            </Indicator>
+          </Anchor>
           <Button
             variant="outline"
             color="red.2"
