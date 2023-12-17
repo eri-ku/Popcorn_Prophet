@@ -65,7 +65,14 @@ function ApiHeader({ open }: { open: any }) {
             </Drawer.Root>
           )}
           <Icon />
-          <Button variant="outline" color="red.2" radius="lg" size="compact-xl">
+          <Button
+            component={Link}
+            variant="outline"
+            color="red.2"
+            radius="lg"
+            size="compact-xl"
+            to="/user"
+          >
             {getAuth()}
           </Button>
         </Group>

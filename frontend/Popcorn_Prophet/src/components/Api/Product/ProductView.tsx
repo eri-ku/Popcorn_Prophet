@@ -83,9 +83,6 @@ function ProductView() {
 
   return (
     <Flex justify={"center"} className={styles.main}>
-      <Button mt={80} color="gray" onClick={() => navigate(-1)}>
-        <IconArrowLeft />
-      </Button>
       <Flex direction={"column"} gap={10} mt={80}>
         <Image ml={10} className={styles.content} src={poster}></Image>
         <Button mih={30} color="blue">
@@ -117,15 +114,22 @@ function ProductView() {
               ))}
             </Accordion>
           </Flex>
-          {toggleComment && (
-            <>
-              <Review />
-              <Review />
-            </>
-          )}
-          <Button mb={50} onClick={() => setToggleComment((val) => !val)}>
-            {toggleComment ? `Hide Reviews` : `Show Reviews`}
-          </Button>
+          <Flex direction={"column"} align={"center"}>
+            <Flex gap={10}>
+              <Button color="gray" onClick={() => navigate(-1)}>
+                <IconArrowLeft />
+              </Button>
+              <Button onClick={() => setToggleComment((val) => !val)}>
+                {toggleComment ? `Hide Reviews` : `Show Reviews`}
+              </Button>
+            </Flex>
+            {toggleComment && (
+              <>
+                <Review />
+                <Review />
+              </>
+            )}
+          </Flex>
         </Flex>
       </Flex>
     </Flex>

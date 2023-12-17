@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconUsers,
   IconLogout,
+  IconNews,
 } from "@tabler/icons-react";
 import styles from "./ApiNavbar.module.css";
 import { Link } from "react-router-dom";
@@ -38,6 +39,7 @@ function NavbarLink({ icon: Icon, label, to, active, onClick }: ApiLinkProps) {
 const mockdata = [
   { icon: IconHome2, label: "Homepage", to: "/homepage" },
   { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api" },
+  { icon: IconNews, label: "Articles", to: "/api/articles" },
 ];
 
 export function ApiNavbar() {

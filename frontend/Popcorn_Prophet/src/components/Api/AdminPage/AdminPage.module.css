@@ -15,4 +15,9 @@
 
 .item {
   border: 3px solid var(--mantine-color-gray-7);
+  background-image: linear-gradient(
+    to bottom left,
+    var(--mantine-color-body),
+    rgba(0, 0, 0, 0.6)
+  );
 }
