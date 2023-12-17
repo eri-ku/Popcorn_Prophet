@@ -7,6 +7,7 @@ export interface Member {
   username: string;
   email: string;
   roles: any[];
+  password: string;
 }
 
 function AccordionLabel({ username, email }: Member) {
@@ -44,6 +45,7 @@ function AdminPage() {
           username: data[key].username,
           email: data[key].email,
           roles: data[key].roles,
+          password: "",
         });
       }
       users[0].roles.push(
