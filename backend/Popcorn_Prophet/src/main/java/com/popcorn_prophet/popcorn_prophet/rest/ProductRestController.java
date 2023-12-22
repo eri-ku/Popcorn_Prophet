@@ -1,8 +1,13 @@
 package com.popcorn_prophet.popcorn_prophet.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.popcorn_prophet.popcorn_prophet.entity.Cart;
 import com.popcorn_prophet.popcorn_prophet.entity.Product;
 import com.popcorn_prophet.popcorn_prophet.entity.ProductImage;
+import com.popcorn_prophet.popcorn_prophet.proxy.ProductProxy;
 import com.popcorn_prophet.popcorn_prophet.repo.ProductRepository;
+import com.popcorn_prophet.popcorn_prophet.service.CartService;
 import com.popcorn_prophet.popcorn_prophet.service.ImageService;
 import jakarta.servlet.ServletContext;
 import jakarta.transaction.Transactional;
@@ -21,6 +26,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @RestController
@@ -30,13 +36,25 @@ import java.util.Optional;
 public class ProductRestController {
     private final ProductRepository productRepository;
     private final ImageService imageService;
+    private final ProductProxy productProxy;
+    private final CartService cartService;
 
 
-    @GetMapping
-    public ResponseEntity<List<Product>> getProducts() {
+    @GetMapping("/all/{id}")
+    public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
 
 
         return ResponseEntity.ok(productRepository.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Product> searchProducts(@RequestParam("i") String i) throws JsonProcessingException, ParseException {
+        Product product = productProxy.getProduct("6b9ab58", i);
+        if (product != null) {
+            product.setRuntime(product.getRuntime().split(" ")[0]);
+            return ResponseEntity.ok(productRepository.save(product));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("{id}")
@@ -53,7 +71,6 @@ public class ProductRestController {
     @Transactional
     public ResponseEntity<Product> addProduct(@ModelAttribute Product product, @RequestParam("img") MultipartFile file) throws IOException, ParseException {
 
-        product.setReleasedDate(new Date(new SimpleDateFormat("yyyy-MMM-dd").parse(product.getReleased()).getTime()));
 
         ProductImage img = imageService.saveImage(file);
         product.setProductImage(img);
@@ -70,7 +87,6 @@ public class ProductRestController {
     }
 
 
-
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadImage(@PathVariable("id") Long id) throws IOException {
         byte[] image = imageService.getImage(id);
@@ -79,12 +95,14 @@ public class ProductRestController {
 
     @PutMapping("/update")
     @Transactional
-    public ResponseEntity<Product> updateProduct(@ModelAttribute Product product, @RequestParam(value = "img",required = false) MultipartFile file) throws IOException, ParseException {
+    public ResponseEntity<Product> updateProduct(@ModelAttribute Product product, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException, ParseException {
         Optional<Product> productToUpdate = productRepository.findById(product.getId());
         if (productToUpdate.isPresent()) {
             Product product1 = productToUpdate.get();
-            if(file!=null) {
-                imageService.deleteImage(product1.getProductImage().getId());
+            if (file != null) {
+                if (product1.getProductImage() != null) {
+                    imageService.deleteImage(product1.getProductImage().getId());
+                }
                 ProductImage img = imageService.saveImage(file);
                 product1.setProductImage(img);
 
@@ -95,18 +113,12 @@ public class ProductRestController {
 
                 product1.setPoster(downloadPath);
             }
-            product1.setReleasedDate(new Date(new SimpleDateFormat("yyyy-MMM-dd").parse(product.getReleased()).getTime()));
             product1.setReleased(product.getReleased());
 
             product1.setTitle(product.getTitle());
             product1.setRated(product.getRated());
-            // product1.setReleased(product.getReleased());
-//            product1.setRuntime(product.getRuntime());
             product1.setGenre(product.getGenre());
             product1.setRuntime(product.getRuntime());
-//            product1.setDirector(product.getDirector());
-//            product1.setWriter(product.getWriter());
-//            product1.setActors(product.getActors());
             product1.setPlot(product.getPlot());
             product1.setLanguage(product.getLanguage());
             product1.setCountry(product.getCountry());
@@ -126,7 +138,9 @@ public class ProductRestController {
         Optional<Product> productToDelete = productRepository.findById(id);
         if (productToDelete.isPresent()) {
 
-            imageService.deleteImage(productToDelete.get().getProductImage().getId());
+            if (productToDelete.get().getProductImage() != null) {
+                imageService.deleteImage(productToDelete.get().getProductImage().getId());
+            }
             productRepository.delete(productToDelete.get());
             return ResponseEntity.ok().build();
         } else {

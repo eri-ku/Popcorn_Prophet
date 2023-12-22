@@ -18,6 +18,8 @@ import {
 import { ProductModel } from "../Api";
 import { act } from "react-dom/test-utils";
 import Review from "./Review";
+import { format } from "date-fns";
+
 function ProductView() {
   const { productId } = useParams();
   const [product, setProduct] = useState<ProductModel>();
@@ -58,7 +60,7 @@ function ProductView() {
   const {
     title,
     type,
-    releasedDate,
+    released,
     genre,
     language,
     country,
@@ -70,7 +72,11 @@ function ProductView() {
 
   const items1 = [
     { emoji: "❤", value: "Type", description: type },
-    { emoji: "⌛", value: "Released", description: releasedDate },
+    {
+      emoji: "⌛",
+      value: "Released",
+      description: format(new Date(released), "yyyy-MMM-dd"),
+    },
     { emoji: "🎦", value: "Genre", description: genre.join(", ") },
     { emoji: "🗣", value: "Language", description: language.join(", ") },
   ];
@@ -99,7 +105,9 @@ function ProductView() {
                   <Accordion.Control icon={item.emoji}>
                     {item.value}
                   </Accordion.Control>
-                  <Accordion.Panel>{item.description}</Accordion.Panel>
+                  <Accordion.Panel>
+                    {item.description.toString()}
+                  </Accordion.Panel>
                 </Accordion.Item>
               ))}
             </Accordion>

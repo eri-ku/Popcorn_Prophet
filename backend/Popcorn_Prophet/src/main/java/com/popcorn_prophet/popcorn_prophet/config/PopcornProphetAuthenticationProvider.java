@@ -1,7 +1,6 @@
 package com.popcorn_prophet.popcorn_prophet.config;
 
 import com.popcorn_prophet.popcorn_prophet.entity.Member;
-import com.popcorn_prophet.popcorn_prophet.entity.Role;
 import com.popcorn_prophet.popcorn_prophet.repo.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -13,9 +12,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 @Component

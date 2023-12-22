@@ -14,7 +14,7 @@ function NavbarLinks({ burger }: { burger: boolean }) {
   return (
     <>
       <Flex
-        mr="10rem"
+        mr={"11rem"}
         gap="0.5rem"
         mt="1rem"
         visibleFrom={!burger ? "md" : ""}

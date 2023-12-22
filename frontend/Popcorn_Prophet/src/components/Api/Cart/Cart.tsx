@@ -5,6 +5,15 @@ import FirstStep from "./FirstStep";
 import SecondStep from "./SecondStep";
 import ThirdStep from "./ThirdStep";
 import LastStep from "./LastStep";
+import { getCartID } from "../../../App";
+import { ProductModel } from "../Api";
+
+export interface CartItem {
+  product: ProductModel;
+  id: string;
+  quantity: number;
+  price: number;
+}
 
 function Cart() {
   const [active, setActive] = useState(0);
@@ -44,7 +53,7 @@ function Cart() {
             orientation={!isSmallScreen ? "horizontal" : "vertical"}
           >
             <Stepper.Step label="First step">
-              <strong>Check your Order</strong>
+              <strong>Check your Order: </strong>
             </Stepper.Step>
             <Stepper.Step label="Second step">
               <strong>Verify your billing address</strong>

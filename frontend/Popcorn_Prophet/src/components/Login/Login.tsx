@@ -77,8 +77,8 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
         "Content-Type": "application/json;charset=UTF-8",
       },
     });
+    const data = await res.json();
     if (!res.ok) {
-      const data = await res.json();
       if (data) {
         data.errors
           ? setValidationErros([...data.errors])
@@ -90,10 +90,9 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
       throw new Error("Something went wrong!");
     }
 
-    const data = await res.json();
-
+    sessionStorage.setItem("cart", data.cartId);
     localStorage.setItem("token", `Basic ${base64Credentials}`);
-    sessionStorage.setItem("authMember", data.member.username);
+    sessionStorage.setItem("authMember", values.username);
 
     handlers.toggle();
     navigate("/api");

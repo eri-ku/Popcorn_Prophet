@@ -46,6 +46,10 @@ public class Member {
     @Transient
     private String confirmPassword;
 
+    @OneToOne(cascade = CascadeType.ALL ,fetch = FetchType.EAGER)
+    @JoinColumn(name = "cart_id", referencedColumnName = "id")
+    private Cart cart;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(name = "members_roles",
             joinColumns = {@JoinColumn(name = "member_id", referencedColumnName = "id")},

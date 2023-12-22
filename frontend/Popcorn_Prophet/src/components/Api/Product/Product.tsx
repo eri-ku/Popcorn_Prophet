@@ -25,10 +25,12 @@ function Product({
   product,
   deleteProduct,
   editProduct,
+  buyProduct,
 }: {
   product: ProductModel;
   deleteProduct: Function;
   editProduct: Function;
+  buyProduct: Function;
 }) {
   const {
     id,
@@ -64,6 +66,11 @@ function Product({
   const genres = genre.map((genre) => (
     <Badge variant="outline" key={genre} leftSection={<IconMovie />}>
       {genre}
+    </Badge>
+  ));
+  const countries = country.map((countrie) => (
+    <Badge key={countrie} size="sm" variant="light">
+      {countrie}
     </Badge>
   ));
 
@@ -104,7 +111,13 @@ function Product({
             alt={title}
             height={10}
           />
-          <Button mt="sm" color="cyan" radius="md" fullWidth>
+          <Button
+            onClick={() => buyProduct(id)}
+            mt="sm"
+            color="cyan"
+            radius="md"
+            fullWidth
+          >
             BUY
           </Button>
         </Card.Section>
@@ -120,9 +133,7 @@ function Product({
               {type}
             </Badge>
 
-            <Badge size="sm" variant="light">
-              {country}
-            </Badge>
+            <Group>{countries}</Group>
             <Badge size="md" variant="light" color="indigo">
               {rated}
             </Badge>

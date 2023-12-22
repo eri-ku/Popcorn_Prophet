@@ -5,6 +5,7 @@ import {
   IconDeviceDesktopAnalytics,
   IconUser,
   IconSettings,
+  IconGift,
   IconUsers,
   IconLogout,
   IconNews,
@@ -40,6 +41,7 @@ const mockdata = [
   { icon: IconHome2, label: "Homepage", to: "/homepage" },
   { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api" },
   { icon: IconNews, label: "Articles", to: "/api/articles" },
+  { icon: IconGift, label: "WishList", to: "/api/wishlist" },
 ];
 
 export function ApiNavbar() {

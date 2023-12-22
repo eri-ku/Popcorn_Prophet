@@ -129,8 +129,8 @@ function Register() {
           "Content-Type": "application/json;charset=UTF-8",
         },
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
         if (data) {
           data.errors
             ? setValidationErros([...data.errors])
@@ -139,9 +139,10 @@ function Register() {
             ? setValidationMessage(data.message)
             : setValidationMessage("");
         }
+
         throw new Error("Something went wrong!");
       }
-
+      sessionStorage.setItem("cart", data.cartId);
       localStorage.setItem("token", `Basic ${base64Credentials}`);
       sessionStorage.setItem("authMember", values.username);
 

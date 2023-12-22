@@ -21,9 +21,6 @@ public class Role  implements GrantedAuthority {
     private Long id;
     @Column(nullable = false, unique = true)
     private String roleName;
-    @JsonIgnore
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private Set<Member> members = new HashSet<>();
 
     @Override
     public String getAuthority() {

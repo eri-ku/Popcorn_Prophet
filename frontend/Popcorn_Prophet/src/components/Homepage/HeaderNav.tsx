@@ -14,22 +14,21 @@ function HeaderNav() {
     <>
       <Flex>
         <Icon />
-        {getAuth() && (
-          <Button
-            mt={15}
-            variant="outline"
-            color="red.2"
-            radius="lg"
-            size="compact-xl"
-            onClick={() => {
-              localStorage.clear();
-              sessionStorage.clear();
-              navigate("/");
-            }}
-          >
-            Logout - {getAuth()}
-          </Button>
-        )}
+        <Button
+          mt={15}
+          styles={{ root: { visibility: getAuth() ? "visible" : "hidden" } }}
+          variant="outline"
+          color="red.2"
+          radius="lg"
+          size="compact-xl"
+          onClick={() => {
+            localStorage.clear();
+            sessionStorage.clear();
+            navigate("/");
+          }}
+        >
+          Logout - {getAuth()}
+        </Button>
       </Flex>
 
       <NavbarLinks burger={false} />
