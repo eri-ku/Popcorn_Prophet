@@ -4,14 +4,20 @@ import {
   NumberFormatter,
   NumberInput,
   CloseButton,
+  Text,
+  NumberInputHandlers,
 } from "@mantine/core";
 import styles from "./FirstStep.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCartID } from "../../../App";
-import { CartItem } from "./Cart";
+import CartItem, { CartItemModel } from "./CartItem";
 
 function FirstStep() {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItemModel[]>([]);
+  function calculateCartTotal() {
+    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }
+
   useEffect(() => {
     async function fetchCart() {
       const headers = {
@@ -28,7 +34,7 @@ function FirstStep() {
       }
       const data = await res.json();
 
-      const pro: CartItem[] = [];
+      const pro: CartItemModel[] = [];
       for (const key in data) {
         pro.push({
           id: data[key].id,
@@ -36,20 +42,19 @@ function FirstStep() {
           quantity: data[key].quantity,
           price: data[key].price,
         });
-        console.log(pro);
       }
       setCart(pro);
     }
     fetchCart();
   }, []);
 
-  async function eraseCartItem(cartItemId: string) {
+  async function eraseCartItem(cartItemKey: string) {
     const headers = {
       "Content-Type": "application/json;charset=UTF-8",
       Authorization: `${localStorage.getItem("token")}`,
     };
     const res = await fetch(
-      `http://localhost:8080/cart/${cartItemId}/${getCartID()}`,
+      `http://localhost:8080/cart/${cartItemKey}/${getCartID()}`,
       {
         headers,
         method: "DELETE",
@@ -60,35 +65,23 @@ function FirstStep() {
       throw new Error("Something went wrong!");
     }
     const data = await res.json();
+    console.log("du");
 
-    setCart(() => cart.filter((el) => el.id !== cartItemId));
+    setCart(() =>
+      cart.filter((el: CartItemModel) => el.product.id !== cartItemKey)
+    );
   }
 
   return (
     <Flex direction={"column"} gap={15} mt={20} className={styles.container}>
+      <Text mt={15}>Total price: {calculateCartTotal()}</Text>
       {cart.map((el) => (
-        <Flex className={styles.row} key={el.id}>
-          <Flex className={styles.title}>
-            <CloseButton c="red" onClick={() => eraseCartItem(el.id)} />
-            {el.product.title}
-          </Flex>
-          <Box className={`${styles.volumprice} ${styles.boxprice}`}>
-            <NumberInput
-              w={"50"}
-              size="xs"
-              variant="filled"
-              min={1}
-              max={99}
-              defaultValue={el.quantity}
-            />
-            <NumberFormatter
-              thousandSeparator=" "
-              decimalSeparator=","
-              suffix="€"
-              value={el.price * el.quantity}
-            ></NumberFormatter>{" "}
-          </Box>
-        </Flex>
+        <CartItem
+          key={el.id}
+          el={el}
+          eraseCartItem={eraseCartItem}
+          setCart={setCart}
+        />
       ))}
     </Flex>
   );

@@ -23,23 +23,28 @@ public class CartRestController {
     private final CartService cartService;
 
 
-    @GetMapping({"/{id}"})
-    public ResponseEntity<List<CartItem>> getCartItems(@PathVariable Long id) {
-        return ResponseEntity.ok(cartService.getCartItems(id).stream().toList());
+    @GetMapping({"/{cartId}"})
+    public ResponseEntity<List<CartItem>> getCartItems(@PathVariable Long cartId) {
+        return ResponseEntity.ok(cartService.getCartItems(cartId).stream().toList());
 
     }
 
-    @DeleteMapping("/{itemId}/{cartId}")
-    public ResponseEntity<List<CartItem>> removeItemFromCart(@PathVariable Long cartId, @PathVariable Long itemId) {
-        this.cartService.removeItemFromCart(cartId, itemId);
-        var list = cartService.getCartItems(cartId).stream().toList();
+    @DeleteMapping("/{itemKey}/{cartId}")
+    public ResponseEntity<List<CartItem>> removeItemFromCart(@PathVariable Long cartId, @PathVariable Long itemKey) {
+        this.cartService.removeItemFromCart(cartId, itemKey);
         return ResponseEntity.ok(cartService.getCartItems(cartId).stream().toList());
     }
 
-    @PostMapping("/{itemId}/{cartId}")
-    public ResponseEntity<List<CartItem>> addItemToCart(@PathVariable Long cartId, @PathVariable Long itemId) {
-        this.cartService.addItemToCart(cartId, itemId);
+    @PostMapping("/{itemKey}/{cartId}")
+    public ResponseEntity<List<CartItem>> addItemToCart(@PathVariable Long cartId, @PathVariable Long itemKey) {
+        this.cartService.addItemToCart(cartId, itemKey);
         return ResponseEntity.ok(cartService.getCartItems(cartId).stream().toList());
+    }
+
+    @PatchMapping("/{itemKey}/{cartId}/{quantity}")
+    public ResponseEntity<CartItem> setItemQuantity(@PathVariable Long cartId, @PathVariable Long itemKey,@PathVariable int quantity) {
+        this.cartService.setItemQuantity(cartId, itemKey,quantity);
+        return ResponseEntity.ok(cartService.getCartItem(cartId,itemKey));
     }
 
 

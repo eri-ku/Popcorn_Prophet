@@ -5,15 +5,6 @@ import FirstStep from "./FirstStep";
 import SecondStep from "./SecondStep";
 import ThirdStep from "./ThirdStep";
 import LastStep from "./LastStep";
-import { getCartID } from "../../../App";
-import { ProductModel } from "../Api";
-
-export interface CartItem {
-  product: ProductModel;
-  id: string;
-  quantity: number;
-  price: number;
-}
 
 function Cart() {
   const [active, setActive] = useState(0);

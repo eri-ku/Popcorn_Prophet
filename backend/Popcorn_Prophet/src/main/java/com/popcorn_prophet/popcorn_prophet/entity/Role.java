@@ -2,6 +2,7 @@ package com.popcorn_prophet.popcorn_prophet.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +15,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 
 public class Role  implements GrantedAuthority {
     @Id

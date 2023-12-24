@@ -25,7 +25,6 @@ function WishList() {
     <Box className={styles.container}>
       <form
         onSubmit={form.onSubmit((values) => {
-          console.log(values.id);
           getProduct(values.id);
           form.reset();
         })}

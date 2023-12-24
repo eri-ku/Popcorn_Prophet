@@ -204,7 +204,6 @@ function Api({
     }
 
     const data: ProductModel = await res.json();
-    console.log(data);
 
     setProds(() => [...prod.filter((pro) => pro.id != product.id), data]);
     setIsLoading(false);

@@ -1,11 +1,8 @@
 package com.popcorn_prophet.popcorn_prophet.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.*;
 
@@ -14,6 +11,8 @@ import java.util.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,32 +20,45 @@ public class Cart {
     private Long id;
 
     @OneToMany(mappedBy = "cart",fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
-    private Map<Long, CartItem> cartItems = new HashMap<>();
+    @JsonManagedReference
+    @MapKey(name = "product")
+    private Map<Product, CartItem> cartItems = new HashMap<>();
 
-    @OneToOne(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
+
+    @OneToOne(cascade = CascadeType.ALL ,fetch = FetchType.EAGER)
+    @JoinColumn(name = "member_id", referencedColumnName = "id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonBackReference
     private Member member;
     private int totalPriceOfCart = 0;
 
     public void addItem(Product product) {
         CartItem cartItem;
 
-        if (cartItems.containsKey(product.getId())) {
-            cartItem = cartItems.get(product.getId());
+        if (cartItems.containsKey(product)) {
+            cartItem = cartItems.get(product);
 
-            cartItems.get(product.getId()).setQuantity(cartItem.getQuantity()+1);
+            cartItems.get(product).setQuantity(cartItem.getQuantity()+1);
         } else {
             cartItem = new CartItem();
             cartItem.setCart(this);
             cartItem.setProduct(product);
-            this.cartItems.put(product.getId(), cartItem);
+            this.cartItems.put(product, cartItem);
         }
         this.totalPriceOfCart += cartItem.getPrice();
     }
 
-    public void removeItem(Long key) {
-        this.totalPriceOfCart-= cartItems.get(key).getPrice() * cartItems.get(key).getQuantity();
+    public void removeItem(Product key) {
+        CartItem cartItem = cartItems.get(key);
+        this.totalPriceOfCart-= cartItem.getPrice() * cartItem.getQuantity();
         this.cartItems.remove(key);
+    }
+
+    public void changeQuantity(Product key, int quantity) {
+        CartItem cartItem = cartItems.get(key);
+        this.totalPriceOfCart -= cartItem.getPrice() * cartItem.getQuantity();
+        cartItem.setQuantity(quantity);
+        this.totalPriceOfCart += cartItem.getPrice() * cartItem.getQuantity();
     }
 
     public void clearCart() {

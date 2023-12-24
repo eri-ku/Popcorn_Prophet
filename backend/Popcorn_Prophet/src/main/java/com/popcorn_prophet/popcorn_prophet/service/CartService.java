@@ -35,7 +35,8 @@ public class CartService {
     @Transactional
     public void removeItemFromCart(Long cartId, Long productId) {
         Cart cart = this.cartRepository.findById(cartId).get();
-        cart.removeItem(productId);
+
+        cart.removeItem(this.productRepository.findById(productId).get());
         this.cartRepository.save(cart);
     }
 
@@ -53,6 +54,20 @@ public class CartService {
     public Cart getCart(Long id) {
         return this.cartRepository.findById(id).get();
     }
+
+    public void setItemQuantity(Long cartId, Long productId, int quantity) {
+        Cart cart = this.cartRepository.findById(cartId).get();
+        Product product = this.productRepository.findById(productId).get();
+        cart.changeQuantity(product, quantity);
+        this.cartRepository.save(cart);
+    }
+
+    public CartItem getCartItem(Long cartId, Long productId) {
+        Cart cart = this.cartRepository.findById(cartId).get();
+        Product product = this.productRepository.findById(productId).get();
+        return cart.getCartItems().get(product);
+    }
+
 
     public Cart createCart(Member member){
         Cart cart = new Cart();
