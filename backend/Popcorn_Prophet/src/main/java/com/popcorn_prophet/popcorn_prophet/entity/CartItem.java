@@ -24,11 +24,11 @@ public class CartItem {
     @JsonBackReference
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "product_id",referencedColumnName = "id", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "product_id",referencedColumnName = "id",nullable = false)
     private Product product;
 
-private int price= (int) (Math.random() * 50) +1;
+private int price= (int) (Math.random() * 50) +10;
 
 
 }

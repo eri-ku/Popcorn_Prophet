@@ -83,14 +83,16 @@ public class Product {
     private String type;
 
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JsonIgnore
     @JoinColumn(name = "product_image_id", referencedColumnName = "id")
     private ProductImage productImage;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product",orphanRemoval = true,cascade = CascadeType.ALL)
     @JsonIgnore
     private List<CartItem> cartItems;
+
+
 
 
 }

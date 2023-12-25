@@ -9,9 +9,11 @@ import com.popcorn_prophet.popcorn_prophet.proxy.ProductProxy;
 import com.popcorn_prophet.popcorn_prophet.repo.ProductRepository;
 import com.popcorn_prophet.popcorn_prophet.service.CartService;
 import com.popcorn_prophet.popcorn_prophet.service.ImageService;
+import com.popcorn_prophet.popcorn_prophet.service.ProductService;
 import jakarta.servlet.ServletContext;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +32,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/products")
 public class ProductRestController {
@@ -38,10 +40,10 @@ public class ProductRestController {
     private final ImageService imageService;
     private final ProductProxy productProxy;
     private final CartService cartService;
+    private final ProductService productService;
 
-
-    @GetMapping("/all/{id}")
-    public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
+    @GetMapping("/all")
+    public ResponseEntity<List<Product>> getProducts() {
 
 
         return ResponseEntity.ok(productRepository.findAll());
@@ -133,7 +135,6 @@ public class ProductRestController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @Transactional
     public ResponseEntity<Product> deleteProduct(@PathVariable Long id) throws IOException {
         Optional<Product> productToDelete = productRepository.findById(id);
         if (productToDelete.isPresent()) {
@@ -141,7 +142,8 @@ public class ProductRestController {
             if (productToDelete.get().getProductImage() != null) {
                 imageService.deleteImage(productToDelete.get().getProductImage().getId());
             }
-            productRepository.delete(productToDelete.get());
+            productService.deleteProduct(productToDelete.get().getId());
+            cartService.recalculateCartsTotal();
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();

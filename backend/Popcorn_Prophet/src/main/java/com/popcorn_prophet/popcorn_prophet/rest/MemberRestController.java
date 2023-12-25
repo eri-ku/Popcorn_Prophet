@@ -1,6 +1,7 @@
 package com.popcorn_prophet.popcorn_prophet.rest;
 
 import com.popcorn_prophet.popcorn_prophet.config.PopcornProphetAuthenticationProvider;
+import com.popcorn_prophet.popcorn_prophet.entity.BillingInfo;
 import com.popcorn_prophet.popcorn_prophet.entity.Cart;
 import com.popcorn_prophet.popcorn_prophet.entity.Member;
 import com.popcorn_prophet.popcorn_prophet.POJO.MemberResponse;
@@ -11,6 +12,7 @@ import com.popcorn_prophet.popcorn_prophet.service.CartService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,15 +26,15 @@ import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "*")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 public class MemberRestController {
 
-    private MemberRepository memberRepository;
-    private PasswordEncoder passwordEncoder;
-    private RoleRepository roleRepository;
-    private CartService cartService;
-    private PopcornProphetAuthenticationProvider authenticationManager;
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+    private final CartService cartService;
+    private final PopcornProphetAuthenticationProvider authenticationManager;
 
     @PostMapping("/register")
     @Transactional
@@ -55,7 +57,8 @@ public class MemberRestController {
         Cart cart = cartService.createCart(member);
         member.setCart(cart);
 
-
+        BillingInfo billingInfo = new BillingInfo();
+        member.setBillingInfo(billingInfo);
         Role role = roleRepository.findByRoleName("User").orElseThrow(() -> new RuntimeException("Role not found"));
         String hashedPassword = passwordEncoder.encode(member.getPassword());
         member.setPassword(hashedPassword);
@@ -91,7 +94,6 @@ public class MemberRestController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MemberResponse("Invalid credentials",null, null, null));
         }
-
     }
 
     private ResponseEntity<MemberResponse> getMemberResponseResponseEntity(Errors errors) {

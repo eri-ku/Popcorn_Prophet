@@ -12,6 +12,7 @@ import com.popcorn_prophet.popcorn_prophet.entity.Cart;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class CartService {
@@ -51,9 +52,6 @@ public class CartService {
         return this.cartRepository.findById(id).get().getCartItems().values();
     }
 
-    public Cart getCart(Long id) {
-        return this.cartRepository.findById(id).get();
-    }
 
     public void setItemQuantity(Long cartId, Long productId, int quantity) {
         Cart cart = this.cartRepository.findById(cartId).get();
@@ -75,4 +73,18 @@ public class CartService {
         return this.cartRepository.save(cart);
     }
 
+    @Transactional
+    public void recalculateCartsTotal(){
+        List<Cart> carts = this.cartRepository.findAll();
+        for (Cart cart : carts) {
+            cart.recalculateTotalPrice();
+        }
+        this.cartRepository.saveAll(carts);
+    }
+
+    public void cleanCart(Long cartId) {
+        Cart cart = this.cartRepository.findById(cartId).get();
+        cart.clearCart();
+        this.cartRepository.save(cart);
+    }
 }
