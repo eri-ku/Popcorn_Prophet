@@ -19,6 +19,9 @@ export function getAuth() {
 export function getCartID() {
   return sessionStorage.getItem("cart");
 }
+export function getMemberID() {
+  return sessionStorage.getItem("memberId");
+}
 
 function ProtectedRoute({ children }: { children: any }) {
   return getAuth() ? children : <Navigate replace to="homepage" />;

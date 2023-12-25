@@ -145,6 +145,7 @@ function Register() {
       sessionStorage.setItem("cart", data.cartId);
       localStorage.setItem("token", `Basic ${base64Credentials}`);
       sessionStorage.setItem("authMember", values.username);
+      sessionStorage.setItem("memberId", data.member.id);
 
       navigate("/api");
     } catch (error: any) {
