@@ -17,12 +17,14 @@ import { IconSearch } from "@tabler/icons-react";
 import NavbarLinks from "../Misc/NavbarLinks";
 import { getAuth } from "../../App";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useCart } from "./Cart/CartItemContext";
 
 // const links = [{ link: "/", label: "Homepage" }];
 function ApiHeader({ open }: { open: any }) {
   const [opened, { toggle, close }] = useDisclosure(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { sizeOfCart } = useCart();
 
   const handleClick = () => {
     if (location.pathname === "/api/cart") {
@@ -98,7 +100,7 @@ function ApiHeader({ open }: { open: any }) {
               color="red"
               position="top-start"
               size={20}
-              label="1"
+              label={sizeOfCart()}
             >
               <Avatar src="/icons8-cart-48.png"></Avatar>
             </Indicator>

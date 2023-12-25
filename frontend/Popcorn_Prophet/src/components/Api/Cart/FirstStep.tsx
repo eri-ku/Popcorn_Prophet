@@ -11,42 +11,10 @@ import styles from "./FirstStep.module.css";
 import { useEffect, useRef, useState } from "react";
 import { getCartID } from "../../../App";
 import CartItem, { CartItemModel } from "./CartItem";
+import { useCart } from "./CartItemContext";
 
 function FirstStep() {
-  const [cart, setCart] = useState<CartItemModel[]>([]);
-  function calculateCartTotal() {
-    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }
-
-  useEffect(() => {
-    async function fetchCart() {
-      const headers = {
-        "Content-Type": "application/json;charset=UTF-8",
-        Authorization: `${localStorage.getItem("token")}`,
-      };
-      const res = await fetch(`http://localhost:8080/cart/${getCartID()}`, {
-        headers,
-        method: "GET",
-      });
-
-      if (!res.ok) {
-        throw new Error("Something went wrong!");
-      }
-      const data = await res.json();
-
-      const pro: CartItemModel[] = [];
-      for (const key in data) {
-        pro.push({
-          id: data[key].id,
-          product: data[key].product,
-          quantity: data[key].quantity,
-          price: data[key].price,
-        });
-      }
-      setCart(pro);
-    }
-    fetchCart();
-  }, []);
+  const { cart, setCart, calculateCartTotal } = useCart();
 
   async function eraseCartItem(cartItemKey: string) {
     const headers = {
@@ -75,7 +43,7 @@ function FirstStep() {
   return (
     <Flex direction={"column"} gap={15} mt={20} className={styles.container}>
       <Text mt={15}>Total price: {calculateCartTotal()}</Text>
-      {cart.map((el) => (
+      {cart.map((el: CartItemModel) => (
         <CartItem
           key={el.id}
           el={el}

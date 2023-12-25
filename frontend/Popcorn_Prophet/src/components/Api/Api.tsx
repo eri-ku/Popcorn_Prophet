@@ -23,6 +23,7 @@ import { genres } from "../../util/genres";
 import { movieRatings, seriesRatings } from "../../util/ratings";
 import Spinner from "../Misc/Spinner";
 import { getCartID } from "../../App";
+import { useCart } from "./Cart/CartItemContext";
 export interface ProductModel {
   id?: string;
   title: string;
@@ -35,9 +36,6 @@ export interface ProductModel {
   rated: string;
   runtime: string;
   poster: File | string;
-  price?: number;
-  total?: number;
-  quantity?: number;
   [key: string]: any;
 }
 
@@ -50,8 +48,9 @@ function Api({
   close: Function;
   open: Function;
 }) {
-  const [prod, setProds] = useState<ProductModel[]>([]);
+  const { buyProduct } = useCart();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { prod, setProds } = useCart();
 
   const form = useForm<ProductModel>({
     initialValues: {
@@ -86,12 +85,9 @@ function Api({
     };
     async function fetchProducts() {
       setIsLoading(true);
-      const res = await fetch(
-        `http://localhost:8080/api/products/all/${getCartID()}`,
-        {
-          headers,
-        }
-      );
+      const res = await fetch(`http://localhost:8080/api/products/all`, {
+        headers,
+      });
 
       if (!res.ok) {
         throw new Error("Something went wrong!");
@@ -112,9 +108,6 @@ function Api({
           genre: data[key].genre,
           language: data[key].language,
           runtime: data[key].runtime,
-          total: data[key].total,
-          price: data[key].price,
-          quantity: data[key].quantity,
         });
       }
       setProds(pro);
@@ -143,7 +136,7 @@ function Api({
       throw new Error("Something went wrong!");
     }
 
-    setProds(() => prod.filter((el) => el.id !== id));
+    setProds(() => [...prod.filter((el: ProductModel) => el.id !== id)]);
     setIsLoading(false);
   }
 
@@ -170,20 +163,6 @@ function Api({
     setIsLoading(false);
   }
 
-  async function buyProduct(id: string) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/cart/${id}/${getCartID()}`, {
-      headers,
-      method: "POST",
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
-    }
-  }
-
   async function editProduct(product: ProductModel) {
     const formData = new FormData();
     formData.append("img", product.poster);
@@ -194,6 +173,7 @@ function Api({
       Authorization: `${localStorage.getItem("token")}`,
     };
     setIsLoading(true);
+    debugger;
     const res = await fetch(`http://localhost:8080/api/products/update`, {
       method: "PUT",
       body: formData,
@@ -205,7 +185,10 @@ function Api({
 
     const data: ProductModel = await res.json();
 
-    setProds(() => [...prod.filter((pro) => pro.id != product.id), data]);
+    setProds(() => [
+      ...prod.filter((pro: ProductModel) => pro.id != product.id),
+      data,
+    ]);
     setIsLoading(false);
   }
 
@@ -230,7 +213,7 @@ function Api({
   return (
     <>
       <Box className={styles.main}>
-        {prod.map((product) => (
+        {prod.map((product: ProductModel) => (
           <Product
             key={product.id}
             product={product}

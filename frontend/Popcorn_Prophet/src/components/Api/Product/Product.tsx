@@ -183,7 +183,13 @@ function Product({
           p="1.3rem"
         >
           <Group mt="sm" justify={"space-between"}>
-            <Button color="teal" onClick={() => editProduct(product)}>
+            <Button
+              color="teal"
+              onClick={() => {
+                console.log(product);
+                editProduct(product);
+              }}
+            >
               Update
             </Button>
             <Button onClick={() => open()}>Delete</Button>

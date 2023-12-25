@@ -19,12 +19,14 @@ import { ProductModel } from "../Api";
 import { act } from "react-dom/test-utils";
 import Review from "./Review";
 import { format } from "date-fns";
+import { useCart } from "../Cart/CartItemContext";
 
 function ProductView() {
   const { productId } = useParams();
   const [product, setProduct] = useState<ProductModel>();
   const [toggleComment, setToggleComment] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { buyProduct } = useCart();
   useEffect(() => {
     const headers = {
       "Content-Type": "application/json;charset=UTF-8",
@@ -58,6 +60,7 @@ function ProductView() {
     return <Text className={styles.loading}>Loading...</Text>;
   }
   const {
+    id,
     title,
     type,
     released,
@@ -91,7 +94,7 @@ function ProductView() {
     <Flex justify={"center"} className={styles.main}>
       <Flex direction={"column"} gap={10} mt={80}>
         <Image ml={10} className={styles.content} src={poster}></Image>
-        <Button mih={30} color="blue">
+        <Button mih={30} color="blue" onClick={() => buyProduct(id)}>
           Buy
         </Button>
         <Title ta={"center"} order={2}>

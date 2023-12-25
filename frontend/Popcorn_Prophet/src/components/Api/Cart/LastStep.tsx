@@ -2,7 +2,7 @@ import { Flex } from "@mantine/core";
 function LastStep() {
   return (
     <Flex align={"center"} justify={"center"} h={"3rem"}>
-      Your order was successful, your order number 123456
+      Your order was successful, enjoy and thank you for your purchase!
     </Flex>
   );
 }

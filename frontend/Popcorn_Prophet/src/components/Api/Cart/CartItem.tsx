@@ -11,6 +11,7 @@ import { ProductModel } from "../Api";
 import { getCartID } from "../../../App";
 import styles from "./CartItem.module.css";
 import { useEffect, useRef, useState } from "react";
+import { useCart } from "./CartItemContext";
 export interface CartItemModel {
   product: ProductModel;
   id: string;
@@ -28,6 +29,7 @@ function CartItem({
   setCart: Function;
 }) {
   const [value, setValue] = useState<string | number>(el.quantity);
+  const { sizeOfCart } = useCart();
 
   async function patchQuantity(newValue: string | number) {
     const headers = {

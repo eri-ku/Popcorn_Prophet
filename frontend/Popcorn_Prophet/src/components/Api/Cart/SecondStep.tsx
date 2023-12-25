@@ -1,18 +1,47 @@
-import { Flex, TextInput, Select } from "@mantine/core";
+import { Flex, TextInput, Select, Button } from "@mantine/core";
 import { countries } from "../../../util/countries";
-function SecondStep() {
+import { useForm } from "@mantine/form";
+import { set } from "date-fns";
+function SecondStep({ form }: { form: any }) {
   return (
-    <form>
-      <Flex gap={15} direction={"column"}>
-        <TextInput label="First name" placeholder="Your First name" />
-        <TextInput label="Last name" placeholder="Your Last name" />
-        <TextInput label="Recipient email" placeholder="Recipient email" />
-        <TextInput label="Postal code" placeholder="Your Postal code" />
-        <TextInput label="Town/City" placeholder="Your Postal code" />
-        <TextInput label="Address" placeholder="Your Address" />
-        <Select label="Country" data={countries} placeholder="Your Country" />
-      </Flex>
-    </form>
+    <Flex gap={15} direction={"column"}>
+      <TextInput
+        label="First name"
+        placeholder="Your First name"
+        {...form.getInputProps("firstName")}
+      />
+      <TextInput
+        label="Last name"
+        placeholder="Your Last name"
+        {...form.getInputProps("lastName")}
+      />
+      <TextInput
+        label="Recipient email"
+        placeholder="Recipient email"
+        {...form.getInputProps("email")}
+      />
+      <TextInput
+        label="Postal code"
+        placeholder="Your Postal code"
+        {...form.getInputProps("postalCode")}
+      />
+      <TextInput
+        label="Town/City"
+        placeholder="Your Town/City code"
+        {...form.getInputProps("city")}
+      />
+      <TextInput
+        label="Address"
+        placeholder="Your Address"
+        {...form.getInputProps("address")}
+      />
+      <Select
+        label="Country"
+        data={countries}
+        placeholder="Your Country"
+        {...form.getInputProps("country")}
+      />
+    </Flex>
   );
 }
 
