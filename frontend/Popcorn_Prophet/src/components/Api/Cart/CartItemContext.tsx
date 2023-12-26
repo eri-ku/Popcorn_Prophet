@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { CartItemModel } from "./CartItem";
+import { useDisclosure } from "@mantine/hooks";
+
 import { getCartID } from "../../../App";
 import { ProductModel } from "../Api";
+import { CartItemModel } from "./Cart";
 
 const CartItemContext = createContext<any>(null);
 
@@ -9,6 +11,9 @@ function CartItemProvider({ children }: { children: any }) {
   const [cart, setCart] = useState<CartItemModel[]>([]);
 
   const [prod, setProds] = useState<ProductModel[]>([]);
+
+  const [itemIdToErase, setItemIdToErase] = useState<string>("");
+  const [opened, { open, close }] = useDisclosure(false);
 
   function calculateCartTotal() {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -74,6 +79,11 @@ function CartItemProvider({ children }: { children: any }) {
         prod,
         setProds,
         buyProduct,
+        itemIdToErase,
+        setItemIdToErase,
+        opened,
+        close,
+        open,
       }}
     >
       {children}

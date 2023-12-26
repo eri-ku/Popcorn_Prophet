@@ -1,4 +1,4 @@
-import { Box, Stepper, Group, Button, Flex } from "@mantine/core";
+import { Box, Stepper, Group, Button, Flex, Modal, Text } from "@mantine/core";
 import styles from "./Cart.module.css";
 import { useEffect, useState } from "react";
 import FirstStep from "./FirstStep";
@@ -9,6 +9,8 @@ import { CartItemProvider, useCart } from "./CartItemContext";
 import { useForm } from "@mantine/form";
 import { getMemberID } from "../../../App";
 import { getCartID } from "../../../App";
+import { useDisclosure } from "@mantine/hooks";
+import { ProductModel } from "../Api";
 export interface BillingInfo {
   firstName: string;
   lastName: string;
@@ -20,9 +22,16 @@ export interface BillingInfo {
   paymentMethod: string;
 }
 
+export interface CartItemModel {
+  product: ProductModel;
+  id: string;
+  quantity: number;
+  price: number;
+}
+
 function Cart() {
   const [active, setActive] = useState(0);
-  const { setCart } = useCart();
+  const { setCart, cart, itemIdToErase, opened, close, open } = useCart();
 
   const form = useForm({
     initialValues: {
@@ -56,6 +65,30 @@ function Cart() {
     };
   }, []);
 
+  async function eraseCartItem(cartItemKey: string) {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+    const res = await fetch(
+      `http://localhost:8080/cart/${cartItemKey}/${getCartID()}`,
+      {
+        headers,
+        method: "DELETE",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Something went wrong!");
+    }
+    const data = await res.json();
+
+    setCart(() =>
+      cart.filter((el: CartItemModel) => el.product.id !== cartItemKey)
+    );
+    close();
+  }
+
   const SCREEN_RES_THRESHOLD = 768;
 
   const isSmallScreen = containerWidth < SCREEN_RES_THRESHOLD;
@@ -86,7 +119,6 @@ function Cart() {
       "Content-Type": "application/json;charset=UTF-8",
       Authorization: `${localStorage.getItem("token")}`,
     };
-    console.log(billingInfo);
     const res = await fetch(
       `http://localhost:8080/billingInfo/${getMemberID()}`,
       {
@@ -109,7 +141,6 @@ function Cart() {
       "Content-Type": "application/json;charset=UTF-8",
       Authorization: `${localStorage.getItem("token")}`,
     };
-    console.log(getMemberID());
     const res = await fetch(
       `http://localhost:8080/billingInfo/${getMemberID()}`,
       {
@@ -181,6 +212,14 @@ function Cart() {
           </Group>
         )}
       </Flex>
+      <Modal opened={opened} onClose={close} centered>
+        <Flex gap={10} justify="center" align="center">
+          <Text>Do you really want to delete this item from your cart?</Text>
+          <Button fullWidth onClick={() => eraseCartItem(itemIdToErase)}>
+            OK
+          </Button>
+        </Flex>
+      </Modal>
     </Box>
   );
 }

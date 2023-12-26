@@ -19,13 +19,13 @@ public class Cart {
 
     private Long id;
 
-    @OneToMany(mappedBy = "cart",fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @MapKey(name = "product")
     private Map<Product, CartItem> cartItems = new HashMap<>();
 
 
-    @OneToOne(cascade = CascadeType.ALL ,fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonBackReference
@@ -59,6 +59,12 @@ public class Cart {
         this.totalPriceOfCart -= cartItem.getPrice() * cartItem.getQuantity();
         cartItem.setQuantity(quantity);
         this.totalPriceOfCart += cartItem.getPrice() * cartItem.getQuantity();
+    }
+    public void recalculateTotalPrice() {
+        this.totalPriceOfCart = 0;
+        for (CartItem cartItem : cartItems.values()) {
+            this.totalPriceOfCart += cartItem.getPrice() * cartItem.getQuantity();
+        }
     }
 
     public void clearCart() {

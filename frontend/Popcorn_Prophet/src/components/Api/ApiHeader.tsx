@@ -13,10 +13,15 @@ import {
   Anchor,
 } from "@mantine/core";
 import Icon from "../Misc/Icon";
-import { IconSearch } from "@tabler/icons-react";
 import NavbarLinks from "../Misc/NavbarLinks";
 import { getAuth } from "../../App";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  matchPath,
+  useParams,
+} from "react-router-dom";
 import { useCart } from "./Cart/CartItemContext";
 
 // const links = [{ link: "/", label: "Homepage" }];
@@ -25,6 +30,7 @@ function ApiHeader({ open }: { open: any }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { sizeOfCart } = useCart();
+  const { page } = useParams();
 
   const handleClick = () => {
     if (location.pathname === "/api/cart") {
@@ -84,15 +90,17 @@ function ApiHeader({ open }: { open: any }) {
         </Group> */}
 
         <Flex className={styles.actionHeader} align={"center"}>
-          <Button
-            variant="outline"
-            color="red.2"
-            radius="lg"
-            size="compact-xl"
-            onClick={open}
-          >
-            Create Product
-          </Button>
+          {page && (
+            <Button
+              variant="outline"
+              color="red.2"
+              radius="lg"
+              size="compact-xl"
+              onClick={open}
+            >
+              Create Product
+            </Button>
+          )}
           <Anchor component={Link} to="/api/cart" onClick={handleClick}>
             <Indicator
               processing
@@ -105,7 +113,7 @@ function ApiHeader({ open }: { open: any }) {
               <Avatar src="/icons8-cart-48.png"></Avatar>
             </Indicator>
           </Anchor>
-          <Autocomplete
+          {/* <Autocomplete
             classNames={{ input: styles.inputAutoComplete }}
             placeholder="Search"
             mb={10}
@@ -116,7 +124,7 @@ function ApiHeader({ open }: { open: any }) {
               />
             }
             data={["Movies", "Tv Shows", "Limited Series", "Theater"]}
-          />
+          /> */}
         </Flex>
       </div>
     </header>

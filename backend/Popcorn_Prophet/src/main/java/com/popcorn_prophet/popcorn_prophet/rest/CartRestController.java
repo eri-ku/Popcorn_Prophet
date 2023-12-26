@@ -1,22 +1,17 @@
 package com.popcorn_prophet.popcorn_prophet.rest;
 
-import com.popcorn_prophet.popcorn_prophet.entity.Cart;
 import com.popcorn_prophet.popcorn_prophet.entity.CartItem;
-import com.popcorn_prophet.popcorn_prophet.entity.Product;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.popcorn_prophet.popcorn_prophet.service.CartService;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "*")
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/cart")
 public class CartRestController {
 
@@ -45,6 +40,12 @@ public class CartRestController {
     public ResponseEntity<CartItem> setItemQuantity(@PathVariable Long cartId, @PathVariable Long itemKey,@PathVariable int quantity) {
         this.cartService.setItemQuantity(cartId, itemKey,quantity);
         return ResponseEntity.ok(cartService.getCartItem(cartId,itemKey));
+    }
+
+    @PutMapping("/{cartId}")
+    public ResponseEntity<List<CartItem>> cleanCart(@PathVariable Long cartId) {
+        this.cartService.cleanCart(cartId);
+        return getCartItems(cartId);
     }
 
 

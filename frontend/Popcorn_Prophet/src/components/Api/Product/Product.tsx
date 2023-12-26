@@ -186,7 +186,6 @@ function Product({
             <Button
               color="teal"
               onClick={() => {
-                console.log(product);
                 editProduct(product);
               }}
             >

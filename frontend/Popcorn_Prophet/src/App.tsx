@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from "react-router-dom";
 import Api from "./components/Api/Api";
 import Register from "./components/Register/Register";
 import ApiLayout from "./components/Api/ApiLayout";
@@ -29,6 +35,7 @@ function ProtectedRoute({ children }: { children: any }) {
 
 function App() {
   const [opened, { open, close }] = useDisclosure(false);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -45,6 +52,10 @@ function App() {
           {/* children start*/}
           <Route
             path="api"
+            element={<Api opened={opened} close={close} open={open} />}
+          />
+          <Route
+            path="api/:page"
             element={<Api opened={opened} close={close} open={open} />}
           />
           <Route path="api/products/:productId" element={<ProductView />} />

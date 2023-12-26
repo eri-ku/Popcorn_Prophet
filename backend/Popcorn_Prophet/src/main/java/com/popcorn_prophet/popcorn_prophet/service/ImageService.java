@@ -54,6 +54,7 @@ public class ImageService {
         return Files.readAllBytes(new File(img.get().getFilePath()).toPath());
     }
 
+    @Transactional
     public String deleteImage(Long id) throws IOException{
         Optional<ProductImage> img = productImageRepository.findById(id);
         if(img.isEmpty()){

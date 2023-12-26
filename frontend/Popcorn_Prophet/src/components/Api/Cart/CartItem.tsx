@@ -12,24 +12,10 @@ import { getCartID } from "../../../App";
 import styles from "./CartItem.module.css";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartItemContext";
-export interface CartItemModel {
-  product: ProductModel;
-  id: string;
-  quantity: number;
-  price: number;
-}
-
-function CartItem({
-  el,
-  eraseCartItem,
-  setCart,
-}: {
-  el: CartItemModel;
-  eraseCartItem: Function;
-  setCart: Function;
-}) {
+import { CartItemModel } from "./Cart";
+function CartItem({ el }: { el: CartItemModel }) {
   const [value, setValue] = useState<string | number>(el.quantity);
-  const { sizeOfCart } = useCart();
+  const { setCart, setItemIdToErase, open } = useCart();
 
   async function patchQuantity(newValue: string | number) {
     const headers = {
@@ -63,10 +49,19 @@ function CartItem({
     });
   }
 
+  function handleEraseCartItem(cartItemKey: string | undefined) {
+    setItemIdToErase(() => cartItemKey);
+
+    open();
+  }
+
   return (
     <Flex className={styles.row} key={el.id}>
       <Flex className={styles.title}>
-        <CloseButton c="red" onClick={() => eraseCartItem(el.product.id)} />
+        <CloseButton
+          c="red"
+          onClick={() => handleEraseCartItem(el.product.id)}
+        />
         {el.product.title}
       </Flex>
       <Box className={`${styles.volumprice} ${styles.boxprice}`}>

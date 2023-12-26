@@ -1,7 +1,7 @@
 import { useForm } from "@mantine/form";
 import { countries } from "../../util/countries";
 import { DateInput } from "@mantine/dates";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import {
   Box,
   FileInput,
@@ -14,6 +14,7 @@ import {
   Input,
   MultiSelect,
   NumberInput,
+  Pagination,
 } from "@mantine/core";
 import Product from "./Product/Product";
 import styles from "./Api.module.css";
@@ -24,6 +25,7 @@ import { movieRatings, seriesRatings } from "../../util/ratings";
 import Spinner from "../Misc/Spinner";
 import { getCartID } from "../../App";
 import { useCart } from "./Cart/CartItemContext";
+import { useNavigate, useParams } from "react-router-dom";
 export interface ProductModel {
   id?: string;
   title: string;
@@ -51,6 +53,10 @@ function Api({
   const { buyProduct } = useCart();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { prod, setProds } = useCart();
+  const { page } = useParams();
+  const [activePage, setActivePage] = useState<number>(Number(page));
+  const navigate = useNavigate();
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   const form = useForm<ProductModel>({
     initialValues: {
@@ -79,42 +85,58 @@ function Api({
   });
 
   useEffect(() => {
+    fetchProducts();
+  }, [activePage]);
+
+  async function fetchProducts() {
+    setIsLoading(true);
     const headers = {
       "Content-Type": "application/json;charset=UTF-8",
       Authorization: `${localStorage.getItem("token")}`,
     };
-    async function fetchProducts() {
-      setIsLoading(true);
-      const res = await fetch(`http://localhost:8080/api/products/all`, {
-        headers,
-      });
-
-      if (!res.ok) {
-        throw new Error("Something went wrong!");
-      }
-      const data = await res.json();
-
-      const pro: ProductModel[] = [];
-      for (const key in data) {
-        pro.push({
-          id: data[key].id,
-          title: data[key].title,
-          rated: data[key].rated,
-          poster: data[key].poster,
-          country: data[key].country,
-          plot: data[key].plot,
-          type: data[key].type,
-          released: data[key].released,
-          genre: data[key].genre,
-          language: data[key].language,
-          runtime: data[key].runtime,
-        });
-      }
-      setProds(pro);
-      setIsLoading(false);
+    if (!page || Number(page) < 1) {
+      navigate(`/api/1`);
+      setActivePage(1);
     }
-    fetchProducts();
-  }, []);
+
+    const res = await fetch(
+      `http://localhost:8080/api/products/all?page=${activePage - 1}`,
+      {
+        headers,
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Something went wrong!");
+    }
+    const data = await res.json();
+
+    const pro: ProductModel[] = [];
+    for (const key in data.products) {
+      pro.push({
+        id: data.products[key].id,
+        title: data.products[key].title,
+        rated: data.products[key].rated,
+        poster: data.products[key].poster,
+        country: data.products[key].country,
+        plot: data.products[key].plot,
+        type: data.products[key].type,
+        released: data.products[key].released,
+        genre: data.products[key].genre,
+        language: data.products[key].language,
+        runtime: data.products[key].runtime,
+      });
+    }
+
+    setProds(pro);
+    setTotalPages(() => data.totalPages);
+    activePage > data.totalPages && setActivePage(data.totalPages);
+    activePage < 1 && setActivePage(1);
+
+    setIsLoading(false);
+
+    navigate(`/api/${activePage}`);
+  }
 
   function closeModal() {
     form.reset();
@@ -136,7 +158,7 @@ function Api({
       throw new Error("Something went wrong!");
     }
 
-    setProds(() => [...prod.filter((el: ProductModel) => el.id !== id)]);
+    fetchProducts();
     setIsLoading(false);
   }
 
@@ -158,8 +180,7 @@ function Api({
     if (!res.ok) {
       throw new Error("Something went wrong!");
     }
-    const data: ProductModel = await res.json();
-    setProds(() => [...prod, data]);
+    fetchProducts();
     setIsLoading(false);
   }
 
@@ -173,7 +194,6 @@ function Api({
       Authorization: `${localStorage.getItem("token")}`,
     };
     setIsLoading(true);
-    debugger;
     const res = await fetch(`http://localhost:8080/api/products/update`, {
       method: "PUT",
       body: formData,
@@ -183,12 +203,7 @@ function Api({
       throw new Error("Something went wrong!");
     }
 
-    const data: ProductModel = await res.json();
-
-    setProds(() => [
-      ...prod.filter((pro: ProductModel) => pro.id != product.id),
-      data,
-    ]);
+    fetchProducts();
     setIsLoading(false);
   }
 
@@ -212,17 +227,31 @@ function Api({
 
   return (
     <>
-      <Box className={styles.main}>
-        {prod.map((product: ProductModel) => (
-          <Product
-            key={product.id}
-            product={product}
-            deleteProduct={deleteProduct}
-            editProduct={handleEditModal}
-            buyProduct={buyProduct}
-          />
-        ))}
-      </Box>
+      <Flex className={styles.main}>
+        <Flex direction={"column"} align={"center"}>
+          <Flex gap={"1rem"} wrap={"wrap"} justify={"center"}>
+            {prod.map((product: ProductModel) => (
+              <Product
+                key={product.id}
+                product={product}
+                deleteProduct={deleteProduct}
+                editProduct={handleEditModal}
+                buyProduct={buyProduct}
+              />
+            ))}
+          </Flex>
+          <Flex>
+            <Pagination
+              m={"1rem"}
+              total={totalPages}
+              size="lg"
+              withEdges
+              value={activePage}
+              onChange={setActivePage}
+            />
+          </Flex>
+        </Flex>
+      </Flex>
 
       <Modal
         opened={opened}
