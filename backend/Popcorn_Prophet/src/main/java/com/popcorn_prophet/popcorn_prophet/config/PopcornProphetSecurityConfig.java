@@ -25,6 +25,7 @@ public class PopcornProphetSecurityConfig {
                      requests.requestMatchers("/auth/**").permitAll();
                      requests.requestMatchers("/api/products/download/**").permitAll();
                     requests.anyRequest().authenticated();
+//                    requests.requestMatchers("/**").permitAll();
                 })
                 .httpBasic(Customizer.withDefaults());
         return http.build();

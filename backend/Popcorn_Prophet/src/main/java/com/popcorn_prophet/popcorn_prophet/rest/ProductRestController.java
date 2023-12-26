@@ -44,19 +44,12 @@ public class ProductRestController {
     private final ProductService productService;
 
     @GetMapping("/all")
-<<<<<<< HEAD
     public ResponseEntity<ProductPageResponse> getProducts(@RequestParam(defaultValue = "1") int page) {
         ProductPageResponse productPageResponse = ProductPageResponse.builder()
                 .products(productService.productPagination(page).getContent())
                 .totalPages(productService.productPagination(page).getTotalPages())
                 .build();
         return ResponseEntity.ok(productPageResponse);
-=======
-    public ResponseEntity<List<Product>> getProducts() {
-
-
-        return ResponseEntity.ok(productRepository.findAll());
->>>>>>> f089d1f86c675572ae9e0e3e457e2f65a0969cc9
     }
 
     @GetMapping("/search")

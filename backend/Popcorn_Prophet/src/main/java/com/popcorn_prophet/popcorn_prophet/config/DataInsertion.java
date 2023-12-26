@@ -22,14 +22,14 @@ public DataInsertion(ProductRepository productRepository) {
     }
     @Override
     public void run(String... args) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        File file = new File(getClass().getResource("/insertData.json").getFile());
-        if(!file.exists()){
-            throw new Exception("File not found");
-        }
-        List<Product> products = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Product.class));
-        productRepository.saveAll(products);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//
+//        File file = new File(getClass().getResource("/insertData.json").getFile());
+//        if(!file.exists()){
+//            throw new Exception("File not found");
+//        }
+//        List<Product> products = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Product.class));
+//        productRepository.saveAll(products);
 
 
     }
