@@ -24,7 +24,7 @@ import { genres } from "../../util/genres";
 import { movieRatings, seriesRatings } from "../../util/ratings";
 import Spinner from "../Misc/Spinner";
 import { getCartID } from "../../App";
-import { useCart } from "./Cart/CartItemContext";
+import { useProvider } from "./ContextProvider";
 import { useNavigate, useParams } from "react-router-dom";
 export interface ProductModel {
   id?: string;
@@ -50,13 +50,12 @@ function Api({
   close: Function;
   open: Function;
 }) {
-  const { buyProduct } = useCart();
+  const { buyProduct, prod, setProds } = useProvider();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { prod, setProds } = useCart();
   const { page } = useParams();
   const [activePage, setActivePage] = useState<number>(Number(page));
   const navigate = useNavigate();
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
 
   const form = useForm<ProductModel>({
     initialValues: {
@@ -89,7 +88,6 @@ function Api({
   }, [activePage]);
 
   async function fetchProducts() {
-    setIsLoading(true);
     const headers = {
       "Content-Type": "application/json;charset=UTF-8",
       Authorization: `${localStorage.getItem("token")}`,
@@ -97,7 +95,9 @@ function Api({
     if (!page || Number(page) < 1) {
       navigate(`/api/1`);
       setActivePage(1);
+      return;
     }
+    setIsLoading(true);
 
     const res = await fetch(
       `http://localhost:8080/api/products/all?page=${activePage - 1}`,
@@ -265,7 +265,6 @@ function Api({
               ...values,
             };
             handleProduct(product);
-            form.reset();
           })}
         >
           <Input type="hidden" {...form.getInputProps("id")}></Input>
@@ -343,7 +342,6 @@ function Api({
             label="Rated"
             {...form.getInputProps("rated")}
             data={[movieRatings, seriesRatings]}
-            {...form.getInputProps("rated")}
           />
           <FileInput
             required

@@ -1,19 +1,28 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 
-import { getCartID } from "../../../App";
-import { ProductModel } from "../Api";
-import { CartItemModel } from "./Cart";
+import { getCartID } from "../../App";
+import { ProductModel } from "./Api";
+import { CartItemModel } from "./Cart/Cart";
 
-const CartItemContext = createContext<any>(null);
+const Context = createContext<any>(null);
 
-function CartItemProvider({ children }: { children: any }) {
+function ContextProvider({ children }: { children: any }) {
   const [cart, setCart] = useState<CartItemModel[]>([]);
 
   const [prod, setProds] = useState<ProductModel[]>([]);
 
   const [itemIdToErase, setItemIdToErase] = useState<string>("");
   const [opened, { open, close }] = useDisclosure(false);
+
+  const [
+    isArticleFormOpened,
+    {
+      open: openArticleForm,
+      close: closeArticleForm,
+      toggle: toggleArticleForm,
+    },
+  ] = useDisclosure(false);
 
   function calculateCartTotal() {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -70,7 +79,7 @@ function CartItemProvider({ children }: { children: any }) {
   }, [prod]);
 
   return (
-    <CartItemContext.Provider
+    <Context.Provider
       value={{
         cart,
         setCart,
@@ -84,19 +93,23 @@ function CartItemProvider({ children }: { children: any }) {
         opened,
         close,
         open,
+        isArticleFormOpened,
+        openArticleForm,
+        closeArticleForm,
+        toggleArticleForm,
       }}
     >
       {children}
-    </CartItemContext.Provider>
+    </Context.Provider>
   );
 }
 
-function useCart() {
-  const context = useContext(CartItemContext);
+function useProvider() {
+  const context = useContext(Context);
   if (context === undefined) {
-    throw new Error("useCart must be used within a CartItemProvider");
+    throw new Error("useProvider must be used within a ContextProvider");
   }
   return context;
 }
 
-export { CartItemProvider, useCart };
+export { ContextProvider, useProvider };

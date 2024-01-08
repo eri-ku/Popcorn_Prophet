@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-    private final CartService cartService;
 
     @Transactional
     public void deleteProduct(Long id) {
@@ -24,6 +23,11 @@ public class ProductService {
 
     public Page<Product> productPagination(int page){
         return productRepository.findAll(PageRequest.of(page, 5));
+    }
+
+
+    public Product getProduct(Long productId) {
+        return productRepository.findById(productId).get();
     }
 
 

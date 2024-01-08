@@ -12,7 +12,7 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,15 +20,14 @@ public class Cart {
     private Long id;
 
     @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     @MapKey(name = "product")
+    @JsonIgnoreProperties("cart")
     private Map<Product, CartItem> cartItems = new HashMap<>();
 
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonBackReference
     private Member member;
     private int totalPriceOfCart = 0;
 

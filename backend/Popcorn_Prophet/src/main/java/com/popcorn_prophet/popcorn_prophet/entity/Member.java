@@ -1,9 +1,6 @@
 package com.popcorn_prophet.popcorn_prophet.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -53,7 +51,7 @@ public class Member {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonManagedReference
+    @JsonIgnore
     private Cart cart;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
@@ -64,6 +62,16 @@ public class Member {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private BillingInfo billingInfo;
+
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnoreProperties("member")
+    private List<ProductReview> memberProductReviews;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnoreProperties("author")
+    private List<Article> memberArticles;
+
 
 
 }

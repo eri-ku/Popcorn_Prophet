@@ -39,6 +39,7 @@ public class MemberRestController {
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<MemberResponse> registerMember(@Valid @RequestBody Member member, Errors errors) {
+
         ResponseEntity<MemberResponse> mapErrors = getMemberResponseResponseEntity(errors);
         if (mapErrors != null) return mapErrors;
 

@@ -62,8 +62,11 @@ function App() {
           <Route path="api/cart" element={<Cart />} />
           <Route path="api/wishlist" element={<WishList />} />
           <Route path="adminpage" element={<AdminPage />} />
-          <Route path="api/articles" element={<ArticlesPage />} />
-          <Route path="api/articles/:articleId" element={<ArticleView />} />
+          <Route path="api/articles/:pageNum" element={<ArticlesPage />} />
+          <Route
+            path="api/articles/article/:articleId"
+            element={<ArticleView />}
+          />
           <Route path="user" element={<User />} />
           {/* children end */}
         </Route>

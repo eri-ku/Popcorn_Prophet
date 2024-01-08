@@ -3,33 +3,30 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   Group,
   Burger,
-  Autocomplete,
-  rem,
   Drawer,
   Button,
   Flex,
   Avatar,
   Indicator,
   Anchor,
+  Modal,
+  TextInput,
+  Textarea,
+  Select,
 } from "@mantine/core";
 import Icon from "../Misc/Icon";
 import NavbarLinks from "../Misc/NavbarLinks";
 import { getAuth } from "../../App";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  matchPath,
-  useParams,
-} from "react-router-dom";
-import { useCart } from "./Cart/CartItemContext";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useProvider } from "./ContextProvider";
+import { useForm } from "@mantine/form";
+import { ArticleModel } from "./ArticlesPage/ArticlesPage";
 
-// const links = [{ link: "/", label: "Homepage" }];
 function ApiHeader({ open }: { open: any }) {
   const [opened, { toggle, close }] = useDisclosure(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { sizeOfCart } = useCart();
+  const { sizeOfCart, openArticleForm } = useProvider();
   const { page } = useParams();
 
   const handleClick = () => {
@@ -39,12 +36,6 @@ function ApiHeader({ open }: { open: any }) {
       navigate("/api/cart");
     }
   };
-
-  // const items = links.map((link) => (
-  //   <Link key={link.label} to={link.link} className={styles.link}>
-  //     {link.label}
-  //   </Link>
-  // ));
 
   return (
     <header className={styles.header}>
@@ -90,6 +81,7 @@ function ApiHeader({ open }: { open: any }) {
         </Group> */}
 
         <Flex className={styles.actionHeader} align={"center"}>
+          {/* :page v App route*/}
           {page && (
             <Button
               variant="outline"
@@ -101,6 +93,19 @@ function ApiHeader({ open }: { open: any }) {
               Create Product
             </Button>
           )}
+
+          {/^\/api\/articles\/\d+$/.test(location.pathname) && (
+            <Button
+              variant="outline"
+              color="red.2"
+              radius="lg"
+              size="compact-xl"
+              onClick={openArticleForm}
+            >
+              Create Article
+            </Button>
+          )}
+
           <Anchor component={Link} to="/api/cart" onClick={handleClick}>
             <Indicator
               processing
@@ -113,18 +118,6 @@ function ApiHeader({ open }: { open: any }) {
               <Avatar src="/icons8-cart-48.png"></Avatar>
             </Indicator>
           </Anchor>
-          {/* <Autocomplete
-            classNames={{ input: styles.inputAutoComplete }}
-            placeholder="Search"
-            mb={10}
-            leftSection={
-              <IconSearch
-                style={{ width: rem(16), height: rem(16) }}
-                stroke={1.5}
-              />
-            }
-            data={["Movies", "Tv Shows", "Limited Series", "Theater"]}
-          /> */}
         </Flex>
       </div>
     </header>

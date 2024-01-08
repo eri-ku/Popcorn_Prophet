@@ -16,7 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Builder
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 
 public class Role  implements GrantedAuthority {
     @Id

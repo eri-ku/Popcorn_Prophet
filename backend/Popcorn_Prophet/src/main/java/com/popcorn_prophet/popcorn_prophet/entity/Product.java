@@ -19,7 +19,7 @@ import java.util.*;
 @Builder
 @Table(name = "product")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 
 public class Product {
     @Override
@@ -42,7 +42,6 @@ public class Product {
     @JsonProperty("title")
     @JsonAlias("Title")
     private String title;
-    private double price;
     @Column(nullable = false)
     @JsonProperty("rated")
     @JsonAlias("Rated")
@@ -92,6 +91,11 @@ public class Product {
     @JsonIgnore
     private List<CartItem> cartItems;
 
+
+
+    @OneToMany(mappedBy = "product",orphanRemoval = true,cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("product")
+    private List<ProductReview> productReviews;
 
 
 

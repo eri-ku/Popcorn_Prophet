@@ -1,11 +1,11 @@
 import { Flex, Text } from "@mantine/core";
 import styles from "./FirstStep.module.css";
 import CartItem from "./CartItem";
-import { useCart } from "./CartItemContext";
+import { useProvider } from "../ContextProvider";
 import { CartItemModel } from "./Cart";
 
 function FirstStep() {
-  const { cart, calculateCartTotal } = useCart();
+  const { cart, calculateCartTotal } = useProvider();
 
   return (
     <Flex direction={"column"} gap={15} mt={20} className={styles.container}>

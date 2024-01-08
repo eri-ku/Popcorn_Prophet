@@ -1,30 +1,77 @@
-import { Avatar, Flex, Group, Text } from "@mantine/core";
+import {
+  Avatar,
+  Flex,
+  Group,
+  Text,
+  Rating,
+  Button,
+  Modal,
+} from "@mantine/core";
 import styles from "./Review.module.css";
+import { ReviewModel } from "./ProductView";
+import { useDisclosure } from "@mantine/hooks";
 
-function Review() {
+function Review({
+  review,
+  handleEdit,
+  fetchReviews,
+}: {
+  review: ReviewModel;
+  handleEdit: Function;
+  fetchReviews: Function;
+}) {
+  const [opened, { open, close }] = useDisclosure(false);
+
+  async function deleteReview(id: string) {
+    const response = await fetch(
+      `http://localhost:8080/products/productReview/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    fetchReviews();
+
+    close();
+  }
+
   return (
-    <Flex p={15} className={styles.content}>
-      <div>
+    <Flex
+      wrap={"wrap"}
+      p={15}
+      className={styles.content}
+      direction={"column"}
+      gap={"1rem"}
+    >
+      <Flex>
         <Group>
-          <Avatar
-            src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
-            alt="Jacob Warnhalter"
-            radius="xl"
-          />
+          <Avatar src="/user.png" alt={review.member?.username} radius="xl" />
           <div>
-            <Text size="sm">Jacob Warnhalter</Text>
-            <Text size="xs" c="dimmed">
-              10 minutes ago
-            </Text>
+            <Text size="sm">{review.member?.username}</Text>
+            <Rating value={review.rating} fractions={2} readOnly />
           </div>
         </Group>
         <Text pl={54} pt="sm" size="sm">
-          This Pokémon likes to lick its palms that are sweetened by being
-          soaked in honey. Teddiursa concocts its own honey by blending fruits
-          and pollen collected by Beedrill. Blastoise has water spouts that
-          protrude from its shell. The water spouts are very accurate.
+          {review.review}
         </Text>
-      </div>
+      </Flex>
+      <Flex justify={"space-between"}>
+        <Button size="xs" onClick={() => open()}>
+          Delete
+        </Button>
+        <Button color="blue" size="xs" onClick={() => handleEdit(review)}>
+          Edit
+        </Button>
+      </Flex>
+      <Modal opened={opened} onClose={close} centered>
+        <Flex gap={10} justify="center" align="center">
+          <Text>Do you really want to delete this review?</Text>
+          <Button onClick={() => deleteReview(review.id!)}>OK</Button>
+        </Flex>
+      </Modal>
     </Flex>
   );
 }

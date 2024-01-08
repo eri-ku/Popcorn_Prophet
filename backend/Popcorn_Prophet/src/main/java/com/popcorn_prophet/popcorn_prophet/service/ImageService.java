@@ -4,6 +4,7 @@ import com.popcorn_prophet.popcorn_prophet.entity.ProductImage;
 import com.popcorn_prophet.popcorn_prophet.repo.ProductImageRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,12 +15,12 @@ import java.nio.file.Files;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ImageService {
 
     private final String PATH="src/main/resources/static/images/";
 
-    private ProductImageRepository productImageRepository;
+    private final ProductImageRepository productImageRepository;
 
     @Transactional
     public ProductImage saveImage(MultipartFile file) throws IOException{

@@ -44,7 +44,7 @@ public class ProductRestController {
     private final ProductService productService;
 
     @GetMapping("/all")
-    public ResponseEntity<ProductPageResponse> getProducts(@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<ProductPageResponse> getProducts(@RequestParam(defaultValue = "0") int page) {
         ProductPageResponse productPageResponse = ProductPageResponse.builder()
                 .products(productService.productPagination(page).getContent())
                 .totalPages(productService.productPagination(page).getTotalPages())

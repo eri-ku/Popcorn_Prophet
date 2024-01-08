@@ -7,12 +7,21 @@
   padding-top: 0 !important;
 }
 
+.content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+  max-width: 32rem !important;
+}
+
 .rating {
   margin-left: auto;
+}
 
-  @media (max-width: $mantine-breakpoint-xs) {
-    margin: 0 auto 0 auto;
-  }
+.img {
+  object-fit: cover !important;
+  object-position: center center !important;
 }
 
 .title {

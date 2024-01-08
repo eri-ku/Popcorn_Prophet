@@ -11,11 +11,11 @@ import { ProductModel } from "../Api";
 import { getCartID } from "../../../App";
 import styles from "./CartItem.module.css";
 import { useEffect, useRef, useState } from "react";
-import { useCart } from "./CartItemContext";
+import { useProvider } from "../ContextProvider";
 import { CartItemModel } from "./Cart";
 function CartItem({ el }: { el: CartItemModel }) {
   const [value, setValue] = useState<string | number>(el.quantity);
-  const { setCart, setItemIdToErase, open } = useCart();
+  const { setCart, setItemIdToErase, open } = useProvider();
 
   async function patchQuantity(newValue: string | number) {
     const headers = {

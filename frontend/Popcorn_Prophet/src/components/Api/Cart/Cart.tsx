@@ -5,12 +5,12 @@ import FirstStep from "./FirstStep";
 import SecondStep from "./SecondStep";
 import ThirdStep from "./ThirdStep";
 import LastStep from "./LastStep";
-import { CartItemProvider, useCart } from "./CartItemContext";
+import { useProvider } from "../ContextProvider";
 import { useForm } from "@mantine/form";
 import { getMemberID } from "../../../App";
 import { getCartID } from "../../../App";
-import { useDisclosure } from "@mantine/hooks";
 import { ProductModel } from "../Api";
+import { useMediaQuery } from "@mantine/hooks";
 export interface BillingInfo {
   firstName: string;
   lastName: string;
@@ -31,7 +31,7 @@ export interface CartItemModel {
 
 function Cart() {
   const [active, setActive] = useState(0);
-  const { setCart, cart, itemIdToErase, opened, close, open } = useCart();
+  const { setCart, cart, itemIdToErase, opened, close, open } = useProvider();
 
   const form = useForm({
     initialValues: {
@@ -50,20 +50,6 @@ function Cart() {
     setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
-
-  const [containerWidth, setContainerWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setContainerWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   async function eraseCartItem(cartItemKey: string) {
     const headers = {
@@ -89,9 +75,7 @@ function Cart() {
     close();
   }
 
-  const SCREEN_RES_THRESHOLD = 768;
-
-  const isSmallScreen = containerWidth < SCREEN_RES_THRESHOLD;
+  const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
   function handleSubmit() {
     nextStep();
@@ -205,7 +189,11 @@ function Cart() {
                 Finish order
               </Button>
             ) : (
-              <Button type="button" onClick={nextStep}>
+              <Button
+                type="button"
+                onClick={nextStep}
+                disabled={cart.length === 0}
+              >
                 Next Step
               </Button>
             )}

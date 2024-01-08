@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tooltip, UnstyledButton, Stack, rem } from "@mantine/core";
 import {
   IconHome2,
@@ -11,7 +11,7 @@ import {
   IconNews,
 } from "@tabler/icons-react";
 import styles from "./ApiNavbar.module.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface ApiLinkProps {
   icon: typeof IconHome2;
@@ -37,17 +37,30 @@ function NavbarLink({ icon: Icon, label, to, active, onClick }: ApiLinkProps) {
   );
 }
 
-const mockdata = [
+const contentLinks = [
   { icon: IconHome2, label: "Homepage", to: "/homepage" },
   { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api/1" },
-  { icon: IconNews, label: "Articles", to: "/api/articles" },
+  { icon: IconNews, label: "Articles", to: "/api/articles/1" },
   { icon: IconGift, label: "WishList", to: "/api/wishlist" },
+  { icon: IconUsers, label: "Adminpage", to: "/adminPage" },
 ];
 
 export function ApiNavbar() {
-  const [active, setActive] = useState(1);
+  const location = useLocation();
+  const [active, setActive] = useState(
+    contentLinks.findIndex((link) => link.to === location.pathname)
+  );
 
-  const links = mockdata.map((link, index) => (
+  useEffect(() => {
+    const foundIndex = contentLinks.findIndex(
+      (link) => link.to === location.pathname
+    );
+    if (foundIndex !== -1) {
+      setActive(foundIndex);
+    }
+  }, [location.pathname]);
+
+  const links = contentLinks.map((link, index) => (
     <NavbarLink
       {...link}
       key={link.label}
@@ -70,7 +83,6 @@ export function ApiNavbar() {
       </div>
 
       <Stack justify="center" gap={0}>
-        <NavbarLink icon={IconUsers} to="/adminPage" label="Adminpage" />
         <NavbarLink icon={IconLogout} to="/" label="Logout" onClick={clean} />
       </Stack>
     </nav>
