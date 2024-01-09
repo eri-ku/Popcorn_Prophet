@@ -39,7 +39,7 @@ export interface ReviewModel {
 function ProductView() {
   const { productId } = useParams();
   const [product, setProduct] = useState<ProductModel>();
-  const [toggleComment, setToggleComment] = useState<boolean>(false);
+  const [toggleReviews, setToggleReviews] = useState<boolean>(false);
   const navigate = useNavigate();
   const { buyProduct } = useProvider();
   const [opened, { open, close }] = useDisclosure(false);
@@ -67,10 +67,10 @@ function ProductView() {
   }, [activePage]);
 
   useEffect(() => {
-    if (reviewsRef.current && toggleComment) {
+    if (reviewsRef.current && toggleReviews) {
       reviewsRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
-  }, [toggleComment]);
+  }, [toggleReviews]);
 
   async function fetchProduct() {
     const headers = {
@@ -237,7 +237,7 @@ function ProductView() {
 
   function handleClickOnShowReviews() {
     fetchReviews();
-    setToggleComment((val) => !val);
+    setToggleReviews((val) => !val);
   }
 
   return (
@@ -285,7 +285,7 @@ function ProductView() {
               </Button>
             </Flex>
             <Flex mt={"1rem"}>
-              {!toggleComment ? (
+              {!toggleReviews ? (
                 <Button
                   onClick={() => {
                     handleClickOnShowReviews();
@@ -294,12 +294,12 @@ function ProductView() {
                   Show Reviews
                 </Button>
               ) : (
-                <Button onClick={() => setToggleComment((val) => !val)}>
+                <Button onClick={() => setToggleReviews((val) => !val)}>
                   Hide Reviews
                 </Button>
               )}
             </Flex>
-            {toggleComment && (
+            {toggleReviews && (
               <Flex ref={reviewsRef} direction={"column"}>
                 {reviews.length == 0 ? (
                   <Text my={"2rem"}>

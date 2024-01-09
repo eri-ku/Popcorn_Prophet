@@ -49,5 +49,11 @@ public class ArticleRestController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/{articleId}/like")
+    public ResponseEntity<Article> likeArticle(@PathVariable Long articleId,@RequestBody boolean isAlreadyLiked){
+        articleService.likeArticle(articleId,isAlreadyLiked);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

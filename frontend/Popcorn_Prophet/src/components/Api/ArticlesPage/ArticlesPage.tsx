@@ -26,6 +26,12 @@ import { useProvider } from "../ContextProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import { set } from "date-fns";
 
+export interface CommentModel {
+  id: number;
+  commentText: string;
+  likes: number;
+}
+
 export interface ArticleModel {
   id?: string;
   title: string;
@@ -33,12 +39,15 @@ export interface ArticleModel {
   rating: string;
   author: Member;
   likes: number;
+  articleComments: CommentModel[];
 }
 
 function ArticlesPage() {
   const { isArticleFormOpened, closeArticleForm, openArticleForm } =
     useProvider();
   const [articles, setArticles] = useState<ArticleModel[]>([]);
+  console.log("hi");
+  console.log(articles);
 
   const { pageNum } = useParams();
   const [page, setPage] = useState(Number(pageNum));
@@ -87,6 +96,7 @@ function ArticlesPage() {
     }
 
     const data = await res.json();
+    console.log(data);
     setArticles(data.articles);
     setTotalPages(data.totalPages);
 

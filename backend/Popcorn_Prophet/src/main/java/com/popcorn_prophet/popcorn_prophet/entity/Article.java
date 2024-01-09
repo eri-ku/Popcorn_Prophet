@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -30,6 +32,13 @@ public class Article {
 
 
     private String rating;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnoreProperties("article")
+    private List<ArticleComment> articleComments;
+
+
+
 
 
 

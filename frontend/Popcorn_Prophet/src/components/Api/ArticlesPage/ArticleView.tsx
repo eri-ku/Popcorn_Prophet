@@ -1,15 +1,22 @@
 import styles from "./ArticleView.module.css";
-import { Flex, Title, Image, Button, Text, Box } from "@mantine/core";
+import { Flex, Title, Image, Button, Text, Pagination } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Review from "../Product/Review";
-import { ArticleModel } from "./ArticlesPage";
+import { ArticleModel, CommentModel } from "./ArticlesPage";
+import Comment from "./Comment";
+
 function ArticleView() {
   const navigate = useNavigate();
-  const [toggleComment, setToggleComment] = useState<boolean>(false);
+  const [toggleComments, setToggleComments] = useState<boolean>(false);
 
   const [article, setArticle] = useState<ArticleModel>();
+
+  const [comments, setComments] = useState<CommentModel[]>([]);
+
+  const [activePage, setActivePage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const commentRef = useRef<HTMLDivElement>(null);
 
   const { articleId } = useParams();
 
@@ -33,6 +40,38 @@ function ArticleView() {
 
     const data = await response.json();
     setArticle(data);
+  }
+
+  useEffect(() => {
+    if (commentRef.current && toggleComments) {
+      commentRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [toggleComments]);
+
+  async function fetchComments() {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+
+    const response = await fetch(
+      `http://localhost:8080/articles/articleComment/${articleId}?page=${
+        activePage - 1
+      }`,
+      {
+        method: "GET",
+        headers: headers,
+      }
+    );
+
+    const data = await response.json();
+    setComments(data.articleComment);
+    setTotalPages(data.totalPages);
+  }
+
+  function handleClickOnShowComments() {
+    fetchComments();
+    setToggleComments((val) => !val);
   }
 
   return (
@@ -59,11 +98,42 @@ function ArticleView() {
           <Button color="gray" onClick={() => navigate(-1)}>
             <IconArrowLeft size={30} />
           </Button>
-          <Button mb={5} onClick={() => setToggleComment((val) => !val)}>
-            {toggleComment ? `Hide Reviews` : `Show Reviews`}
-          </Button>
+
+          {toggleComments ? (
+            <Button mb={5} onClick={() => setToggleComments((val) => !val)}>
+              Hide Comments
+            </Button>
+          ) : (
+            <Button mb={5} onClick={() => handleClickOnShowComments()}>
+              Show Comments
+            </Button>
+          )}
         </Flex>
-        <Flex>{toggleComment && <>{`Empty`}</>}</Flex>
+        {toggleComments && (
+          <Flex ref={commentRef} direction={"column"}>
+            {comments.length == 0 ? (
+              <Text my={"2rem"}>
+                This article doesn't have comment, be first!{" "}
+              </Text>
+            ) : (
+              <Flex direction={"column"} align={"center"} justify={"center"}>
+                {comments.map((comment) => (
+                  <Comment key={comment.id} comment={comment} />
+                ))}
+                <Pagination
+                  m={"1rem"}
+                  total={totalPages}
+                  size="sm"
+                  radius="sm"
+                  withEdges
+                  gap={5}
+                  value={activePage}
+                  onChange={setActivePage}
+                />
+              </Flex>
+            )}
+          </Flex>
+        )}
       </Flex>
     </Flex>
   );

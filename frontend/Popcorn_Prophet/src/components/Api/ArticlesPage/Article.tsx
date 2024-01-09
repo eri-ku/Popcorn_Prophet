@@ -25,6 +25,8 @@ import { Link } from "react-router-dom";
 import { ArticleModel } from "./ArticlesPage";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
+import { set } from "date-fns";
+import { is } from "date-fns/locale";
 function Article({
   article,
   updateArticle,
@@ -37,6 +39,28 @@ function Article({
   const [opened, { open, close }] = useDisclosure(false);
 
   const [likes, setLikes] = useState<number>(article.likes);
+
+  const [isAlreadyLiked, setAlreadyLiked] = useState<boolean>(false);
+
+  // TODO: one like per user
+
+  async function changeLike(alreadyLiked: boolean) {
+    const response = await fetch(
+      `http://localhost:8080/articles/${article.id}/like`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(alreadyLiked),
+      }
+    );
+
+    setAlreadyLiked((isAlreadyLiked) => !isAlreadyLiked);
+    setLikes((likes) => (isAlreadyLiked ? likes - 1 : likes + 1));
+  }
+
   return (
     <Card withBorder radius="lg" className={styles.card}>
       <Flex gap={"lg"} direction={"column"}>
@@ -92,18 +116,19 @@ function Article({
           >
             <ActionIcon
               className={styles.action}
-              onClick={() => setLikes((count) => count + 1)}
+              onClick={() => changeLike(isAlreadyLiked)}
             >
               <IconHeart
                 style={{ width: rem(16), height: rem(16) }}
                 color="red"
+                fill={isAlreadyLiked ? "red" : "none"}
               />
             </ActionIcon>
           </Indicator>
           <Indicator
             m={5}
             inline
-            label={0}
+            label={article.articleComments.length}
             size={15}
             offset={-2}
             position="bottom-end"

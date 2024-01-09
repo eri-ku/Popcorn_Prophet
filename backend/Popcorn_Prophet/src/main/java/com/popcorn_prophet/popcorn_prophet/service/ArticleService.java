@@ -53,4 +53,9 @@ public class ArticleService {
         return articleRepository.findAll(PageRequest.of(page, size));
     }
 
+    public void likeArticle(Long articleId, boolean isAlreadyLiked) {
+        Article article = articleRepository.findById(articleId).get();
+        article.setLikes(isAlreadyLiked? article.getLikes()-1:article.getLikes()+1);
+        articleRepository.save(article);
+    }
 }
