@@ -19,14 +19,14 @@ import ArticleView from "./components/Api/ArticlesPage/ArticleView";
 import WishList from "./components/Api/Product/WishList";
 
 export function getAuth() {
-  return sessionStorage.getItem("authMember");
+  return localStorage.getItem("authMember");
 }
 
 export function getCartID() {
-  return sessionStorage.getItem("cart");
+  return localStorage.getItem("cart");
 }
 export function getMemberID() {
-  return sessionStorage.getItem("memberId");
+  return localStorage.getItem("memberId");
 }
 
 function ProtectedRoute({ children }: { children: any }) {

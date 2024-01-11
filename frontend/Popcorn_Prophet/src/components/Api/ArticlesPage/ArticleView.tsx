@@ -1,11 +1,23 @@
 import styles from "./ArticleView.module.css";
-import { Flex, Title, Image, Button, Text, Pagination } from "@mantine/core";
+import {
+  Flex,
+  Title,
+  Image,
+  Button,
+  Text,
+  Pagination,
+  Modal,
+  Textarea,
+  Input,
+} from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArticleModel, CommentModel } from "./ArticlesPage";
 import Comment from "./Comment";
-
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { getMemberID } from "../../../App";
 function ArticleView() {
   const navigate = useNavigate();
   const [toggleComments, setToggleComments] = useState<boolean>(false);
@@ -17,6 +29,16 @@ function ArticleView() {
   const [activePage, setActivePage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const commentRef = useRef<HTMLDivElement>(null);
+
+  const [openedModal, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+
+  const form = useForm({
+    initialValues: {
+      id: "",
+      commentText: "",
+    },
+  });
 
   const { articleId } = useParams();
 
@@ -47,6 +69,9 @@ function ArticleView() {
       commentRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [toggleComments]);
+  useEffect(() => {
+    fetchComments();
+  }, [activePage]);
 
   async function fetchComments() {
     const headers = {
@@ -67,11 +92,70 @@ function ArticleView() {
     const data = await response.json();
     setComments(data.articleComment);
     setTotalPages(data.totalPages);
+    if (activePage > data.totalPages && data.totalPages != 0) {
+      setActivePage(data.totalPages);
+    }
   }
 
   function handleClickOnShowComments() {
     fetchComments();
     setToggleComments((val) => !val);
+  }
+
+  async function editComment(comment: CommentModel) {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+
+    const response = await fetch(
+      `http://localhost:8080/articles/articleComment`,
+      {
+        method: "PUT",
+        headers: headers,
+        body: JSON.stringify(comment),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Something went wrong!");
+    }
+    fetchComments();
+  }
+
+  async function createComment(comment: CommentModel) {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+
+    const response = await fetch(
+      `http://localhost:8080/articles/articleComment/${articleId}/${getMemberID()}`,
+      {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(comment),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Something went wrong!");
+    }
+    fetchComments();
+  }
+
+  function handleComment(comment: CommentModel) {
+    comment.id ? editComment(comment) : createComment(comment);
+    form.reset();
+    closeModal();
+  }
+
+  function handleEditModal(comment: CommentModel) {
+    form.setValues({
+      id: comment.id,
+      commentText: comment.commentText,
+    });
+    openModal();
   }
 
   return (
@@ -93,48 +177,84 @@ function ArticleView() {
         </Flex>
       </Flex>
 
-      <Flex align={"center"} direction={"column"}>
-        <Flex gap={10}>
-          <Button color="gray" onClick={() => navigate(-1)}>
-            <IconArrowLeft size={30} />
-          </Button>
-
-          {toggleComments ? (
-            <Button mb={5} onClick={() => setToggleComments((val) => !val)}>
-              Hide Comments
+      <Flex align={"center"} direction={"column"} m={"1rem"}>
+        <Flex gap={10} direction={"column"} align={"center"}>
+          <Flex gap={"1rem"}>
+            <Button color="gray" onClick={() => navigate(-1)}>
+              <IconArrowLeft size={30} />
             </Button>
-          ) : (
-            <Button mb={5} onClick={() => handleClickOnShowComments()}>
-              Show Comments
+            <Button color="blue" onClick={() => openModal()}>
+              Add Comment
             </Button>
-          )}
-        </Flex>
-        {toggleComments && (
-          <Flex ref={commentRef} direction={"column"}>
-            {comments.length == 0 ? (
-              <Text my={"2rem"}>
-                This article doesn't have comment, be first!{" "}
-              </Text>
+          </Flex>
+          <Flex>
+            {toggleComments ? (
+              <Button mb={5} onClick={() => setToggleComments((val) => !val)}>
+                Hide Comments
+              </Button>
             ) : (
-              <Flex direction={"column"} align={"center"} justify={"center"}>
-                {comments.map((comment) => (
-                  <Comment key={comment.id} comment={comment} />
-                ))}
-                <Pagination
-                  m={"1rem"}
-                  total={totalPages}
-                  size="sm"
-                  radius="sm"
-                  withEdges
-                  gap={5}
-                  value={activePage}
-                  onChange={setActivePage}
-                />
-              </Flex>
+              <Button mb={5} onClick={() => handleClickOnShowComments()}>
+                Show Comments
+              </Button>
             )}
           </Flex>
-        )}
+          {toggleComments && (
+            <Flex ref={commentRef} direction={"column"} m={"1rem"}>
+              {comments.length == 0 ? (
+                <Text my={"2rem"}>
+                  This article doesn't have comment, be first!{" "}
+                </Text>
+              ) : (
+                <Flex
+                  direction={"column"}
+                  align={"center"}
+                  justify={"center"}
+                  gap={"1rem"}
+                >
+                  {comments.map((comment) => (
+                    <Comment
+                      key={comment.id}
+                      comment={comment}
+                      editComment={handleEditModal}
+                      fetchComments={fetchComments}
+                    />
+                  ))}
+                  <Pagination
+                    m={"1rem"}
+                    total={totalPages}
+                    size="sm"
+                    radius="sm"
+                    withEdges
+                    gap={5}
+                    value={activePage}
+                    onChange={setActivePage}
+                  />
+                </Flex>
+              )}
+            </Flex>
+          )}
+        </Flex>
       </Flex>
+      <Modal opened={openedModal} onClose={closeModal} centered>
+        <form onSubmit={form.onSubmit((values) => handleComment(values))}>
+          <Flex direction={"column"} gap={"1rem"}>
+            <Input {...form.getInputProps("id")} type="hidden" />
+            <Textarea
+              placeholder="write your commentary"
+              autosize
+              minRows={3}
+              maxRows={4}
+              minLength={2}
+              maxLength={255}
+              required
+              label="Review"
+              {...form.getInputProps("commentText")}
+            ></Textarea>
+
+            <Button type="submit">Submit</Button>
+          </Flex>
+        </form>
+      </Modal>
     </Flex>
   );
 }

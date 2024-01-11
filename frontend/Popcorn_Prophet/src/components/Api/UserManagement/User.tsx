@@ -1,7 +1,7 @@
 import { useForm } from "@mantine/form";
 import styles from "./User.module.css";
 import { Paper, Avatar, Text, Flex, Anchor } from "@mantine/core";
-import { Member } from "../AdminPage/AdminPage";
+import { MemberModel } from "../AdminPage/AdminPage";
 
 import { IconX, IconCheck } from "@tabler/icons-react";
 import { useState } from "react";

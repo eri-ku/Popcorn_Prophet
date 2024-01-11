@@ -1,0 +1,23 @@
+.comment {
+  padding: var(--mantine-spacing-lg) var(--mantine-spacing-xl);
+  width: 800px !important;
+  @media (max-width: $mantine-breakpoint-md) {
+    width: 400px !important;
+  }
+  @media (max-width: $mantine-breakpoint-xs) {
+    width: 300px !important;
+  }
+}
+
+.body {
+  padding-left: rem(54px);
+  padding-top: var(--mantine-spacing-sm);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.content {
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}

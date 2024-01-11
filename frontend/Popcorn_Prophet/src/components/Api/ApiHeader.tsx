@@ -21,6 +21,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useProvider } from "./ContextProvider";
 import { useForm } from "@mantine/form";
 import { ArticleModel } from "./ArticlesPage/ArticlesPage";
+import NavButton from "../Misc/NavButton";
 
 function ApiHeader({ open }: { open: any }) {
   const [opened, { toggle, close }] = useDisclosure(false);
@@ -58,7 +59,17 @@ function ApiHeader({ open }: { open: any }) {
                   <Drawer.CloseButton />
                 </Drawer.Header>
                 <Drawer.Body>
-                  <NavbarLinks burger={true} />
+                  <Flex
+                    direction={"column"}
+                    gap={"1rem"}
+                    onClick={() => close()}
+                  >
+                    <NavButton to="/homepage">Homepage</NavButton>
+                    <NavButton to="/api/1">Api</NavButton>
+                    <NavButton to="api/articles/1">Articles</NavButton>
+                    <NavButton to="/api/wishlist">WishList</NavButton>
+                    <NavButton to="/adminPage">Adminpage</NavButton>
+                  </Flex>
                 </Drawer.Body>
               </Drawer.Content>
             </Drawer.Root>

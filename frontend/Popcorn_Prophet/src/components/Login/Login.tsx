@@ -90,10 +90,10 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
       throw new Error("Something went wrong!");
     }
 
-    sessionStorage.setItem("cart", data.cartId);
+    localStorage.setItem("cart", data.cartId);
     localStorage.setItem("token", `Basic ${base64Credentials}`);
-    sessionStorage.setItem("authMember", values.username);
-    sessionStorage.setItem("memberId", data.member.id);
+    localStorage.setItem("authMember", values.username);
+    localStorage.setItem("memberId", data.member.id);
 
     handlers.toggle();
     navigate("/api");

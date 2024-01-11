@@ -37,6 +37,7 @@
   word-break: break-word;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+
   flex: 1;
   min-width: min(50rem, 100%);
   max-width: min(rem(800), 100%);

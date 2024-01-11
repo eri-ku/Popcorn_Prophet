@@ -25,13 +25,13 @@ import Review from "./Review";
 import { format, set } from "date-fns";
 import { useProvider } from "../ContextProvider";
 import { getMemberID } from "../../../App";
-import { Member } from "../AdminPage/AdminPage";
+import { MemberModel } from "../AdminPage/AdminPage";
 import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 export interface ReviewModel {
   id?: string;
   product?: ProductModel;
-  member?: Member;
+  member?: MemberModel;
   rating: number;
   review: string;
 }
@@ -121,7 +121,6 @@ function ProductView() {
       setReviews(() => data.reviews);
       setTotalPages(() => data.totalPages);
       if (activePage > data.totalPages && data.totalPages != 0) {
-        console.log("com tu");
         setActivePage(data.totalPages);
       }
     } catch (error: any) {
@@ -229,7 +228,6 @@ function ProductView() {
   }
 
   function handleReview(review: ReviewModel) {
-    console.log(review);
     review.id ? editReview(review) : createReview(review);
     form.reset();
     close();

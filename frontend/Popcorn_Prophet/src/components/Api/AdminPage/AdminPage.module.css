@@ -1,16 +1,22 @@
 .container {
+  grid-row: 2;
+  grid-column: 1/-1;
+}
+.acc {
   overflow-y: auto;
-
-  height: 50rem;
-  width: 90rem;
-  padding-right: 3rem;
-  margin: auto auto;
+  width: 80rem;
+  justify-content: center;
   @media (max-width: $mantine-breakpoint-md) {
-    width: 60rem;
+    width: 55rem;
   }
   @media (max-width: $mantine-breakpoint-xs) {
     width: 40rem;
   }
+
+  height: 50rem;
+
+  padding-right: 3rem;
+  margin: auto auto;
 }
 
 .item {

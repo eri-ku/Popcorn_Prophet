@@ -15,7 +15,7 @@ function NavbarLinks({ burger }: { burger: boolean }) {
     <>
       <Flex
         mr={"11rem"}
-        gap="0.5rem"
+        gap="1rem"
         mt="1rem"
         visibleFrom={!burger ? "md" : ""}
         direction={burger ? "column" : "row"}

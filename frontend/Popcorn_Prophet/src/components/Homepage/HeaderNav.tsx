@@ -23,7 +23,7 @@ function HeaderNav() {
           size="compact-xl"
           onClick={() => {
             localStorage.clear();
-            sessionStorage.clear();
+            localStorage.clear();
             navigate("/");
           }}
         >

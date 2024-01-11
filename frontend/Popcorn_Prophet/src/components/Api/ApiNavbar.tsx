@@ -71,7 +71,7 @@ export function ApiNavbar() {
 
   function clean() {
     localStorage.clear();
-    sessionStorage.clear();
+    localStorage.clear();
   }
 
   return (

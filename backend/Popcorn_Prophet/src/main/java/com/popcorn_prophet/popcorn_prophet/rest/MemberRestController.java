@@ -1,5 +1,6 @@
 package com.popcorn_prophet.popcorn_prophet.rest;
 
+import com.popcorn_prophet.popcorn_prophet.POJO.MemberPageResponse;
 import com.popcorn_prophet.popcorn_prophet.config.PopcornProphetAuthenticationProvider;
 import com.popcorn_prophet.popcorn_prophet.entity.BillingInfo;
 import com.popcorn_prophet.popcorn_prophet.entity.Cart;
@@ -9,6 +10,7 @@ import com.popcorn_prophet.popcorn_prophet.entity.Role;
 import com.popcorn_prophet.popcorn_prophet.repo.MemberRepository;
 import com.popcorn_prophet.popcorn_prophet.repo.RoleRepository;
 import com.popcorn_prophet.popcorn_prophet.service.CartService;
+import com.popcorn_prophet.popcorn_prophet.service.MemberService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -35,6 +37,7 @@ public class MemberRestController {
     private final RoleRepository roleRepository;
     private final CartService cartService;
     private final PopcornProphetAuthenticationProvider authenticationManager;
+    private final MemberService memberService;
 
     @PostMapping("/register")
     @Transactional
@@ -68,12 +71,16 @@ public class MemberRestController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Member>> getMembers() {
-        List<Member> members = memberRepository.findAll();
-        for (Member member : members) {
-            member.setPassword(null);
-        }
+    public ResponseEntity<MemberPageResponse> getMembers(@RequestParam(defaultValue = "0") int page) {
+        MemberPageResponse members = MemberPageResponse.builder().members(memberService.getMembers(page)
+                .getContent()).totalPages(memberService.getMembers(page).getTotalPages()).build();
+
         return ResponseEntity.ok(members);
+    }
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<Void> deleteMember(@PathVariable Long memberId){
+        this.memberService.deleteMember(memberId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")

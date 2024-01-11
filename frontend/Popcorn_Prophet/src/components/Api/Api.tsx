@@ -267,7 +267,7 @@ function Api({
             handleProduct(product);
           })}
         >
-          <Input type="hidden" {...form.getInputProps("id")}></Input>
+          <Input type="hidden" {...form.getInputProps("id")} />
 
           <TextInput
             required

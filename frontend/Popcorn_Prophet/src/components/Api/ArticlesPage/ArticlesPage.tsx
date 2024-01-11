@@ -12,7 +12,7 @@ import Article from "./Article";
 import styles from "./ArticlesPage.module.css";
 import { useMediaQuery } from "@mantine/hooks";
 import { useEffect, useState } from "react";
-import { Member } from "../AdminPage/AdminPage";
+import { MemberModel } from "../AdminPage/AdminPage";
 import { getMemberID } from "../../../App";
 import {
   IconArrowBarToRight,
@@ -27,9 +27,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { set } from "date-fns";
 
 export interface CommentModel {
-  id: number;
+  id?: string;
   commentText: string;
-  likes: number;
+  likes?: number;
+  member?: MemberModel;
 }
 
 export interface ArticleModel {
@@ -37,7 +38,7 @@ export interface ArticleModel {
   title: string;
   content: string;
   rating: string;
-  author: Member;
+  author: MemberModel;
   likes: number;
   articleComments: CommentModel[];
 }
