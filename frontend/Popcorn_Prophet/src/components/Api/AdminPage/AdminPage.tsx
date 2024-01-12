@@ -36,7 +36,7 @@ function AdminPage() {
   const [members, setMembers] = useState<MemberModel[]>([]);
   const [activePage, setActivePage] = useState<number>(1);
 
-  const [id, setId] = useState<string>(-1);
+  const [id, setId] = useState<string>("-1");
 
   const [totalPages, setTotalPages] = useState<number>(0);
   const [opened, { open, close }] = useDisclosure(false);
