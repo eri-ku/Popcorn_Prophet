@@ -1,13 +1,133 @@
 import { useForm } from "@mantine/form";
 import styles from "./User.module.css";
-import { Paper, Avatar, Text, Flex, Anchor } from "@mantine/core";
+import {
+  Paper,
+  Avatar,
+  Text,
+  Flex,
+  Anchor,
+  Modal,
+  Input,
+  Button,
+  TextInput,
+  PasswordInput,
+} from "@mantine/core";
 import { MemberModel } from "../AdminPage/AdminPage";
 
 import { IconX, IconCheck } from "@tabler/icons-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getMemberID } from "../../../App";
+import { useDisclosure } from "@mantine/hooks";
 function User() {
+  useEffect(() => {
+    fetchMember();
+  }, []);
+
+  const [member, setMember] = useState<any>({});
+
+  const [opened, { open, close }] = useDisclosure(false);
+
+  const [switchModal, setSwitchModal] = useState<string>("");
+
+  const navigate = useNavigate();
+
+  const formEmail = useForm<{ email: string }>({
+    initialValues: {
+      email: "",
+    },
+  });
+
+  const formPassword = useForm<{
+    oldPassword: string;
+    newPassword: string;
+    repeatPassword: string;
+  }>({
+    initialValues: {
+      oldPassword: "",
+      newPassword: "",
+      repeatPassword: "",
+    },
+  });
+
+  async function fetchMember() {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+    const res = await fetch(`http://localhost:8080/auth/${getMemberID()}`, {
+      headers,
+    });
+    if (!res.ok) {
+      throw new Error("Something went wrong!");
+    }
+    const data = await res.json();
+    const mem: MemberModel = {
+      id: data.id,
+      username: data.username,
+      email: data.email,
+      roles: data.roles
+        .map((role: any) => {
+          return role.roleName;
+        })
+        .join(", "),
+      password: "",
+    };
+    setMember(mem);
+  }
+
+  async function updateEmail(email: string) {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+    const res = await fetch(
+      `http://localhost:8080/auth/email/${getMemberID()}`,
+      {
+        headers,
+        method: "PATCH",
+        body: JSON.stringify({ email: email }),
+      }
+    );
+    if (!res.ok) {
+      throw new Error("Something went wrong!");
+    }
+    fetchMember();
+    close();
+    localStorage.clear();
+    navigate("/homepage");
+  }
+
+  async function updatePassword(
+    oldPassword: string,
+    newPassword: string,
+    repeatPassword: string
+  ) {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+    const res = await fetch(
+      `http://localhost:8080/auth/password/${getMemberID()}`,
+      {
+        headers,
+        method: "PATCH",
+        body: JSON.stringify({
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+          repeatPassword: repeatPassword,
+        }),
+      }
+    );
+    if (!res.ok) {
+      throw new Error("Something went wrong!");
+    }
+    fetchMember();
+    close();
+    localStorage.clear();
+    navigate("/homepage");
+  }
+
   return (
     <Flex className={styles.container}>
       <Paper
@@ -19,20 +139,82 @@ function User() {
       >
         <Avatar src="user.png" size={120} radius={120} mx="auto" />
         <Text ta="center" fz="lg" fw={500} mt="md">
-          Jane Fingerlicker
+          {member?.username}
         </Text>
         <Text ta="center" c="dimmed" fz="sm">
-          jfingerlicker@me.io • Art director
+          {`${member.email} • ${member.roles}`}
         </Text>
         <Flex direction={"column"} align={"center"} mt={50} gap={10}>
-          <Anchor component={Link} to={"/user/changePassword"}>
+          <Anchor
+            onClick={() => {
+              setSwitchModal("password");
+              open();
+            }}
+          >
             Click to change password{" "}
           </Anchor>
-          <Anchor component={Link} to={"/user/changeemail"}>
+          <Anchor
+            onClick={() => {
+              setSwitchModal("email");
+              open();
+            }}
+          >
             Click to change email{" "}
           </Anchor>
         </Flex>
       </Paper>
+
+      <Modal opened={opened} onClose={close} centered>
+        {switchModal === "email" && (
+          <form
+            onSubmit={formEmail.onSubmit((values) => updateEmail(values.email))}
+          >
+            <TextInput
+              mb={"1rem"}
+              label="New email"
+              placeholder="Type your new email address"
+              {...formEmail.getInputProps("email")}
+            />
+            <Button fullWidth type="submit">
+              OK
+            </Button>
+          </form>
+        )}
+
+        {switchModal === "password" && (
+          <form
+            onSubmit={formPassword.onSubmit((values) =>
+              updatePassword(
+                values.oldPassword,
+                values.newPassword,
+                values.repeatPassword
+              )
+            )}
+          >
+            <Flex gap={"1rem"} direction={"column"}>
+              <Input type="hidden" {...formPassword.getInputProps("id")} />
+              <PasswordInput
+                label="Old password"
+                placeholder="Type your old password"
+                {...formPassword.getInputProps("oldPassword")}
+              />
+              <PasswordInput
+                label="New password"
+                placeholder="Type your new password"
+                {...formPassword.getInputProps("newPassword")}
+              />
+              <PasswordInput
+                label="Repeat password"
+                placeholder="Repeat your new password"
+                {...formPassword.getInputProps("repeatPassword")}
+              />
+              <Button fullWidth type="submit">
+                OK
+              </Button>
+            </Flex>
+          </form>
+        )}
+      </Modal>
     </Flex>
   );
 }

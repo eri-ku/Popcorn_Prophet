@@ -8,6 +8,7 @@ import com.popcorn_prophet.popcorn_prophet.entity.Role;
 import com.popcorn_prophet.popcorn_prophet.repo.ArticleRepository;
 import com.popcorn_prophet.popcorn_prophet.repo.MemberRepository;
 import com.popcorn_prophet.popcorn_prophet.repo.ProductRepository;
+import com.popcorn_prophet.popcorn_prophet.repo.RoleRepository;
 import com.popcorn_prophet.popcorn_prophet.rest.MemberRestController;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,8 @@ public class DataInsertion implements CommandLineRunner {
     private final MemberRestController memberRestController;
     private final ArticleRepository articleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+    private final MemberRepository memberRepository;
 
 
 
@@ -42,10 +45,9 @@ public class DataInsertion implements CommandLineRunner {
 //        }
 //        List<Product> products = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Product.class));
 //        productRepository.saveAll(products);
-//        Role role = Role.builder().roleName("Admin").build();
 //        Member member = Member.builder().username("Admin").password("Admin1!").confirmPassword("Admin1!").email("admin@example.com").roles(new HashSet<>()).build();
-//        member.getRoles().add(role);
 //        memberRestController.registerMember(member, new org.springframework.validation.BindException(member, "member"));
+//
 //        articleRepository.save(Article.builder().title("Test article1").content(" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ui aliquam consequatur error nulla vel.").author(member).rating("Good").build());
 //        articleRepository.save(Article.builder().title("Test article2").content("Quaerat repellendus, itaque laboriosam neque autem molestiae quam aliquid! Velit,non excepturi!").author(member).rating("Outstanding").build());
 //        articleRepository.save(Article.builder().title("Test article3").content("Quaerat repellendus, itaque laboriosam neque autem molestiae quam aliquid! Velit,non excepturi!").author(member).rating("Good").build());

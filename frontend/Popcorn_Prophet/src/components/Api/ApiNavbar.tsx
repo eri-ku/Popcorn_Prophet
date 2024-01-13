@@ -73,7 +73,6 @@ export function ApiNavbar() {
     localStorage.clear();
     localStorage.clear();
   }
-  console.log("active", active);
 
   return (
     <nav className={styles.navbar}>

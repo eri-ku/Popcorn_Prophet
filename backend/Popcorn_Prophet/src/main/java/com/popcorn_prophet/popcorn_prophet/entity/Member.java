@@ -58,7 +58,7 @@ public class Member {
     @JoinTable(name = "members_roles",
             joinColumns = {@JoinColumn(name = "member_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private BillingInfo billingInfo;
@@ -75,6 +75,8 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonIgnoreProperties("member")
     private List<ArticleComment> memberArticleComments;
+
+
 
 
 

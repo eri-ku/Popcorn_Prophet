@@ -8,9 +8,14 @@ import {
   Button,
   Pagination,
   Modal,
+  MultiSelect,
+  Input,
 } from "@mantine/core";
 
+import { useForm } from "@mantine/form";
+
 import { useDisclosure } from "@mantine/hooks";
+import { getMemberID } from "../../../App";
 export interface MemberModel {
   id: string;
   username: string;
@@ -40,6 +45,18 @@ function AdminPage() {
 
   const [totalPages, setTotalPages] = useState<number>(0);
   const [opened, { open, close }] = useDisclosure(false);
+
+  const [
+    openedChaneRoleModal,
+    { open: openChangeRoleModal, close: closeChangeRoleModal },
+  ] = useDisclosure(false);
+
+  const form = useForm<{ role: string[]; id: string }>({
+    initialValues: {
+      role: [],
+      id: "",
+    },
+  });
 
   useEffect(() => {
     fetchMembers();
@@ -120,7 +137,18 @@ function AdminPage() {
             </Text>
           </Flex>
           <Flex direction={"column"} gap={10}>
-            <Button color="blue">Change role</Button>
+            <Button
+              color="blue"
+              onClick={() => {
+                form.setValues({
+                  role: item.roles.map((role) => role.roleName),
+                  id: item.id,
+                });
+                openChangeRoleModal();
+              }}
+            >
+              Change role
+            </Button>
             <Button
               onClick={() => {
                 setId(item.id);
@@ -134,6 +162,27 @@ function AdminPage() {
       </Accordion.Panel>
     </Accordion.Item>
   ));
+
+  async function updateRoles(id: string, role: string[]) {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      Authorization: `${localStorage.getItem("token")}`,
+    };
+    const res = await fetch(
+      `http://localhost:8080/auth/role/${getMemberID()}`,
+      {
+        headers,
+        method: "PATCH",
+        body: JSON.stringify({ role: role, memberId: id }),
+      }
+    );
+    if (!res.ok) {
+      throw new Error("Something went wrong!");
+    }
+
+    fetchMembers();
+    closeChangeRoleModal();
+  }
 
   return (
     <Flex className={styles.container} direction={"column"}>
@@ -158,6 +207,36 @@ function AdminPage() {
           <Text>Do you really want to delete this member?</Text>
           <Button onClick={() => deleteMember(id)}>OK</Button>
         </Flex>
+      </Modal>
+
+      <Modal
+        opened={openedChaneRoleModal}
+        onClose={closeChangeRoleModal}
+        centered
+      >
+        <form
+          onSubmit={form.onSubmit((values) =>
+            updateRoles(values.id, values.role)
+          )}
+        >
+          <Flex gap={10} justify="center" align="center" direction={"column"}>
+            <Input type="hidden" {...form.getInputProps("id")} />
+            <Flex direction={"column"}>
+              <MultiSelect
+                nothingFoundMessage="Nothing found..."
+                hidePickedOptions
+                searchable
+                clearable
+                label="Roles"
+                data={["ADMIN", "USER", "MODERATOR"]}
+                {...form.getInputProps("role")}
+              />
+            </Flex>
+            <Button fullWidth type="submit">
+              OK
+            </Button>
+          </Flex>
+        </form>
       </Modal>
     </Flex>
   );

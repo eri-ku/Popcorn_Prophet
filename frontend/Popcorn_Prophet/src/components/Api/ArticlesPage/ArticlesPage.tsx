@@ -47,8 +47,6 @@ function ArticlesPage() {
   const { isArticleFormOpened, closeArticleForm, openArticleForm } =
     useProvider();
   const [articles, setArticles] = useState<ArticleModel[]>([]);
-  console.log("hi");
-  console.log(articles);
 
   const { pageNum } = useParams();
   const [page, setPage] = useState(Number(pageNum));
@@ -97,7 +95,6 @@ function ArticlesPage() {
     }
 
     const data = await res.json();
-    console.log(data);
     setArticles(data.articles);
     setTotalPages(data.totalPages);
 
@@ -166,7 +163,6 @@ function ArticlesPage() {
   }
 
   function handleEditModal(article: any) {
-    console.log(article);
     form.setValues({
       ...article,
     });
@@ -217,7 +213,6 @@ function ArticlesPage() {
       >
         <form
           onSubmit={form.onSubmit((values) => {
-            console.log(values);
             const article = {
               ...values,
             };
