@@ -1,5 +1,6 @@
 package com.popcorn_prophet.popcorn_prophet.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ public class ArticleComment {
 
     @ManyToOne()
     @JsonIgnoreProperties("articleComments")
+    @JsonIgnore
     @JoinColumn(name = "article_id",referencedColumnName = "id",nullable = false)
     private Article article;
 

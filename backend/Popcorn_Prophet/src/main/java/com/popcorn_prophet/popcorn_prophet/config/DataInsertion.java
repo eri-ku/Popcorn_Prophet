@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class DataInsertion implements CommandLineRunner {
     public void run(String... args) throws Exception {
 //        ObjectMapper objectMapper = new ObjectMapper();
 //
-//        File file = new File(getClass().getResource("/insertProductData.json").getFile());
+//        File file = new File(Objects.requireNonNull(getClass().getResource("/insertProductData.json")).getFile());
 //        if (!file.exists()) {
 //            throw new Exception("File not found");
 //        }
@@ -48,11 +49,12 @@ public class DataInsertion implements CommandLineRunner {
 //        Member member = Member.builder().username("Admin").password("Admin1!").confirmPassword("Admin1!").email("admin@example.com").roles(new HashSet<>()).build();
 //        memberRestController.registerMember(member, new org.springframework.validation.BindException(member, "member"));
 //
-//        articleRepository.save(Article.builder().title("Test article1").content(" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ui aliquam consequatur error nulla vel.").author(member).rating("Good").build());
-//        articleRepository.save(Article.builder().title("Test article2").content("Quaerat repellendus, itaque laboriosam neque autem molestiae quam aliquid! Velit,non excepturi!").author(member).rating("Outstanding").build());
-//        articleRepository.save(Article.builder().title("Test article3").content("Quaerat repellendus, itaque laboriosam neque autem molestiae quam aliquid! Velit,non excepturi!").author(member).rating("Good").build());
-//        articleRepository.save(Article.builder().title("Test article4").content("Quaerat repellendus, itaque laboriosam neque autem molestiae quam aliquid! Velit,non excepturi!").author(member).rating("Bad").build());
-//        articleRepository.save(Article.builder().title("Test article5").content("Quaerat repellendus, itaque laboriosam neque autem molestiae quam aliquid! Velit,non excepturi!").author(member).rating("Outstanding").build());
-
+//        file = new File(Objects.requireNonNull(getClass().getResource("/insertArticleData.json")).getFile());
+//        if (!file.exists()) {
+//            throw new Exception("File not found");
+//        }
+//        List<Article> articles = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Article.class));
+//        articles.forEach(article -> article.setAuthor(member));
+//        articleRepository.saveAll(articles);
     }
 }

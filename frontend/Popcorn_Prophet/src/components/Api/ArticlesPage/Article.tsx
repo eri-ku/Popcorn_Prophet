@@ -66,11 +66,7 @@ function Article({
       <Flex gap={"lg"} direction={"column"}>
         <Card.Section>
           <Link to={`/api/articles/article/${article.id}`}>
-            <Image
-              src="https://i.imgur.com/Cij5vdL.png"
-              h={500}
-              className={styles.img}
-            />
+            <Image src={article.poster} h={500} className={styles.img} />
           </Link>
         </Card.Section>
 

@@ -165,7 +165,7 @@ function ArticleView() {
           <Image
             fit="cover"
             className={styles.img}
-            src="https://m.media-amazon.com/images/M/MV5BMGNiOTBhZmMtNGU1Yi00NWQzLTlkOTctOTU1YjNkMjJhYTdlXkEyXkFqcGdeQXVyMTYzMDM0NTU@._V1_.jpg"
+            src={article?.poster}
           ></Image>
         </Flex>
 

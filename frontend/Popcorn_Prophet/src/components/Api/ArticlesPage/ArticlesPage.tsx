@@ -7,6 +7,7 @@ import {
   Select,
   Button,
   Input,
+  FileInput,
 } from "@mantine/core";
 import Article from "./Article";
 import styles from "./ArticlesPage.module.css";
@@ -41,6 +42,7 @@ export interface ArticleModel {
   author: MemberModel;
   likes: number;
   articleComments: CommentModel[];
+  poster: string | File;
 }
 
 function ArticlesPage() {
@@ -63,6 +65,7 @@ function ArticlesPage() {
       title: "",
       content: "",
       rating: "",
+      poster: "",
     },
   });
 
@@ -105,14 +108,21 @@ function ArticlesPage() {
   }
 
   async function createArticle(article: any) {
+    const formData = new FormData();
+    formData.append("img", article.poster);
+    article.poster = "";
+
+    Object.keys(article).forEach((key) => formData.append(key, article[key]));
+
+    console.log(formData);
+
     const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
       Authorization: `${localStorage.getItem("token")}`,
     };
     const res = await fetch(`http://localhost:8080/articles/${getMemberID()}`, {
       method: "POST",
       headers,
-      body: JSON.stringify(article),
+      body: formData,
     });
     if (!res.ok) {
       throw new Error("Something went wrong!");
@@ -121,14 +131,18 @@ function ArticlesPage() {
   }
 
   async function updateArticle(article: any) {
+    const formData = new FormData();
+    formData.append("img", article.poster);
+    article.poster = "";
+    Object.keys(article).forEach((key) => formData.append(key, article[key]));
+
     const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
       Authorization: `${localStorage.getItem("token")}`,
     };
     const res = await fetch(`http://localhost:8080/articles/${article.id}`, {
       method: "PUT",
       headers,
-      body: JSON.stringify(article),
+      body: formData,
     });
     if (!res.ok) {
       throw new Error("Something went wrong!");
@@ -152,6 +166,7 @@ function ArticlesPage() {
   }
 
   function handleArticle(article: any) {
+    console.log(article);
     article.id ? updateArticle(article) : createArticle(article);
     form.reset();
     closeArticleForm();
@@ -247,6 +262,15 @@ function ArticlesPage() {
             data={["Outstanding", "Good", "Bad"]}
             {...form.getInputProps("rating")}
           />
+          <FileInput
+            required
+            clearable
+            accept="image/png,image/jpg,image/jpeg"
+            label="Upload files"
+            placeholder="Upload poster"
+            {...form.getInputProps("poster")}
+          />
+
           <Flex justify={"end"} mt={"1rem"}>
             <Button type="submit">Submit</Button>
           </Flex>

@@ -1,6 +1,9 @@
 package com.popcorn_prophet.popcorn_prophet.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,12 +35,16 @@ public class Article {
 
 
     private String rating;
+    private String poster;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonIgnoreProperties("article")
     private List<ArticleComment> articleComments;
 
-
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+    @JoinColumn(name = "article_image_id", referencedColumnName = "id")
+    private Image image;
 
 
 

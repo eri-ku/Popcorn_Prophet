@@ -24,6 +24,7 @@ public class PopcornProphetSecurityConfig {
         http.csrf((csrf) -> csrf.disable()).authorizeHttpRequests((requests) -> {
                      requests.requestMatchers("/auth/**").permitAll();
                      requests.requestMatchers("/api/products/download/**").permitAll();
+                     requests.requestMatchers("articles/download/**").permitAll();
                     requests.anyRequest().authenticated();
 //                    requests.requestMatchers("/**").permitAll();
                 })

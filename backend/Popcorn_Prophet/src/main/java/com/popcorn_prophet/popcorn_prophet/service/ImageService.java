@@ -1,9 +1,8 @@
 package com.popcorn_prophet.popcorn_prophet.service;
 
-import com.popcorn_prophet.popcorn_prophet.entity.ProductImage;
+import com.popcorn_prophet.popcorn_prophet.entity.Image;
 import com.popcorn_prophet.popcorn_prophet.repo.ProductImageRepository;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -23,15 +23,19 @@ public class ImageService {
     private final ProductImageRepository productImageRepository;
 
     @Transactional
-    public ProductImage saveImage(MultipartFile file) throws IOException{
-        String name = StringUtils.cleanPath(file.getOriginalFilename())+"_"+System.currentTimeMillis();
-        ProductImage img = new ProductImage();
+    public Image saveImage(MultipartFile file,String folder) throws IOException{
+        String finalPath = PATH+folder+"/";
+        String[] splitName = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String name = StringUtils.cleanPath(splitName[0])+"_"+System.currentTimeMillis()+"."+splitName[1];
+        Image img = new Image();
+
         img.setName(name);
-        img.setFilePath(PATH+ name);
+
+        img.setFilePath(finalPath+ name);
         img.setType(file.getContentType());
         img = this.productImageRepository.save(img);
 
-        File file1 = new File(PATH + name);
+        File file1 = new File(finalPath + name);
 
         file.transferTo(file1.toPath());
         return img;
@@ -39,8 +43,8 @@ public class ImageService {
 
     }
 
-    public ProductImage getImageModel(Long id) throws IOException{
-        Optional<ProductImage> img = productImageRepository.findById(id);
+    public Image getImageModel(Long id) throws IOException{
+        Optional<Image> img = productImageRepository.findById(id);
         if(img.isEmpty()){
             throw new IOException("Image not found");
         }
@@ -48,7 +52,7 @@ public class ImageService {
     }
 
     public byte[] getImage(Long id) throws IOException{
-        Optional<ProductImage> img = productImageRepository.findById(id);
+        Optional<Image> img = productImageRepository.findById(id);
         if(img.isEmpty()){
             throw new IOException("Image not found");
         }
@@ -57,7 +61,7 @@ public class ImageService {
 
     @Transactional
     public String deleteImage(Long id) throws IOException{
-        Optional<ProductImage> img = productImageRepository.findById(id);
+        Optional<Image> img = productImageRepository.findById(id);
         if(img.isEmpty()){
             throw new IOException("Image not found");
         }

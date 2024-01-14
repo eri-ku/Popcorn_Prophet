@@ -8,9 +8,13 @@ import com.popcorn_prophet.popcorn_prophet.POJO.ReviewPageResponse;
 import com.popcorn_prophet.popcorn_prophet.entity.ArticleComment;
 import com.popcorn_prophet.popcorn_prophet.entity.ProductReview;
 import com.popcorn_prophet.popcorn_prophet.service.ArticleCommentService;
+import com.popcorn_prophet.popcorn_prophet.service.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/articles/articleComment")
 public class ArticleCommentController {
     private final ArticleCommentService articleCommentService;
+    private final ImageService imageService;
 
     @GetMapping({"/{articleId}"})
     public ResponseEntity<CommentPageResponse> getArticleComments(@PathVariable Long articleId, @RequestParam(defaultValue = "0") int page) {
@@ -40,6 +45,8 @@ public class ArticleCommentController {
         articleCommentService.deleteArticleComment(articleCommentId);
         return ResponseEntity.ok().build();
     }
+
+
 
     @PutMapping()
     public ResponseEntity<ArticleComment> updateArticleComment(@RequestBody ArticleComment articleComment){

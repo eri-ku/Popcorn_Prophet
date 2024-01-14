@@ -85,7 +85,7 @@ public class Product {
     @OneToOne(cascade = CascadeType.ALL)
     @JsonIgnore
     @JoinColumn(name = "product_image_id", referencedColumnName = "id")
-    private ProductImage productImage;
+    private Image image;
 
     @OneToMany(mappedBy = "product",orphanRemoval = true,cascade = CascadeType.ALL)
     @JsonIgnore

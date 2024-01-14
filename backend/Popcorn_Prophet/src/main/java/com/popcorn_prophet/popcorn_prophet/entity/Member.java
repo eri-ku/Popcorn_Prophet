@@ -70,6 +70,7 @@ public class Member {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonIgnoreProperties("author")
+    @JsonIgnore
     private List<Article> memberArticles;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
