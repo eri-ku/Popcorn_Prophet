@@ -15,7 +15,9 @@ import {
 import { useForm } from "@mantine/form";
 
 import { useDisclosure } from "@mantine/hooks";
-import { getMemberID } from "../../../App";
+import { BASE_URL, getMemberID } from "../../../App";
+import axios from "axios";
+import Spinner from "../../Misc/Spinner";
 export interface MemberModel {
   id: string;
   username: string;
@@ -46,6 +48,8 @@ function AdminPage() {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [opened, { open, close }] = useDisclosure(false);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [
     openedChaneRoleModal,
     { open: openChangeRoleModal, close: closeChangeRoleModal },
@@ -67,51 +71,43 @@ function AdminPage() {
   }, []);
 
   async function deleteMember(id: string) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/auth/${id}`, {
-      headers,
-      method: "Delete",
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+      const res = await axios.delete(`${BASE_URL}auth/${id}`);
+      fetchMembers();
+      close();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-    fetchMembers();
-    close();
   }
 
   async function fetchMembers() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/auth?page=${activePage - 1}`,
-      {
-        headers,
-      }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
-    }
-    const data = await res.json();
-    const newMembers = [];
-    console.log(data);
-    for (const key in Object.keys(data.members)) {
-      newMembers.push({
-        id: data.members[key].id,
-        username: data.members[key].username,
-        email: data.members[key].email,
-        roles: data.members[key].roles,
-        password: "",
+    try {
+      setIsLoading(true);
+
+      const res = await axios.get(`${BASE_URL}auth?page=${activePage - 1}`, {
+        withCredentials: true,
       });
-    }
-    setMembers(newMembers);
-    setTotalPages(data.totalPages);
-    if (activePage > data.totalPages && data.totalPages != 0) {
-      setActivePage(data.totalPages);
+      const data = await res.data;
+      const newMembers = [];
+      for (const key in Object.keys(data.members)) {
+        newMembers.push({
+          id: data.members[key].id,
+          username: data.members[key].username,
+          email: data.members[key].email,
+          roles: data.members[key].roles,
+          password: "",
+        });
+      }
+      setMembers(newMembers);
+      setTotalPages(data.totalPages);
+      if (activePage > data.totalPages && data.totalPages != 0) {
+        setActivePage(data.totalPages);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
   }
 
@@ -164,25 +160,27 @@ function AdminPage() {
   ));
 
   async function updateRoles(id: string, role: string[]) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/auth/role/${getMemberID()}`,
-      {
-        headers,
-        method: "PATCH",
-        body: JSON.stringify({ role: role, memberId: id }),
-      }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
-    }
+    try {
+      setIsLoading(true);
 
-    fetchMembers();
-    closeChangeRoleModal();
+      const res = await axios.patch(
+        `${BASE_URL}auth/role/${getMemberID()}`,
+        {
+          role: role,
+          memberId: id,
+        },
+        { withCredentials: true }
+      );
+
+      fetchMembers();
+      closeChangeRoleModal();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Flex className={styles.container} direction={"column"}>

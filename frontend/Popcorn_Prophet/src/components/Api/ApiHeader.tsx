@@ -9,18 +9,11 @@ import {
   Avatar,
   Indicator,
   Anchor,
-  Modal,
-  TextInput,
-  Textarea,
-  Select,
 } from "@mantine/core";
 import Icon from "../Misc/Icon";
-import NavbarLinks from "../Misc/NavbarLinks";
 import { getAuth } from "../../App";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useProvider } from "./ContextProvider";
-import { useForm } from "@mantine/form";
-import { ArticleModel } from "./ArticlesPage/ArticlesPage";
 import NavButton from "../Misc/NavButton";
 
 function ApiHeader({ open }: { open: any }) {
@@ -86,10 +79,6 @@ function ApiHeader({ open }: { open: any }) {
             {getAuth()}
           </Button>
         </Group>
-
-        {/* <Group ml={50} gap={5} className={styles.links} visibleFrom="sm">
-         {items}
-        </Group> */}
 
         <Flex className={styles.actionHeader} align={"center"}>
           {/* :page v App route*/}

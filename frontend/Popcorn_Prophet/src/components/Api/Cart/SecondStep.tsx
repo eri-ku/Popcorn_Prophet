@@ -1,7 +1,5 @@
-import { Flex, TextInput, Select, Button } from "@mantine/core";
+import { Flex, TextInput, Select } from "@mantine/core";
 import { countries } from "../../../util/countries";
-import { useForm } from "@mantine/form";
-import { set } from "date-fns";
 function SecondStep({ form }: { form: any }) {
   return (
     <Flex gap={15} direction={"column"}>

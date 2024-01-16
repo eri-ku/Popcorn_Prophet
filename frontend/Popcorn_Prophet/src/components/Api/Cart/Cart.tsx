@@ -7,10 +7,12 @@ import ThirdStep from "./ThirdStep";
 import LastStep from "./LastStep";
 import { useProvider } from "../ContextProvider";
 import { useForm } from "@mantine/form";
-import { getMemberID } from "../../../App";
+import { BASE_URL, getMemberID } from "../../../App";
 import { getCartID } from "../../../App";
 import { ProductModel } from "../Api";
 import { useMediaQuery } from "@mantine/hooks";
+import axios from "axios";
+import Spinner from "../../Misc/Spinner";
 export interface BillingInfo {
   firstName: string;
   lastName: string;
@@ -32,6 +34,7 @@ export interface CartItemModel {
 function Cart() {
   const [active, setActive] = useState(0);
   const { setCart, cart, itemIdToErase, opened, close, open } = useProvider();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const form = useForm({
     initialValues: {
@@ -52,27 +55,22 @@ function Cart() {
     setActive((current) => (current > 0 ? current - 1 : current));
 
   async function eraseCartItem(cartItemKey: string) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/cart/${cartItemKey}/${getCartID()}`,
-      {
-        headers,
-        method: "DELETE",
-      }
-    );
+    try {
+      setIsLoading(true);
+      const res = await axios.delete(
+        `${BASE_URL}cart/${cartItemKey}/${getCartID()}`,
+        { withCredentials: true }
+      );
+      const data = await res.data;
 
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+      setCart(() =>
+        cart.filter((el: CartItemModel) => el.product.id !== cartItemKey)
+      );
+      close();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-    const data = await res.json();
-
-    setCart(() =>
-      cart.filter((el: CartItemModel) => el.product.id !== cartItemKey)
-    );
-    close();
   }
 
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
@@ -85,34 +83,31 @@ function Cart() {
   }
 
   async function cleanCart() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/cart/${getCartID()}`, {
-      headers,
-      method: "PUT",
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+
+      const res = await axios.put(`${BASE_URL}cart/${getCartID()}`, {
+        withCredentials: true,
+      });
+      const data = await res.data;
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
   }
 
   async function createBilling(billingInfo: BillingInfo) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/billingInfo/${getMemberID()}`,
-      {
-        method: "PUT",
-        body: JSON.stringify(billingInfo),
-        headers,
-      }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+      const res = await axios.put(
+        `${BASE_URL}billingInfo/${getMemberID()}`,
+        billingInfo,
+        { withCredentials: true }
+      );
+      const data = await res.data;
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
   }
 
@@ -121,26 +116,23 @@ function Cart() {
   }, []);
 
   async function fetchBilling() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/billingInfo/${getMemberID()}`,
-      {
-        headers,
-      }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
-    }
-    const data = await res.json();
-    for (const key in data) {
-      data[key] = data[key] === null ? "" : data[key];
-    }
+    try {
+      setIsLoading(true);
 
-    form.setValues(data);
+      const res = await axios.get(`${BASE_URL}billingInfo/${getMemberID()}`);
+      const data = await res.data;
+      for (const key in data) {
+        data[key] = data[key] === null ? "" : data[key];
+      }
+
+      form.setValues(data);
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Box className={styles.container}>

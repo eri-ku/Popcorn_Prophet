@@ -21,7 +21,7 @@ public class PopcornProphetAuthenticationProvider implements AuthenticationProvi
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String email = authentication.getName();
+         String email = authentication.getName();
         String password = authentication.getCredentials()
                 .toString();
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("User not found"));

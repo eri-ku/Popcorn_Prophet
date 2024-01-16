@@ -22,6 +22,9 @@ import { IconX, IconCheck } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import Login from "../Login/Login";
 import { useDisclosure } from "@mantine/hooks";
+import axios from "axios";
+import { BASE_URL, getCookie } from "../../App";
+import Spinner from "../Misc/Spinner";
 
 function PasswordRequirement({
   meets,
@@ -74,6 +77,7 @@ function Register() {
   const navigate = useNavigate();
   const [validationErrors, setValidationErros] = useState<any>([]);
   const [validationMessage, setValidationMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const form = useForm({
     validateInputOnChange: true,
@@ -119,39 +123,36 @@ function Register() {
   ));
 
   async function createUser(values: any) {
-    const credentials = `${values.email}:${values.password}`;
-    const base64Credentials = window.btoa(credentials);
     try {
-      const res = await fetch(`http://localhost:8080/auth/register`, {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8",
-        },
+      setIsLoading(true);
+      const res = await axios.post(`${BASE_URL}auth/register`, values, {
+        withCredentials: false,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data) {
-          data.errors
-            ? setValidationErros([...data.errors])
-            : setValidationErros([]);
-          data.message
-            ? setValidationMessage(data.message)
-            : setValidationMessage("");
-        }
-
-        throw new Error("Something went wrong!");
+      const data = await res.data;
+      if (data) {
+        data.errors
+          ? setValidationErros([...data.errors])
+          : setValidationErros([]);
+        data.message
+          ? setValidationMessage(data.message)
+          : setValidationMessage("");
       }
-      localStorage.setItem("cart", data.cartId);
-      localStorage.setItem("token", `Basic ${base64Credentials}`);
-      localStorage.setItem("authMember", values.username);
-      localStorage.setItem("memberId", data.member.id);
+      sessionStorage.setItem("cart", data.cartId);
+      sessionStorage.setItem(
+        "token",
+        `Basic ${window.btoa(`${values.email}:${values.password}`)}`
+      );
+      sessionStorage.setItem("authMember", values.username);
+      sessionStorage.setItem("memberId", data.member.id);
+      setIsLoading(false);
 
       navigate("/api");
     } catch (error: any) {
-      console.error("Fetch error:", error);
+      throw new Error("Something went wrong!");
     }
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <>

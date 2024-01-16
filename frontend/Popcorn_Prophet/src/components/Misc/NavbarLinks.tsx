@@ -1,4 +1,4 @@
-import { Flex, Portal, rem } from "@mantine/core";
+import { Flex, Portal } from "@mantine/core";
 import styles from "./NavbarLinks.module.css";
 import NavButton from "./NavButton";
 import { Button } from "@mantine/core";

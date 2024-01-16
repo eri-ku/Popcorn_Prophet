@@ -1,10 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useParams,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Api from "./components/Api/Api";
 import Register from "./components/Register/Register";
 import ApiLayout from "./components/Api/ApiLayout";
@@ -17,21 +11,59 @@ import ArticlesPage from "./components/Api/ArticlesPage/ArticlesPage";
 import User from "./components/Api/UserManagement/User";
 import ArticleView from "./components/Api/ArticlesPage/ArticleView";
 import WishList from "./components/Api/Product/WishList";
+import Cookies from "js-cookie";
 
 export function getAuth() {
-  return localStorage.getItem("authMember");
+  return sessionStorage.getItem("authMember");
 }
 
 export function getCartID() {
-  return localStorage.getItem("cart");
+  return sessionStorage.getItem("cart");
 }
 export function getMemberID() {
-  return localStorage.getItem("memberId");
+  return sessionStorage.getItem("memberId");
 }
 
 function ProtectedRoute({ children }: { children: any }) {
   return getAuth() ? children : <Navigate replace to="homepage" />;
 }
+
+export function setCookie(name: string, value: string, expires: number) {
+  Cookies.set(name, value, { expires: expires });
+}
+export function getCookie(name: string) {
+  return Cookies.get(name);
+}
+export function removeCookie(name: string) {
+  Cookies.remove(name);
+}
+export function getXSRFToken() {
+  return sessionStorage.getItem("XSRF-TOKEN");
+}
+
+export const BASE_URL = "http://localhost:8080/";
+
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
+
+axios.interceptors.request.use(
+  (config) => {
+    if (getCookie("XSRF-TOKEN")) {
+      sessionStorage.setItem("XSRF-TOKEN", getCookie("XSRF-TOKEN")!);
+    }
+    if (getXSRFToken()) {
+      config.headers["X-XSRF-TOKEN"] = getXSRFToken();
+    }
+    if (sessionStorage.getItem("token")) {
+      config.headers["Authorization"] = sessionStorage.getItem("token");
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   const [opened, { open, close }] = useDisclosure(false);

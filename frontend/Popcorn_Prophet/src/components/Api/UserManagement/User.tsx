@@ -14,11 +14,12 @@ import {
 } from "@mantine/core";
 import { MemberModel } from "../AdminPage/AdminPage";
 
-import { IconX, IconCheck } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { getMemberID } from "../../../App";
+import { useNavigate } from "react-router-dom";
+import { BASE_URL, getMemberID } from "../../../App";
 import { useDisclosure } from "@mantine/hooks";
+import axios from "axios";
+import Spinner from "../../Misc/Spinner";
 function User() {
   useEffect(() => {
     fetchMember();
@@ -29,6 +30,8 @@ function User() {
   const [opened, { open, close }] = useDisclosure(false);
 
   const [switchModal, setSwitchModal] = useState<string>("");
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -51,51 +54,42 @@ function User() {
   });
 
   async function fetchMember() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/auth/${getMemberID()}`, {
-      headers,
-    });
-    if (!res.ok) {
+    try {
+      setIsLoading(true);
+      const res = await axios.get(`${BASE_URL}auth/${getMemberID()}`);
+      const data = await res.data;
+      const mem: MemberModel = {
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        roles: data.roles
+          .map((role: any) => {
+            return role.roleName;
+          })
+          .join(", "),
+        password: "",
+      };
+      setMember(mem);
+      setIsLoading(false);
+    } catch (err) {
       throw new Error("Something went wrong!");
     }
-    const data = await res.json();
-    const mem: MemberModel = {
-      id: data.id,
-      username: data.username,
-      email: data.email,
-      roles: data.roles
-        .map((role: any) => {
-          return role.roleName;
-        })
-        .join(", "),
-      password: "",
-    };
-    setMember(mem);
   }
 
   async function updateEmail(email: string) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/auth/email/${getMemberID()}`,
-      {
-        headers,
-        method: "PATCH",
-        body: JSON.stringify({ email: email }),
-      }
-    );
-    if (!res.ok) {
+    try {
+      const res = await axios.patch(
+        `${BASE_URL}auth/email/${getMemberID()}`,
+        email,
+        { withCredentials: true }
+      );
+      fetchMember();
+      close();
+      sessionStorage.clear();
+      navigate("/homepage");
+    } catch (err) {
       throw new Error("Something went wrong!");
     }
-    fetchMember();
-    close();
-    localStorage.clear();
-    navigate("/homepage");
   }
 
   async function updatePassword(
@@ -103,30 +97,28 @@ function User() {
     newPassword: string,
     repeatPassword: string
   ) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/auth/password/${getMemberID()}`,
-      {
-        headers,
-        method: "PATCH",
-        body: JSON.stringify({
+    try {
+      setIsLoading(true);
+      const res = await axios.patch(
+        `${BASE_URL}auth/password/${getMemberID()}`,
+        {
           oldPassword: oldPassword,
           newPassword: newPassword,
           repeatPassword: repeatPassword,
-        }),
-      }
-    );
-    if (!res.ok) {
+        },
+        { withCredentials: true }
+      );
+      fetchMember();
+      close();
+      sessionStorage.clear();
+      setIsLoading(false);
+      navigate("/homepage");
+    } catch (err) {
       throw new Error("Something went wrong!");
     }
-    fetchMember();
-    close();
-    localStorage.clear();
-    navigate("/homepage");
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Flex className={styles.container}>

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -23,7 +24,6 @@ import java.text.ParseException;
 
 @RequiredArgsConstructor
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/articles")
 public class ArticleRestController {
 
@@ -40,9 +40,6 @@ public class ArticleRestController {
 
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadImage(@PathVariable("id") Long id) throws IOException {
-
-
-
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(articleService.getImageType(id))).body(articleService.getImage(id));
 
     }
@@ -52,26 +49,30 @@ public class ArticleRestController {
         return ResponseEntity.ok(articleService.getArticle(articleId));
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("/{memberId}")
     public ResponseEntity<Article> addArticle(@PathVariable Long memberId, @ModelAttribute ArticleDTO article, @RequestParam("img") MultipartFile file) throws IOException {
 
         return new ResponseEntity<>(articleService.addArticle(memberId, article,file), HttpStatus.CREATED);
     }
 
-
+    @PreAuthorize("@securityService.hasAccessToModifyArticle(#articleId)")
     @PutMapping("/{articleId}")
     public ResponseEntity<Article> updateArticle(@PathVariable Long articleId, @ModelAttribute ArticleDTO article, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException {
         return ResponseEntity.ok(articleService.updateArticle(articleId, article,file));
     }
 
+    @PreAuthorize("@securityService.hasAccessToModifyArticle(#articleId) || hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping("/{articleId}")
     public ResponseEntity<Void> deleteArticle(@PathVariable Long articleId) throws IOException {
         articleService.deleteArticle(articleId);
         return ResponseEntity.ok().build();
     }
 
+
+    //TODO
     @PatchMapping("/{articleId}/like")
-    public ResponseEntity<Article> likeArticle(@PathVariable Long articleId,@RequestBody boolean isAlreadyLiked){
+    public ResponseEntity<Article> likeArticle(@PathVariable Long articleId,@RequestParam boolean isAlreadyLiked){
         articleService.likeArticle(articleId,isAlreadyLiked);
         return ResponseEntity.ok().build();
     }

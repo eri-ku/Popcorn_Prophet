@@ -1,11 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 
-import { getCartID } from "../../App";
+import { BASE_URL, getCartID } from "../../App";
 import { ProductModel } from "./Api";
 import { CartItemModel } from "./Cart/Cart";
+import axiosPom from "axios";
 
 const Context = createContext<any>(null);
+
+export function getXSRFToken() {
+  return sessionStorage.getItem("XSRF-TOKEN");
+}
 
 function ContextProvider({ children }: { children: any }) {
   const [cart, setCart] = useState<CartItemModel[]>([]);
@@ -33,36 +38,28 @@ function ContextProvider({ children }: { children: any }) {
   };
 
   async function buyProduct(id: string) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/cart/${id}/${getCartID()}`, {
-      headers,
-      method: "POST",
-    });
-    if (!res.ok) {
+    try {
+      const res = await axiosPom.post(
+        `${BASE_URL}cart/${id}/${getCartID()}`,
+        {}
+      );
+
+      const data = await res.data;
+      setCart(data);
+    } catch (err) {
       throw new Error("Something went wrong!");
     }
-    const data = await res.json();
-    setCart(data);
   }
 
   useEffect(() => {
-    async function fetchCart() {
-      const headers = {
-        "Content-Type": "application/json;charset=UTF-8",
-        Authorization: `${localStorage.getItem("token")}`,
-      };
-      const res = await fetch(`http://localhost:8080/cart/${getCartID()}`, {
-        headers,
-        method: "GET",
-      });
+    fetchCart();
+  }, [prod]);
 
-      if (!res.ok) {
-        throw new Error("Something went wrong!");
-      }
-      const data = await res.json();
+  async function fetchCart() {
+    try {
+      const res = await axiosPom(`${BASE_URL}cart/${getCartID()}`);
+
+      const data = await res.data;
 
       const pro: CartItemModel[] = [];
       for (const key in data) {
@@ -74,9 +71,10 @@ function ContextProvider({ children }: { children: any }) {
         });
       }
       setCart(pro);
+    } catch (err) {
+      throw new Error("Something went wrong!");
     }
-    fetchCart();
-  }, [prod]);
+  }
 
   return (
     <Context.Provider

@@ -3,8 +3,6 @@ import { Tooltip, UnstyledButton, Stack, rem } from "@mantine/core";
 import {
   IconHome2,
   IconDeviceDesktopAnalytics,
-  IconUser,
-  IconSettings,
   IconGift,
   IconUsers,
   IconLogout,
@@ -70,7 +68,7 @@ export function ApiNavbar() {
   ));
 
   function clean() {
-    localStorage.clear();
+    sessionStorage.clear();
     localStorage.clear();
   }
 

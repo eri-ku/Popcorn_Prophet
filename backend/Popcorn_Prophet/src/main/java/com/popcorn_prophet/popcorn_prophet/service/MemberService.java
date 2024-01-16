@@ -69,4 +69,8 @@ public class MemberService {
 
         return new MemberResponse("Password updated", memberRepository.save(member), member.getCart().getId(), null);
     }
+
+    public Member getMemberByEmail(String email){
+        return memberRepository.findByEmail(email).get();
+    }
 }

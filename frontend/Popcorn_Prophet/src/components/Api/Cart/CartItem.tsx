@@ -4,56 +4,72 @@ import {
   NumberFormatter,
   NumberInput,
   CloseButton,
-  Text,
-  NumberInputHandlers,
 } from "@mantine/core";
-import { ProductModel } from "../Api";
-import { getCartID } from "../../../App";
+import { BASE_URL, getCartID } from "../../../App";
 import styles from "./CartItem.module.css";
 import { useEffect, useRef, useState } from "react";
 import { useProvider } from "../ContextProvider";
 import { CartItemModel } from "./Cart";
+import axios from "axios";
+import Spinner from "../../Misc/Spinner";
 function CartItem({ el }: { el: CartItemModel }) {
   const [value, setValue] = useState<string | number>(el.quantity);
   const { setCart, setItemIdToErase, open } = useProvider();
 
-  async function patchQuantity(newValue: string | number) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/cart/${el.product.id}/${getCartID()}/${newValue}`,
-      {
-        headers,
-        method: "PATCH",
-      }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+  const firstRender = useRef(true);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
     }
 
-    const data = await res.json();
+    const timer = setTimeout(() => {
+      patchQuantity(value);
+    }, 1000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value]);
 
-    setCart((prev: CartItemModel[]) => {
-      const newCart = prev.map((item) => {
-        if (item.id === data.id) {
-          return {
-            ...item,
-            quantity: data.quantity,
-          };
-        }
-        return item;
+  async function patchQuantity(newValue: string | number) {
+    try {
+      setIsLoading(true);
+
+      const res = await axios.patch(
+        `${BASE_URL}cart/${el.product.id}/${getCartID()}/${newValue}`,
+        {},
+        { withCredentials: true }
+      );
+
+      const data = await res.data;
+
+      setCart((prev: CartItemModel[]) => {
+        const newCart = prev.map((item) => {
+          if (item.id === data.id) {
+            return {
+              ...item,
+              quantity: data.quantity,
+            };
+          }
+          return item;
+        });
+        return newCart;
       });
-      return newCart;
-    });
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
   }
 
   function handleEraseCartItem(cartItemKey: string | undefined) {
     setItemIdToErase(() => cartItemKey);
-
     open();
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Flex className={styles.row} key={el.id}>
@@ -74,7 +90,6 @@ function CartItem({ el }: { el: CartItemModel }) {
           value={value}
           onChange={(value) => {
             setValue(() => value);
-            patchQuantity(value);
           }}
         />
         <NumberFormatter

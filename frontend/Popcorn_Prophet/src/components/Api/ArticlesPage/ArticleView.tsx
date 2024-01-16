@@ -17,7 +17,9 @@ import { ArticleModel, CommentModel } from "./ArticlesPage";
 import Comment from "./Comment";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { getMemberID } from "../../../App";
+import { BASE_URL, getMemberID } from "../../../App";
+import axios from "axios";
+import Spinner from "../../Misc/Spinner";
 function ArticleView() {
   const navigate = useNavigate();
   const [toggleComments, setToggleComments] = useState<boolean>(false);
@@ -29,6 +31,7 @@ function ArticleView() {
   const [activePage, setActivePage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const commentRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false);
@@ -47,21 +50,17 @@ function ArticleView() {
   }, []);
 
   async function getArticle() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
+    try {
+      setIsLoading(true);
 
-    const response = await fetch(
-      `http://localhost:8080/articles/${articleId}`,
-      {
-        method: "GET",
-        headers: headers,
-      }
-    );
+      const response = await axios.get(`${BASE_URL}articles/${articleId}`);
 
-    const data = await response.json();
-    setArticle(data);
+      const data = await response.data;
+      setArticle(data);
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
   }
 
   useEffect(() => {
@@ -74,26 +73,24 @@ function ArticleView() {
   }, [activePage]);
 
   async function fetchComments() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `${BASE_URL}articles/articleComment/${articleId}?page=${
+          activePage - 1
+        }`,
+        { withCredentials: true }
+      );
 
-    const response = await fetch(
-      `http://localhost:8080/articles/articleComment/${articleId}?page=${
-        activePage - 1
-      }`,
-      {
-        method: "GET",
-        headers: headers,
+      const data = await response.data;
+      setComments(data.articleComment);
+      setTotalPages(data.totalPages);
+      if (activePage > data.totalPages && data.totalPages != 0) {
+        setActivePage(data.totalPages);
       }
-    );
-
-    const data = await response.json();
-    setComments(data.articleComment);
-    setTotalPages(data.totalPages);
-    if (activePage > data.totalPages && data.totalPages != 0) {
-      setActivePage(data.totalPages);
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
   }
 
@@ -103,45 +100,35 @@ function ArticleView() {
   }
 
   async function editComment(comment: CommentModel) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
+    try {
+      setIsLoading(true);
 
-    const response = await fetch(
-      `http://localhost:8080/articles/articleComment`,
-      {
-        method: "PUT",
-        headers: headers,
-        body: JSON.stringify(comment),
-      }
-    );
+      const res = await axios.put(
+        `${BASE_URL}articles/articleComment`,
+        comment,
+        { withCredentials: true }
+      );
 
-    if (!response.ok) {
-      throw new Error("Something went wrong!");
+      fetchComments();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-    fetchComments();
   }
 
   async function createComment(comment: CommentModel) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-
-    const response = await fetch(
-      `http://localhost:8080/articles/articleComment/${articleId}/${getMemberID()}`,
-      {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(comment),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        `${BASE_URL}articles/articleComment/${articleId}/${getMemberID()}`,
+        comment,
+        { withCredentials: true }
+      );
+      fetchComments();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-    fetchComments();
   }
 
   function handleComment(comment: CommentModel) {
@@ -157,6 +144,8 @@ function ArticleView() {
     });
     openModal();
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Flex className={styles.main} p={10}>

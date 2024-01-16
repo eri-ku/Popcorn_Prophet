@@ -19,7 +19,6 @@ import { useDisclosure } from "@mantine/hooks";
 
 import { IconWorld, IconMovie } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 
 function Product({
   product,
@@ -48,8 +47,6 @@ function Product({
 
   const [opened, { open, close }] = useDisclosure(false);
 
-  // const [imgPoster, setImgPoster] = useState<string>("");
-
   const navigate = useNavigate();
 
   const languages = language.map((language) => (
@@ -73,26 +70,6 @@ function Product({
       {countrie}
     </Badge>
   ));
-
-  // useEffect(() => {
-  //   async function fetchImg(poster: string) {
-  //     const headers = {
-  //       "Content-Type": "application/json;charset=UTF-8",
-  //       Authorization: `${localStorage.getItem("token")}`,
-  //     };
-  //     const res = await fetch(poster, {
-  //       method: "GET",
-  //       headers,
-  //     });
-  //     if (!res.ok) {
-  //       throw new Error("Something went wrong!");
-  //     }
-  //     const data = await res.blob();
-
-  //     setImgPoster(URL.createObjectURL(data));
-  //   }
-  //   poster && fetchImg(poster.toString());
-  // }, [poster]);
 
   return (
     <Card

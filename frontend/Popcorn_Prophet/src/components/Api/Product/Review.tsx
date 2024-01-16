@@ -10,6 +10,10 @@ import {
 import styles from "./Review.module.css";
 import { ReviewModel } from "./ProductView";
 import { useDisclosure } from "@mantine/hooks";
+import axios from "axios";
+import { BASE_URL, getMemberID } from "../../../App";
+import { useState } from "react";
+import Spinner from "../../Misc/Spinner";
 
 function Review({
   review,
@@ -21,23 +25,26 @@ function Review({
   fetchReviews: Function;
 }) {
   const [opened, { open, close }] = useDisclosure(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   async function deleteReview(id: string) {
-    const response = await fetch(
-      `http://localhost:8080/products/productReview/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    fetchReviews();
+    try {
+      setIsLoading(true);
+      const res = await axios.delete(
+        `${BASE_URL}products/productReview/${id}}`,
+        { withCredentials: true }
+      );
+      const data = await res.data;
+      fetchReviews();
 
-    close();
+      close();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
   }
 
+  if (isLoading) return <Spinner />;
   return (
     <Flex
       wrap={"wrap"}

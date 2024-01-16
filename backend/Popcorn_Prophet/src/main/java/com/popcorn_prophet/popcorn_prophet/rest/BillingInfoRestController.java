@@ -5,11 +5,11 @@ import com.popcorn_prophet.popcorn_prophet.entity.BillingInfo;
 import com.popcorn_prophet.popcorn_prophet.service.BillingInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/billingInfo")
 public class BillingInfoRestController {
     private final BillingInfoService billingInfoService;
@@ -19,8 +19,9 @@ public class BillingInfoRestController {
         return ResponseEntity.ok(billingInfoService.getBillingInfo(memberId));
     }
 
+    @PreAuthorize("@securityService.hasAccessToModifyBillingInfo(#billingInfo.id)")
     @PutMapping({"/{memberId}"})
-    public ResponseEntity<BillingInfo> addBillingInfo(@RequestBody BillingInfo billingInfo, @PathVariable() Long memberId){
+    public ResponseEntity<BillingInfo> changeBillingInfo(@RequestBody BillingInfo billingInfo, @PathVariable() Long memberId){
         return ResponseEntity.ok(billingInfoService.addBillingInfo(billingInfo, memberId));
     }
 

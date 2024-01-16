@@ -22,8 +22,8 @@ function HeaderNav() {
           radius="lg"
           size="compact-xl"
           onClick={() => {
-            localStorage.clear();
-            localStorage.clear();
+            sessionStorage.clear();
+            sessionStorage.clear();
             navigate("/");
           }}
         >

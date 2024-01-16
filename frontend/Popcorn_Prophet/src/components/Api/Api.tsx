@@ -1,9 +1,8 @@
 import { useForm } from "@mantine/form";
 import { countries } from "../../util/countries";
 import { DateInput } from "@mantine/dates";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import {
-  Box,
   FileInput,
   Button,
   Modal,
@@ -23,9 +22,10 @@ import { languages } from "../../util/languages";
 import { genres } from "../../util/genres";
 import { movieRatings, seriesRatings } from "../../util/ratings";
 import Spinner from "../Misc/Spinner";
-import { getCartID } from "../../App";
+import { BASE_URL } from "../../App";
 import { useProvider } from "./ContextProvider";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 export interface ProductModel {
   id?: string;
   title: string;
@@ -88,54 +88,46 @@ function Api({
   }, [activePage]);
 
   async function fetchProducts() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
     if (!page || Number(page) < 1) {
       navigate(`/api/1`);
       setActivePage(1);
       return;
     }
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
+      const res = await axios.get(
+        `${BASE_URL}api/products/all?page=${activePage - 1}`
+      );
+      const data = await res.data;
 
-    const res = await fetch(
-      `http://localhost:8080/api/products/all?page=${activePage - 1}`,
-      {
-        headers,
+      const pro: ProductModel[] = [];
+      for (const key in data.products) {
+        pro.push({
+          id: data.products[key].id,
+          title: data.products[key].title,
+          rated: data.products[key].rated,
+          poster: data.products[key].poster,
+          country: data.products[key].country,
+          plot: data.products[key].plot,
+          type: data.products[key].type,
+          released: data.products[key].released,
+          genre: data.products[key].genre,
+          language: data.products[key].language,
+          runtime: data.products[key].runtime,
+        });
       }
-    );
 
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+      setProds(pro);
+      setTotalPages(() => data.totalPages);
+      activePage > data.totalPages && setActivePage(data.totalPages);
+      activePage < 1 && setActivePage(1);
+
+      setIsLoading(false);
+
+      navigate(`/api/${activePage}`);
+    } catch (err) {
+      new Error("Something went wrong");
     }
-    const data = await res.json();
-
-    const pro: ProductModel[] = [];
-    for (const key in data.products) {
-      pro.push({
-        id: data.products[key].id,
-        title: data.products[key].title,
-        rated: data.products[key].rated,
-        poster: data.products[key].poster,
-        country: data.products[key].country,
-        plot: data.products[key].plot,
-        type: data.products[key].type,
-        released: data.products[key].released,
-        genre: data.products[key].genre,
-        language: data.products[key].language,
-        runtime: data.products[key].runtime,
-      });
-    }
-
-    setProds(pro);
-    setTotalPages(() => data.totalPages);
-    activePage > data.totalPages && setActivePage(data.totalPages);
-    activePage < 1 && setActivePage(1);
-
-    setIsLoading(false);
-
-    navigate(`/api/${activePage}`);
   }
 
   function closeModal() {
@@ -144,22 +136,15 @@ function Api({
   }
 
   async function deleteProduct(id: string) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    setIsLoading(true);
-    const res = await fetch(`http://localhost:8080/api/products/delete/${id}`, {
-      method: "DELETE",
-      body: JSON.stringify(id),
-      headers,
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
-    }
+    try {
+      setIsLoading(true);
+      const res = await axios.delete(`${BASE_URL}api/products/delete/${id}`);
 
-    fetchProducts();
-    setIsLoading(false);
+      fetchProducts();
+      setIsLoading(false);
+    } catch (err) {
+      new Error("Something went wrong");
+    }
   }
 
   async function createProduct(product: ProductModel) {
@@ -168,20 +153,16 @@ function Api({
     product.released = format(new Date(product.released), "yyyy-MMM-dd");
     product.poster = "";
     Object.keys(product).forEach((key) => formData.append(key, product[key]));
-    const headers = {
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    setIsLoading(true);
-    const res = await fetch(`http://localhost:8080/api/products`, {
-      method: "POST",
-      body: formData,
-      headers,
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+      const res = await axios.post(`${BASE_URL}api/products`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      fetchProducts();
+      setIsLoading(false);
+    } catch (err) {
+      new Error("Something went wrong");
     }
-    fetchProducts();
-    setIsLoading(false);
   }
 
   async function editProduct(product: ProductModel) {
@@ -190,21 +171,16 @@ function Api({
     product.released = format(new Date(product.released), "yyyy-MMM-dd");
     product.poster = "";
     Object.keys(product).forEach((key) => formData.append(key, product[key]));
-    const headers = {
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    setIsLoading(true);
-    const res = await fetch(`http://localhost:8080/api/products/update`, {
-      method: "PUT",
-      body: formData,
-      headers,
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+      const res = await axios.put(`${BASE_URL}api/products/update`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      fetchProducts();
+      setIsLoading(false);
+    } catch (err) {
+      new Error("Something went wrong");
     }
-
-    fetchProducts();
-    setIsLoading(false);
   }
 
   function handleProduct(product: ProductModel) {
@@ -221,9 +197,7 @@ function Api({
     });
     open();
   }
-  if (isLoading) {
-    return <Spinner />;
-  }
+  if (isLoading) return <Spinner />;
 
   return (
     <>

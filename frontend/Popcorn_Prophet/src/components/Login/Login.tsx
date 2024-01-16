@@ -15,7 +15,10 @@ import {
 import { useForm } from "@mantine/form";
 import styles from "./Login.module.css";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { BASE_URL, getCookie } from "../../App";
+import axios from "axios";
+import Spinner from "../Misc/Spinner";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
@@ -38,6 +41,7 @@ function getStrength(password: string) {
 function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
   const [validationErrors, setValidationErros] = useState<any>([]);
   const [validationMessage, setValidationMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const form = useForm({
     validateInputOnChange: true,
     initialValues: {
@@ -68,17 +72,13 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
   const navigate = useNavigate();
 
   async function login(values: any) {
-    const credentials = `${values.email}:${values.password}`;
-    const base64Credentials = window.btoa(credentials);
-    const res = await fetch(`http://localhost:8080/auth/login`, {
-      method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8",
-      },
-    });
-    const data = await res.json();
-    if (!res.ok) {
+    try {
+      setIsLoading(true);
+      const res = await axios.post(`${BASE_URL}auth/login`, values, {
+        withCredentials: false,
+      });
+      const data = await res.data;
+      console.log(data);
       if (data) {
         data.errors
           ? setValidationErros([...data.errors])
@@ -87,17 +87,24 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
           ? setValidationMessage(data.message)
           : setValidationMessage("");
       }
+
+      sessionStorage.setItem("cart", data.cartId);
+      sessionStorage.setItem(
+        "token",
+        `Basic ${window.btoa(`${values.email}:${values.password}`)}`
+      );
+      sessionStorage.setItem("authMember", values.username);
+      sessionStorage.setItem("memberId", data.member.id);
+
+      setIsLoading(false);
+      handlers.toggle();
+      navigate("/api");
+    } catch (err) {
       throw new Error("Something went wrong!");
     }
-
-    localStorage.setItem("cart", data.cartId);
-    localStorage.setItem("token", `Basic ${base64Credentials}`);
-    localStorage.setItem("authMember", values.username);
-    localStorage.setItem("memberId", data.member.id);
-
-    handlers.toggle();
-    navigate("/api");
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Container size={420} my={40}>

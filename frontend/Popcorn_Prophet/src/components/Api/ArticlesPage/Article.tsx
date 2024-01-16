@@ -1,10 +1,5 @@
 import styles from "./Article.module.css";
-import {
-  IconBookmark,
-  IconHeart,
-  IconMessage,
-  IconShare,
-} from "@tabler/icons-react";
+import { IconHeart, IconMessage } from "@tabler/icons-react";
 import {
   Card,
   Image,
@@ -19,14 +14,13 @@ import {
   Button,
   Modal,
   Indicator,
-  Box,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { ArticleModel } from "./ArticlesPage";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { set } from "date-fns";
-import { is } from "date-fns/locale";
+import axios from "axios";
+import { BASE_URL } from "../../../App";
 function Article({
   article,
   updateArticle,
@@ -45,20 +39,17 @@ function Article({
   // TODO: one like per user
 
   async function changeLike(alreadyLiked: boolean) {
-    const response = await fetch(
-      `http://localhost:8080/articles/${article.id}/like`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(alreadyLiked),
-      }
-    );
+    try {
+      const res = await axios.patch(
+        `${BASE_URL}articles/${article.id}/like?isAlreadyLiked=${alreadyLiked}`,
+        { withCredentials: true }
+      );
 
-    setAlreadyLiked((isAlreadyLiked) => !isAlreadyLiked);
-    setLikes((likes) => (isAlreadyLiked ? likes - 1 : likes + 1));
+      setAlreadyLiked((isAlreadyLiked) => !isAlreadyLiked);
+      setLikes((likes) => (isAlreadyLiked ? likes - 1 : likes + 1));
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
   }
 
   return (

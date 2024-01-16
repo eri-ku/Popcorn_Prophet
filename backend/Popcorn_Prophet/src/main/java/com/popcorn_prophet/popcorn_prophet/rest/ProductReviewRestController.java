@@ -9,6 +9,7 @@ import com.popcorn_prophet.popcorn_prophet.service.ProductReviewService;
 import com.popcorn_prophet.popcorn_prophet.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 @RequestMapping("/products/productReview")
 public class ProductReviewRestController {
     private final ProductReviewService productReviewService;
@@ -38,12 +38,16 @@ public class ProductReviewRestController {
 
         return ResponseEntity.ok(productReviewService.addProductReview(productReview,productId,memberId));
     }
+
+
+    @PreAuthorize("@securityService.hasAccessToModifyProductReview(#productReviewId) || hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping({"/{productReviewId}"})
     public ResponseEntity<ProductReview> deleteProductReview(@PathVariable Long productReviewId){
         productReviewService.deleteProductReview(productReviewId);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("@securityService.hasAccessToModifyProductReview(#productReview.id)")
     @PutMapping()
     public ResponseEntity<ProductReview> updateProductReview(@RequestBody ProductReview productReview){
         ProductReview productReviewToEdit = productReviewService.getProductReview(productReview.getId());

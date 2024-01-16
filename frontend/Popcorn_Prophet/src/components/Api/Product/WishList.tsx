@@ -1,18 +1,21 @@
 import styles from "./WishList.module.css";
 import { useForm } from "@mantine/form";
 import { TextInput, Box, Button, Flex } from "@mantine/core";
+import axios from "axios";
+import { BASE_URL } from "../../../App";
+import { useState } from "react";
+import Spinner from "../../Misc/Spinner";
 function WishList() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   async function getProduct(id: { id: string }) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(
-      `http://localhost:8080/api/products/search?i=${id}`,
-      { headers }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+      const res = await axios.post(`${BASE_URL}api/products/search?i=${id}`);
+      const data = await res.data;
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
   }
 
@@ -21,6 +24,8 @@ function WishList() {
       id: "",
     },
   });
+
+  if (isLoading) return <Spinner />;
   return (
     <Box className={styles.container}>
       <form

@@ -14,7 +14,7 @@ import styles from "./ArticlesPage.module.css";
 import { useMediaQuery } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { MemberModel } from "../AdminPage/AdminPage";
-import { getMemberID } from "../../../App";
+import { BASE_URL, getMemberID } from "../../../App";
 import {
   IconArrowBarToRight,
   IconArrowBarToLeft,
@@ -25,7 +25,8 @@ import {
 import { useForm } from "@mantine/form";
 import { useProvider } from "../ContextProvider";
 import { useNavigate, useParams } from "react-router-dom";
-import { set } from "date-fns";
+import axios from "axios";
+import Spinner from "../../Misc/Spinner";
 
 export interface CommentModel {
   id?: string;
@@ -54,6 +55,7 @@ function ArticlesPage() {
   const [page, setPage] = useState(Number(pageNum));
 
   const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -74,60 +76,53 @@ function ArticlesPage() {
   }, [page, isSmall]);
 
   async function getArticles() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-
     if (!page || Number(page) < 1) {
       navigate(`/api/articles/1`);
       setPage(1);
       return;
     }
+    try {
+      setIsLoading(true);
+      const res = await axios.get(
+        `${BASE_URL}articles?page=${page - 1}&size=${isSmall ? "1" : "2"}`,
+        { withCredentials: true }
+      );
 
-    const res = await fetch(
-      `http://localhost:8080/articles?page=${page - 1}&size=${
-        isSmall ? "1" : "2"
-      }`,
-      {
-        headers,
-      }
-    );
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+      const data = await res.data;
+      setArticles(data.articles);
+      setTotalPages(data.totalPages);
+
+      page > data.totalPages && setPage(data.totalPages);
+      page < 1 && setPage(1);
+
+      navigate(`/api/articles/${page}`);
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-
-    const data = await res.json();
-    setArticles(data.articles);
-    setTotalPages(data.totalPages);
-
-    page > data.totalPages && setPage(data.totalPages);
-    page < 1 && setPage(1);
-
-    navigate(`/api/articles/${page}`);
   }
 
   async function createArticle(article: any) {
     const formData = new FormData();
     formData.append("img", article.poster);
     article.poster = "";
-
     Object.keys(article).forEach((key) => formData.append(key, article[key]));
 
-    console.log(formData);
+    try {
+      setIsLoading(true);
 
-    const headers = {
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/articles/${getMemberID()}`, {
-      method: "POST",
-      headers,
-      body: formData,
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+      const res = await axios.post(
+        `${BASE_URL}articles/${getMemberID()}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      getArticles();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-    getArticles();
   }
 
   async function updateArticle(article: any) {
@@ -136,37 +131,38 @@ function ArticlesPage() {
     article.poster = "";
     Object.keys(article).forEach((key) => formData.append(key, article[key]));
 
-    const headers = {
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/articles/${article.id}`, {
-      method: "PUT",
-      headers,
-      body: formData,
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+
+      const res = await axios.put(
+        `${BASE_URL}articles/${article.id}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      getArticles();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-    getArticles();
   }
 
   async function deleteArticle(id: string) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
-    const res = await fetch(`http://localhost:8080/articles/${id}`, {
-      method: "DELETE",
-      headers,
-    });
-    if (!res.ok) {
-      throw new Error("Something went wrong!");
+    try {
+      setIsLoading(true);
+
+      const res = await axios.delete(`${BASE_URL}articles/${id}`);
+
+      getArticles();
+      setIsLoading(false);
+    } catch (error) {
+      throw new Error("Something went wrong");
     }
-    getArticles();
   }
 
   function handleArticle(article: any) {
-    console.log(article);
     article.id ? updateArticle(article) : createArticle(article);
     form.reset();
     closeArticleForm();
@@ -183,6 +179,8 @@ function ArticlesPage() {
     });
     openArticleForm();
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Flex

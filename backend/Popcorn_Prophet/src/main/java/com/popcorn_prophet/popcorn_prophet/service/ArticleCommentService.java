@@ -1,6 +1,7 @@
 package com.popcorn_prophet.popcorn_prophet.service;
 
 import com.popcorn_prophet.popcorn_prophet.DTO.ArticleCommentDTO;
+import com.popcorn_prophet.popcorn_prophet.entity.Article;
 import com.popcorn_prophet.popcorn_prophet.entity.ArticleComment;
 import com.popcorn_prophet.popcorn_prophet.repo.ArticleCommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,13 @@ public class ArticleCommentService {
 
     public ArticleComment updateArticleComment(ArticleComment articleComment) {
         return articleCommentRepository.save(articleComment);
+    }
+
+
+    public void likeComment(Long commentId, boolean isAlreadyLiked) {
+        ArticleComment articleComment = articleCommentRepository.findById(commentId).get();
+        articleComment.setLikes(isAlreadyLiked ? articleComment.getLikes() - 1 : articleComment.getLikes() + 1);
+        articleCommentRepository.save(articleComment);
     }
 
 

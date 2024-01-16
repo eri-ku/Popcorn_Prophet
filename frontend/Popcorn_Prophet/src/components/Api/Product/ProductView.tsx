@@ -5,14 +5,9 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import {
   Text,
   Flex,
-  Box,
   Image,
   Accordion,
   Title,
-  Center,
-  rem,
-  Avatar,
-  Group,
   Button,
   Modal,
   Textarea,
@@ -20,14 +15,15 @@ import {
   Pagination,
 } from "@mantine/core";
 import { ProductModel } from "../Api";
-import { act } from "react-dom/test-utils";
 import Review from "./Review";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { useProvider } from "../ContextProvider";
-import { getMemberID } from "../../../App";
+import { BASE_URL, getMemberID } from "../../../App";
 import { MemberModel } from "../AdminPage/AdminPage";
 import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
+import axios from "axios";
+import Spinner from "../../Misc/Spinner";
 export interface ReviewModel {
   id?: string;
   product?: ProductModel;
@@ -44,6 +40,7 @@ function ProductView() {
   const { buyProduct } = useProvider();
   const [opened, { open, close }] = useDisclosure(false);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [activePage, setActivePage] = useState(1);
 
@@ -73,90 +70,59 @@ function ProductView() {
   }, [toggleReviews]);
 
   async function fetchProduct() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/products/${productId}`,
-        {
-          headers,
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Something went wrong!");
-      }
-      const data = await res.json();
+      setIsLoading(true);
+      const res = await axios.get(`${BASE_URL}api/products/${productId}`);
+      const data = await res.data;
 
       const pro: ProductModel = { ...data };
 
       setProduct(() => pro);
+      setIsLoading(false);
     } catch (error: any) {
-      console.error("Fetch error:", error);
+      throw new Error("Something went wrong!");
     }
   }
 
   async function fetchReviews() {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
     try {
-      const res = await fetch(
-        `http://localhost:8080/products/productReview/${productId}?page=${
-          activePage - 1
-        }`,
-        {
-          headers,
-        }
+      setIsLoading(true);
+      const res = await axios.get(
+        `${BASE_URL}products/productReview/${productId}?page=${activePage - 1}`,
+        { withCredentials: true }
       );
 
-      if (!res.ok) {
-        throw new Error("Something went wrong!");
-      }
-      const data = await res.json();
+      const data = await res.data;
 
       setReviews(() => data.reviews);
       setTotalPages(() => data.totalPages);
       if (activePage > data.totalPages && data.totalPages != 0) {
         setActivePage(data.totalPages);
       }
+      setIsLoading(false);
     } catch (error: any) {
-      console.error("Fetch error:", error);
+      throw new Error("Something went wrong!");
     }
   }
 
   async function createReview(ProductReview: ReviewModel) {
-    form.reset();
-    close();
-
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
     try {
-      const res = await fetch(
-        `http://localhost:8080/products/productReview/${productId}/${getMemberID()}`,
-        {
-          headers,
-          method: "POST",
-          body: JSON.stringify(ProductReview),
-        }
+      setIsLoading(true);
+      const res = await axios.post(
+        `${BASE_URL}products/productReview/${productId}/${getMemberID()}`,
+        ProductReview,
+        { withCredentials: true }
       );
 
-      if (!res.ok) {
-        throw new Error("Something went wrong!");
-      }
       fetchReviews();
+      setIsLoading(false);
     } catch (error: any) {
-      console.error("Fetch error:", error);
+      throw new Error("Something went wrong!");
     }
   }
 
   if (!product) {
-    return <Text className={styles.loading}>Loading...</Text>;
+    return <Spinner />;
   }
   const {
     id,
@@ -207,23 +173,12 @@ function ProductView() {
   }
 
   async function editReview(review: ReviewModel) {
-    const headers = {
-      "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `${localStorage.getItem("token")}`,
-    };
     try {
-      const res = await fetch(`http://localhost:8080/products/productReview`, {
-        headers,
-        method: "PUT",
-        body: JSON.stringify(review),
-      });
+      const res = await axios.put(`${BASE_URL}products/productReview`, review);
 
-      if (!res.ok) {
-        throw new Error("Something went wrong!");
-      }
       fetchReviews();
     } catch (error: any) {
-      console.error("Fetch error:", error);
+      throw new Error("Something went wrong!");
     }
   }
 
@@ -237,6 +192,8 @@ function ProductView() {
     fetchReviews();
     setToggleReviews((val) => !val);
   }
+
+  if (isLoading) return <Spinner />;
 
   return (
     <Flex justify={"center"} className={styles.main}>

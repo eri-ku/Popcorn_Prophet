@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Errors;
@@ -28,7 +29,6 @@ import java.util.*;
 
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class MemberRestController {
@@ -68,11 +68,11 @@ public class MemberRestController {
 
         Set<Role> roles = new HashSet<>();
 
-        roles.add(roleRepository.findByRoleName("USER").get());
+        roles.add(roleRepository.findByRoleName("ROLE_USER").get());
         if (member.getUsername().equals("Admin")) {
-            roles.add(roleRepository.findByRoleName("MODERATOR").get());
-            roles.add(roleRepository.findByRoleName("ADMIN").get());
-            roles.add(roleRepository.findByRoleName("USER").get());
+            roles.add(roleRepository.findByRoleName("ROLE_ADMIN").get());
+            roles.add(roleRepository.findByRoleName("ROLE_MODERATOR").get());
+            roles.add(roleRepository.findByRoleName("ROLE_USER").get());
         }
         member.setRoles(roles);
 
@@ -80,20 +80,24 @@ public class MemberRestController {
     }
 
     private void createBaseRoles() {
-        if (roleRepository.findByRoleName("ADMIN").isEmpty()) {
-            Role role = Role.builder().roleName("ADMIN").build();
+        if (roleRepository.findByRoleName("ROLE_ADMIN").isEmpty()) {
+            Role role = Role.builder().roleName("ROLE_ADMIN").build();
             roleRepository.save(role);
         }
-        if (roleRepository.findByRoleName("MODERATOR").isEmpty()) {
-            Role role = Role.builder().roleName("MODERATOR").build();
+        if (roleRepository.findByRoleName("ROLE_MODERATOR").isEmpty()) {
+            Role role = Role.builder().roleName("ROLE_MODERATOR").build();
             roleRepository.save(role);
         }
-        if (roleRepository.findByRoleName("USER").isEmpty()) {
-            Role role = Role.builder().roleName("USER").build();
+        if (roleRepository.findByRoleName("ROLE_USER").isEmpty()) {
+            Role role = Role.builder().roleName("ROLE_USER").build();
             roleRepository.save(role);
         }
     }
 
+
+
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping()
     public ResponseEntity<MemberPageResponse> getMembers(@RequestParam(defaultValue = "0") int page) {
         MemberPageResponse members = MemberPageResponse.builder().members(memberService.getMembers(page)
@@ -101,30 +105,40 @@ public class MemberRestController {
 
         return ResponseEntity.ok(members);
     }
+
+
+
+
+    @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId) || hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/{memberId}")
     public ResponseEntity<Member> getMember(@PathVariable Long memberId) {
         return ResponseEntity.ok(memberService.getMember(memberId));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long memberId) {
         this.memberService.deleteMember(memberId);
         return ResponseEntity.ok().build();
     }
 
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/role/{memberId}")
     public ResponseEntity<Member> updateRoles(@PathVariable Long memberId, @RequestBody JsonNode roleNames) {
         return ResponseEntity.ok(memberService.updateRoles(memberId, roleNames));
     }
 
+
+    @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId)")
     @PatchMapping("/email/{memberId}")
     public ResponseEntity<Member> updateEmail(@PathVariable Long memberId, @RequestBody JsonNode email) {
         return ResponseEntity.ok(memberService.updateEmail(memberId, email));
     }
 
+    @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId)")
     @PatchMapping("/password/{memberId}")
     public ResponseEntity<MemberResponse> updatePassword(@PathVariable Long memberId, @RequestBody JsonNode password) {
-        MemberResponse memberResponse = memberService.updatePassword(memberId, password);
         return ResponseEntity.ok(memberService.updatePassword(memberId, password));
     }
 

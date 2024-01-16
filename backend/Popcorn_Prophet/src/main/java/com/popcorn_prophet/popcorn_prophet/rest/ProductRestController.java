@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -24,7 +25,6 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/products")
 public class ProductRestController {
     private final ProductRepository productRepository;
@@ -42,8 +42,8 @@ public class ProductRestController {
         return ResponseEntity.ok(productPageResponse);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Product> searchProducts(@RequestParam("i") String i) throws JsonProcessingException, ParseException {
+    @PostMapping("/search")
+    public ResponseEntity<Product> searchProducts(@RequestParam("i") String i) {
         Product product = productProxy.getProduct("6b9ab58", i);
         if (product != null) {
             product.setRuntime(product.getRuntime().split(" ")[0]);
@@ -63,6 +63,8 @@ public class ProductRestController {
     }
 
     @PostMapping
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @Transactional
     public ResponseEntity<Product> addProduct(@ModelAttribute Product product, @RequestParam("img") MultipartFile file) throws IOException, ParseException {
 
@@ -88,6 +90,8 @@ public class ProductRestController {
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(imageService.getImageModel(id).getType())).body(image);
     }
 
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PutMapping("/update")
     @Transactional
     public ResponseEntity<Product> updateProduct(@ModelAttribute Product product, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException, ParseException {
@@ -127,6 +131,8 @@ public class ProductRestController {
         }
     }
 
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Product> deleteProduct(@PathVariable Long id) throws IOException {
         Optional<Product> productToDelete = productRepository.findById(id);

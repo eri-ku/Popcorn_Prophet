@@ -4,7 +4,7 @@ import styles from "./Homepage.module.css";
 import HeaderNav from "./HeaderNav";
 import { Link } from "react-router-dom";
 function Homepage() {
-  const isAuth = localStorage.getItem("authMember") ? true : false;
+  const isAuth = sessionStorage.getItem("authMember") ? true : false;
 
   return (
     <Box className={styles.header}>
