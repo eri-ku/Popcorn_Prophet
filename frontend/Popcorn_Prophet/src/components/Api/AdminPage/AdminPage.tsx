@@ -18,6 +18,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { BASE_URL, getMemberID } from "../../../App";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
+import { useNavigate } from "react-router-dom";
 export interface MemberModel {
   id: string;
   username: string;
@@ -50,6 +51,8 @@ function AdminPage() {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const navigate = useNavigate();
+
   const [
     openedChaneRoleModal,
     { open: openChangeRoleModal, close: closeChangeRoleModal },
@@ -78,7 +81,7 @@ function AdminPage() {
       close();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -107,7 +110,7 @@ function AdminPage() {
       }
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -176,7 +179,7 @@ function AdminPage() {
       closeChangeRoleModal();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 

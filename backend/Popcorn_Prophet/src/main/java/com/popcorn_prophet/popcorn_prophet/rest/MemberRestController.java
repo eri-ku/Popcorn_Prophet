@@ -1,6 +1,7 @@
 package com.popcorn_prophet.popcorn_prophet.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.popcorn_prophet.popcorn_prophet.DTO.MemberDTO;
 import com.popcorn_prophet.popcorn_prophet.POJO.MemberPageResponse;
 import com.popcorn_prophet.popcorn_prophet.config.PopcornProphetAuthenticationProvider;
 import com.popcorn_prophet.popcorn_prophet.entity.BillingInfo;
@@ -46,55 +47,15 @@ public class MemberRestController {
 
         ResponseEntity<MemberResponse> mapErrors = getMemberResponseResponseEntity(errors);
         if (mapErrors != null) return mapErrors;
-
-        if (memberRepository.findByEmail(member.getEmail()).isPresent() || memberRepository.findByUsername(member.getUsername()).isPresent()) {
+        if (memberService.emailOrUsernameAlreadyExists(member.getEmail(), member.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new MemberResponse("Email or username already exists", null, null, null));
         }
-
         if (!Objects.equals(member.getPassword(), member.getConfirmPassword())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new MemberResponse("Passwords do not match", null, null, null));
         }
 
-        if (roleRepository.count() < 3) createBaseRoles();
-
-
-        Cart cart = cartService.createCart(member);
-        member.setCart(cart);
-
-        BillingInfo billingInfo = new BillingInfo();
-        member.setBillingInfo(billingInfo);
-        String hashedPassword = passwordEncoder.encode(member.getPassword());
-        member.setPassword(hashedPassword);
-
-        Set<Role> roles = new HashSet<>();
-
-        roles.add(roleRepository.findByRoleName("ROLE_USER").get());
-        if (member.getUsername().equals("Admin")) {
-            roles.add(roleRepository.findByRoleName("ROLE_ADMIN").get());
-            roles.add(roleRepository.findByRoleName("ROLE_MODERATOR").get());
-            roles.add(roleRepository.findByRoleName("ROLE_USER").get());
-        }
-        member.setRoles(roles);
-
-        return ResponseEntity.ok(new MemberResponse("Member registered", memberRepository.save(member), member.getCart().getId(), null));
+        return new ResponseEntity<>(memberService.registerMember(member), HttpStatus.CREATED);
     }
-
-    private void createBaseRoles() {
-        if (roleRepository.findByRoleName("ROLE_ADMIN").isEmpty()) {
-            Role role = Role.builder().roleName("ROLE_ADMIN").build();
-            roleRepository.save(role);
-        }
-        if (roleRepository.findByRoleName("ROLE_MODERATOR").isEmpty()) {
-            Role role = Role.builder().roleName("ROLE_MODERATOR").build();
-            roleRepository.save(role);
-        }
-        if (roleRepository.findByRoleName("ROLE_USER").isEmpty()) {
-            Role role = Role.builder().roleName("ROLE_USER").build();
-            roleRepository.save(role);
-        }
-    }
-
-
 
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -107,18 +68,24 @@ public class MemberRestController {
     }
 
 
-
-
     @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId) || hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/{memberId}")
     public ResponseEntity<Member> getMember(@PathVariable Long memberId) {
-        return ResponseEntity.ok(memberService.getMember(memberId));
+        Optional<Member> member = memberService.getMember(memberId);
+        if (member.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(member.get());
+
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long memberId) {
-        this.memberService.deleteMember(memberId);
+        Optional<Boolean> success = this.memberService.deleteMember(memberId);
+        if (success.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -126,14 +93,22 @@ public class MemberRestController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/role/{memberId}")
     public ResponseEntity<Member> updateRoles(@PathVariable Long memberId, @RequestBody JsonNode roleNames) {
-        return ResponseEntity.ok(memberService.updateRoles(memberId, roleNames));
+        Optional<Member> member = memberService.updateRoles(memberId, roleNames);
+        if (member.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(member.get());
     }
 
 
     @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId)")
     @PatchMapping("/email/{memberId}")
     public ResponseEntity<Member> updateEmail(@PathVariable Long memberId, @RequestBody JsonNode email) {
-        return ResponseEntity.ok(memberService.updateEmail(memberId, email));
+        Optional<Member> member = memberService.updateEmail(memberId, email);
+        if (member.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(member.get());
     }
 
     @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId)")
@@ -142,23 +117,18 @@ public class MemberRestController {
         return ResponseEntity.ok(memberService.updatePassword(memberId, password));
     }
 
-
+/*
     @PostMapping("/login")
     public ResponseEntity<MemberResponse> loginMember(@Valid @RequestBody Member member, Errors errors) {
         ResponseEntity<MemberResponse> mapErrors = getMemberResponseResponseEntity(errors);
         if (mapErrors != null) return mapErrors;
+ */
+    @PostMapping("/login")
+    public ResponseEntity<MemberResponse> loginMember(@RequestBody MemberDTO member) {
         try {
-
-            Member mem = memberRepository.findByUsername(member.getUsername()).get();
-
-
-            // TODO fix neskor, tak  aby netreba v body username
-            if (!Objects.equals(mem.getUsername(), member.getUsername())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MemberResponse("Invalid credentials", null, null, null));
-            }
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(member.getEmail(), member.getPassword()));
-            MemberResponse memberResponse = new MemberResponse("Member logged in", mem, mem.getCart().getId(), null);
-            return ResponseEntity.ok(memberResponse);
+            Optional<Member> mem = memberRepository.findByEmail(member.getEmail());
+            return ResponseEntity.ok(new MemberResponse("Member logged in", mem.get(), mem.get().getCart().getId(), null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MemberResponse("Invalid credentials", null, null, null));
         }

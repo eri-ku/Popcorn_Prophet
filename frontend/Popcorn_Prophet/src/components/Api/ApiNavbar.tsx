@@ -37,7 +37,7 @@ function NavbarLink({ icon: Icon, label, to, active, onClick }: ApiLinkProps) {
 
 const contentLinks = [
   { icon: IconHome2, label: "Homepage", to: "/homepage" },
-  { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api/1" },
+  { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api/products/1" },
   { icon: IconNews, label: "Articles", to: "/api/articles/1" },
   { icon: IconGift, label: "WishList", to: "/api/wishlist" },
   { icon: IconUsers, label: "Adminpage", to: "/adminPage" },

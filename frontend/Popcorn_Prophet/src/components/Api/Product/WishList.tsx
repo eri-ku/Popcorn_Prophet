@@ -5,8 +5,10 @@ import axios from "axios";
 import { BASE_URL } from "../../../App";
 import { useState } from "react";
 import Spinner from "../../Misc/Spinner";
+import { useNavigate } from "react-router-dom";
 function WishList() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   async function getProduct(id: { id: string }) {
     try {
@@ -15,7 +17,7 @@ function WishList() {
       const data = await res.data;
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 

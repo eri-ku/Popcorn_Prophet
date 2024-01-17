@@ -80,7 +80,7 @@ function ProductView() {
       setProduct(() => pro);
       setIsLoading(false);
     } catch (error: any) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 
@@ -101,7 +101,7 @@ function ProductView() {
       }
       setIsLoading(false);
     } catch (error: any) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 
@@ -117,7 +117,7 @@ function ProductView() {
       fetchReviews();
       setIsLoading(false);
     } catch (error: any) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 
@@ -178,7 +178,7 @@ function ProductView() {
 
       fetchReviews();
     } catch (error: any) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 

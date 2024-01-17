@@ -15,12 +15,12 @@ import {
   Modal,
   Indicator,
 } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArticleModel } from "./ArticlesPage";
 import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../../../App";
+import { BASE_URL, getAuth } from "../../../App";
 function Article({
   article,
   updateArticle,
@@ -31,26 +31,33 @@ function Article({
   deleteArticle: Function;
 }) {
   const [opened, { open, close }] = useDisclosure(false);
+  const navigate = useNavigate();
 
   const [likes, setLikes] = useState<number>(article.likes);
+  const [likedMembersUsernames, setLikedMembersUsernames] = useState<string[]>(
+    article.likedMembersUsernames!
+  );
+  const [isAlreadyLiked, setIsAlreadyLiked] = useState<boolean>(
+    likedMembersUsernames.includes(getAuth()!)
+  );
 
-  const [isAlreadyLiked, setAlreadyLiked] = useState<boolean>(false);
-
-  // TODO: one like per user
-
-  async function changeLike(alreadyLiked: boolean) {
+  async function changeLike() {
     try {
       const res = await axios.patch(
-        `${BASE_URL}articles/${article.id}/like?isAlreadyLiked=${alreadyLiked}`,
+        `${BASE_URL}articles/${article.id}/like?memberName=${getAuth()}`,
         { withCredentials: true }
       );
 
-      setAlreadyLiked((isAlreadyLiked) => !isAlreadyLiked);
-      setLikes((likes) => (isAlreadyLiked ? likes - 1 : likes + 1));
+      const data = res.data;
+      setLikedMembersUsernames(() => data.likedMembersUsernames);
+      setLikes(() => data.likes);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
+  useEffect(() => {
+    setIsAlreadyLiked(() => likedMembersUsernames.includes(getAuth()!));
+  }, [likedMembersUsernames]);
 
   return (
     <Card withBorder radius="lg" className={styles.card}>
@@ -101,10 +108,7 @@ function Article({
             position="bottom-end"
             color="red"
           >
-            <ActionIcon
-              className={styles.action}
-              onClick={() => changeLike(isAlreadyLiked)}
-            >
+            <ActionIcon className={styles.action} onClick={() => changeLike()}>
               <IconHeart
                 style={{ width: rem(16), height: rem(16) }}
                 color="red"

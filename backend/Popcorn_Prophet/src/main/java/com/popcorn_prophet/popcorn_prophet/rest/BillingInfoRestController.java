@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/billingInfo")
@@ -16,13 +18,21 @@ public class BillingInfoRestController {
 
     @GetMapping({"/{memberId}"})
     public ResponseEntity<BillingInfo> getBillingInfo(@PathVariable() Long memberId) {
-        return ResponseEntity.ok(billingInfoService.getBillingInfo(memberId));
+        Optional<BillingInfo> billingInfo = billingInfoService.getBillingInfo(memberId);
+        if (billingInfo.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(billingInfo.get());
     }
 
     @PreAuthorize("@securityService.hasAccessToModifyBillingInfo(#billingInfo.id)")
     @PutMapping({"/{memberId}"})
     public ResponseEntity<BillingInfo> changeBillingInfo(@RequestBody BillingInfo billingInfo, @PathVariable() Long memberId){
-        return ResponseEntity.ok(billingInfoService.addBillingInfo(billingInfo, memberId));
+       Optional<BillingInfo> billingInfoOptional = billingInfoService.changeBillingInfo(billingInfo, memberId);
+         if (billingInfoOptional.isEmpty()) {
+              return ResponseEntity.notFound().build();
+            }
+        return ResponseEntity.ok(billingInfoOptional.get());
     }
 
 }

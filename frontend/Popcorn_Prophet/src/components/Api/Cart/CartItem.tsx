@@ -12,6 +12,7 @@ import { useProvider } from "../ContextProvider";
 import { CartItemModel } from "./Cart";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
+import { useNavigate } from "react-router-dom";
 function CartItem({ el }: { el: CartItemModel }) {
   const [value, setValue] = useState<string | number>(el.quantity);
   const { setCart, setItemIdToErase, open } = useProvider();
@@ -19,6 +20,7 @@ function CartItem({ el }: { el: CartItemModel }) {
   const firstRender = useRef(true);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (firstRender.current) {
@@ -60,7 +62,7 @@ function CartItem({ el }: { el: CartItemModel }) {
       });
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 

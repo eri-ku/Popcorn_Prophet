@@ -14,6 +14,7 @@ import axios from "axios";
 import { BASE_URL, getMemberID } from "../../../App";
 import { useState } from "react";
 import Spinner from "../../Misc/Spinner";
+import { useNavigate } from "react-router-dom";
 
 function Review({
   review,
@@ -26,12 +27,13 @@ function Review({
 }) {
   const [opened, { open, close }] = useDisclosure(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   async function deleteReview(id: string) {
     try {
       setIsLoading(true);
       const res = await axios.delete(
-        `${BASE_URL}products/productReview/${id}}`,
+        `${BASE_URL}products/productReview/${id}`,
         { withCredentials: true }
       );
       const data = await res.data;
@@ -40,7 +42,7 @@ function Review({
       close();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 

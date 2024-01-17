@@ -83,7 +83,7 @@ function Product({
         <Card.Section pl="1rem" pr="1rem" pt={0}>
           <Image
             className={styles.img}
-            onClick={() => navigate(`/api/products/${id}`)}
+            onClick={() => navigate(`/api/product/${id}`)}
             src={poster}
             alt={title}
             height={10}

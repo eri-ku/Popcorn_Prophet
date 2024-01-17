@@ -8,9 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,20 +21,25 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ImageService {
 
-    private final String PATH="src/main/resources/static/images/";
+    private final String PATH = "src/main/resources/static/images/";
 
     private final ProductImageRepository productImageRepository;
 
     @Transactional
-    public Image saveImage(MultipartFile file,String folder) throws IOException{
-        String finalPath = PATH+folder+"/";
+    public Image saveImage(MultipartFile file, String folder) throws IOException {
+        String finalPath = PATH + folder + "/";
+        Path path = Paths.get(finalPath);
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
+        }
+
         String[] splitName = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
-        String name = StringUtils.cleanPath(splitName[0])+"_"+System.currentTimeMillis()+"."+splitName[1];
+        String name = StringUtils.cleanPath(splitName[0]) + "_" + System.currentTimeMillis() + "." + splitName[1];
         Image img = new Image();
 
         img.setName(name);
 
-        img.setFilePath(finalPath+ name);
+        img.setFilePath(finalPath + name);
         img.setType(file.getContentType());
         img = this.productImageRepository.save(img);
 
@@ -43,30 +51,30 @@ public class ImageService {
 
     }
 
-    public Image getImageModel(Long id) throws IOException{
-        Optional<Image> img = productImageRepository.findById(id);
-        if(img.isEmpty()){
-            throw new IOException("Image not found");
+    public Optional<Image> getImageModel(Long id) throws IOException {
+        Optional<Image> imgModel = productImageRepository.findById(id);
+        if (imgModel.isEmpty()) {
+            return Optional.empty();
         }
-        return img.get();
+        return imgModel;
     }
 
-    public byte[] getImage(Long id) throws IOException{
+    public byte[] getImage(Long id) throws IOException {
         Optional<Image> img = productImageRepository.findById(id);
-        if(img.isEmpty()){
-            throw new IOException("Image not found");
+        if (img.isEmpty()) {
+            return null;
         }
         return Files.readAllBytes(new File(img.get().getFilePath()).toPath());
     }
 
     @Transactional
-    public String deleteImage(Long id) throws IOException{
+    public String deleteImage(Long id) throws IOException {
         Optional<Image> img = productImageRepository.findById(id);
-        if(img.isEmpty()){
+        if (img.isEmpty()) {
             throw new IOException("Image not found");
         }
         File file = new File(img.get().getFilePath());
-        if(file.delete()){
+        if (file.delete()) {
             productImageRepository.deleteById(id);
             return "Image deleted";
         }

@@ -47,7 +47,6 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
     initialValues: {
       email: "",
       password: "",
-      username: "",
     },
     validate: {
       email: (value) =>
@@ -60,13 +59,6 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
         getStrength(value) === 100
           ? null
           : "Password does not satisfy requirements ",
-
-      username: (value) =>
-        value.length < 3
-          ? "Username is too short"
-          : value.length > 20
-          ? "Username is too long"
-          : null,
     },
   });
   const navigate = useNavigate();
@@ -93,14 +85,14 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
         "token",
         `Basic ${window.btoa(`${values.email}:${values.password}`)}`
       );
-      sessionStorage.setItem("authMember", values.username);
+      sessionStorage.setItem("authMember", data.member.username);
       sessionStorage.setItem("memberId", data.member.id);
 
       setIsLoading(false);
       handlers.toggle();
       navigate("/api");
     } catch (err) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 
@@ -126,12 +118,6 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
                 <Text c="red">{validationMessage}</Text>
               </Flex>
             )}
-            <TextInput
-              label="Username"
-              placeholder="Your Username"
-              required
-              {...form.getInputProps("username")}
-            />
             <TextInput
               label="Email"
               placeholder="you@example.com"

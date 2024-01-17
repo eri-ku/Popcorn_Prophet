@@ -13,6 +13,7 @@ import { ProductModel } from "../Api";
 import { useMediaQuery } from "@mantine/hooks";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
+import { useNavigate } from "react-router-dom";
 export interface BillingInfo {
   firstName: string;
   lastName: string;
@@ -35,6 +36,7 @@ function Cart() {
   const [active, setActive] = useState(0);
   const { setCart, cart, itemIdToErase, opened, close, open } = useProvider();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const form = useForm({
     initialValues: {
@@ -69,7 +71,7 @@ function Cart() {
       close();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -92,7 +94,7 @@ function Cart() {
       const data = await res.data;
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -107,7 +109,7 @@ function Cart() {
       const data = await res.data;
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -128,7 +130,7 @@ function Cart() {
       form.setValues(data);
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 

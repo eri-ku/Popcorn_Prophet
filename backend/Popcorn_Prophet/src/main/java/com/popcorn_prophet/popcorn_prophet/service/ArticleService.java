@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -29,13 +30,20 @@ public class ArticleService {
     private final MemberRepository memberRepository;
     private final ImageService imageService;
 
-    public Article getArticle(Long articleId) {
-        return articleRepository.findById(articleId).get();
+    public Optional<Article> getArticle(Long articleId) {
+        Optional<Article> article = articleRepository.findById(articleId);
+        if (article.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(articleRepository.findById(articleId).get());
     }
 
     @Transactional
-    public Article addArticle(Long memberId, ArticleDTO article, MultipartFile file) throws IOException {
-        Member member = memberRepository.findById(memberId).get();
+    public Optional<Article> addArticle(Long memberId, ArticleDTO article, MultipartFile file) throws IOException {
+        Optional<Member> member = memberRepository.findById(memberId);
+        if (member.isEmpty()) {
+            return Optional.empty();
+        }
         Image img = imageService.saveImage(file, "articlesImages");
         String downloadPath = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/articles/download/")
@@ -43,21 +51,20 @@ public class ArticleService {
                 .toUriString();
 
         Article newArticle = Article.builder().title(article.getTitle()).
-                content(article.getContent()).author(member).rating(article.getRating()).image(img).poster(downloadPath).build();
-        return articleRepository.save(newArticle);
+                content(article.getContent()).author(member.get()).rating(article.getRating()).image(img).poster(downloadPath).build();
+        return Optional.of(articleRepository.save(newArticle));
     }
 
 
     @Transactional
-    public Article save(Article article) {
-        return articleRepository.save(article);
-    }
+    public Optional<Article> updateArticle(Long articleId, ArticleDTO article, MultipartFile file) throws IOException {
 
-    @Transactional
-    public Article updateArticle(Long articleId, ArticleDTO article, MultipartFile file) throws IOException {
+        Optional<Article> articleToUpdate = articleRepository.findById(articleId);
+        if (articleToUpdate.isEmpty()) {
+            return Optional.empty();
+        }
+        Article updatedArticle = articleToUpdate.get();
 
-
-        Article updatedArticle = articleRepository.findById(articleId).get();
         if (file != null) {
             if (updatedArticle.getImage() != null) {
                 imageService.deleteImage(updatedArticle.getImage().getId());
@@ -75,40 +82,57 @@ public class ArticleService {
         updatedArticle.setTitle(article.getTitle());
         updatedArticle.setContent(article.getContent());
         updatedArticle.setRating(article.getRating());
-        return articleRepository.save(updatedArticle);
+        return Optional.of(articleRepository.save(updatedArticle));
 
     }
 
-    public void deleteArticle(Long articleId) throws IOException {
+    public Optional<Boolean> deleteArticle(Long articleId) throws IOException {
 
         Optional<Article> articleToDelete = articleRepository.findById(articleId);
-        if (articleToDelete.isPresent()) {
-
-            if (articleToDelete.get().getImage() != null) {
-                imageService.deleteImage(articleToDelete.get().getImage().getId());
-            }
-            articleRepository.deleteById(articleId);
-
-
+        if (articleToDelete.isEmpty()) {
+            return Optional.empty();
         }
+        if (articleToDelete.get().getImage() != null) {
+            imageService.deleteImage(articleToDelete.get().getImage().getId());
+        }
+        articleRepository.deleteById(articleId);
+        return Optional.of(true);
+
+
     }
+
 
     public Page<Article> getArticles(int page, int size) {
         return articleRepository.findAll(PageRequest.of(page, size));
     }
 
-    public void likeArticle(Long articleId, boolean isAlreadyLiked) {
-        Article article = articleRepository.findById(articleId).get();
-        article.setLikes(isAlreadyLiked ? article.getLikes() - 1 : article.getLikes() + 1);
-        articleRepository.save(article);
+    public Optional<Article> likeArticle(Long articleId, String memberName) {
+        Optional<Article> articleOptional = articleRepository.findById(articleId);
+        if (articleOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Article article = articleOptional.get();
+        if (!article.addLikedMemberUsername(memberName)) {
+            article.removeLikedMemberUsername(memberName);
+        }
+        return Optional.of(articleRepository.save(article));
     }
 
     public byte[] getImage(Long id) throws IOException {
+        byte[] image = imageService.getImage(id);
+        if (Objects.isNull(image)) {
+            return null;
+        }
+
         return imageService.getImage(id);
     }
 
     public String getImageType(Long id) throws IOException {
-        return imageService.getImageModel(id).getType();
+        Optional<Image> imageOptional = imageService.getImageModel(id);
+        if (imageOptional.isEmpty()) {
+            return null;
+        }
+        return imageOptional.get().getType();
     }
 
 

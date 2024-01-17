@@ -7,22 +7,42 @@ import com.popcorn_prophet.popcorn_prophet.repo.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class BillingInfoService {
     private final BillingInfoRepository billingInfoRepository;
     private final MemberRepository memberRepository;
 
-    public BillingInfo getBillingInfo(Long memberId) {
-        return  memberRepository.findById(memberId).get().getBillingInfo();
+    public Optional<BillingInfo> getBillingInfo(Long memberId) {
+        Optional<Member> member = memberRepository.findById(memberId);
+        if (member.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(member.get().getBillingInfo());
     }
 
-    public BillingInfo addBillingInfo(BillingInfo billingInfo, Long memberId) {
+    public Optional<BillingInfo> changeBillingInfo(BillingInfo billingInfo, Long memberId) {
 
-        Member member = memberRepository.findById(memberId).get();
-        BillingInfo billingInfo1 = billingInfoRepository.save(billingInfo);
-        member.setBillingInfo(billingInfo);
-        return billingInfo1;
+        Optional<Member> memberOptional = memberRepository.findById(memberId);
+        if (memberOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Member member = memberOptional.get();
+
+        BillingInfo newBillingInfo = member.getBillingInfo();
+        newBillingInfo.setFirstName(billingInfo.getFirstName());
+        newBillingInfo.setLastName(billingInfo.getLastName());
+        newBillingInfo.setEmail(billingInfo.getEmail());
+        newBillingInfo.setPostalCode(billingInfo.getPostalCode());
+        newBillingInfo.setAddress(billingInfo.getAddress());
+        newBillingInfo.setCity(billingInfo.getCity());
+        newBillingInfo.setCountry(billingInfo.getCountry());
+        newBillingInfo.setPaymentMethod(billingInfo.getPaymentMethod());
+//TEST
+        memberRepository.save(member);
+        return Optional.of(newBillingInfo);
 
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,39 +25,66 @@ public class CartService {
 
 
     @Transactional
-    public void addItemToCart(Long cartId, Long productId) {
-        Cart cart = this.cartRepository.findById(cartId).get();
-        Product product = this.productRepository.findById(productId).get();
-        cart.addItem(product);
+    public Optional<Boolean> addItemToCart(Long cartId, Long productId) {
+        Optional<Cart> cartOptional = this.cartRepository.findById(cartId);
+        Optional<Product> productOptional = this.productRepository.findById(productId);
+        if (cartOptional.isEmpty() || productOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Cart cart = cartOptional.get();
+        cart.addItem(productOptional.get());
         this.cartRepository.save(cart);
+        return Optional.of(true);
     }
 
     @Transactional
-    public void removeItemFromCart(Long cartId, Long productId) {
-        Cart cart = this.cartRepository.findById(cartId).get();
-
-        cart.removeItem(this.productRepository.findById(productId).get());
+    public Optional<Boolean> removeItemFromCart(Long cartId, Long productId) {
+        Optional<Product> productOptional = this.productRepository.findById(productId);
+        Optional<Cart> cartOptional = this.cartRepository.findById(cartId);
+        if (cartOptional.isEmpty() || productOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Cart cart = cartOptional.get();
+        cart.removeItem(productOptional.get());
         this.cartRepository.save(cart);
+        return Optional.of(true);
     }
 
 
 
-    public Collection<CartItem> getCartItems(Long id) {
-        return this.cartRepository.findById(id).get().getCartItems().values();
+    public Optional<Collection<CartItem>> getCartItems(Long id) {
+        Optional <Cart> cartOptional = this.cartRepository.findById(id);
+        if (cartOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(cartOptional.get().getCartItems().values());
+
     }
 
 
-    public void setItemQuantity(Long cartId, Long productId, int quantity) {
-        Cart cart = this.cartRepository.findById(cartId).get();
-        Product product = this.productRepository.findById(productId).get();
+    public Optional<Boolean> setItemQuantity(Long cartId, Long productId, int quantity) {
+        Optional<Cart> cartOptional = this.cartRepository.findById(cartId);
+        Optional<Product> productOptional = this.productRepository.findById(productId);
+        if (cartOptional.isEmpty() || productOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Cart cart = cartOptional.get();
+        Product product = productOptional.get();
         cart.changeQuantity(product, quantity);
         this.cartRepository.save(cart);
+        return Optional.of(true);
     }
 
-    public CartItem getCartItem(Long cartId, Long productId) {
+    public Optional<CartItem> getCartItem(Long cartId, Long productId) {
+        Optional<Cart> cartOptional = this.cartRepository.findById(cartId);
+        Optional<Product> productOptional = this.productRepository.findById(productId);
+        if (cartOptional.isEmpty() || productOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
         Cart cart = this.cartRepository.findById(cartId).get();
         Product product = this.productRepository.findById(productId).get();
-        return cart.getCartItems().get(product);
+        return Optional.ofNullable(cart.getCartItems().get(product));
     }
 
 
@@ -75,9 +103,14 @@ public class CartService {
         this.cartRepository.saveAll(carts);
     }
 
-    public void cleanCart(Long cartId) {
-        Cart cart = this.cartRepository.findById(cartId).get();
+    public Optional<Boolean> cleanCart(Long cartId) {
+        Optional<Cart> cartOptional = this.cartRepository.findById(cartId);
+        if (cartOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Cart cart = cartOptional.get();
         cart.clearCart();
         this.cartRepository.save(cart);
+        return Optional.of(true);
     }
 }

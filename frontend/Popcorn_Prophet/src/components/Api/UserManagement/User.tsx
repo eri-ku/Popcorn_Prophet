@@ -72,7 +72,7 @@ function User() {
       setMember(mem);
       setIsLoading(false);
     } catch (err) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 
@@ -88,7 +88,7 @@ function User() {
       sessionStorage.clear();
       navigate("/homepage");
     } catch (err) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 
@@ -114,7 +114,7 @@ function User() {
       setIsLoading(false);
       navigate("/homepage");
     } catch (err) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 

@@ -58,7 +58,7 @@ function ApiHeader({ open }: { open: any }) {
                     onClick={() => close()}
                   >
                     <NavButton to="/homepage">Homepage</NavButton>
-                    <NavButton to="/api/1">Api</NavButton>
+                    <NavButton to="/api/products/1">Api</NavButton>
                     <NavButton to="api/articles/1">Articles</NavButton>
                     <NavButton to="/api/wishlist">WishList</NavButton>
                     <NavButton to="/adminPage">Adminpage</NavButton>

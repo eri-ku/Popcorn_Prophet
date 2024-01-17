@@ -89,7 +89,7 @@ function Api({
 
   async function fetchProducts() {
     if (!page || Number(page) < 1) {
-      navigate(`/api/1`);
+      navigate(`/api/products/1`);
       setActivePage(1);
       return;
     }
@@ -124,9 +124,9 @@ function Api({
 
       setIsLoading(false);
 
-      navigate(`/api/${activePage}`);
+      navigate(`/api/products/${activePage}`);
     } catch (err) {
-      new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -143,7 +143,7 @@ function Api({
       fetchProducts();
       setIsLoading(false);
     } catch (err) {
-      new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -161,7 +161,7 @@ function Api({
       fetchProducts();
       setIsLoading(false);
     } catch (err) {
-      new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -179,7 +179,7 @@ function Api({
       fetchProducts();
       setIsLoading(false);
     } catch (err) {
-      new Error("Something went wrong");
+      navigate("/error");
     }
   }
 

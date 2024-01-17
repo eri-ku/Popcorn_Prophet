@@ -148,7 +148,7 @@ function Register() {
 
       navigate("/api");
     } catch (error: any) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 

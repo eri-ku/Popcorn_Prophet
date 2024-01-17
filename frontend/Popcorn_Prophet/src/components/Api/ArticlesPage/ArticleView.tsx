@@ -59,7 +59,7 @@ function ArticleView() {
       setArticle(data);
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -90,7 +90,7 @@ function ArticleView() {
       }
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -112,7 +112,7 @@ function ArticleView() {
       fetchComments();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -127,7 +127,7 @@ function ArticleView() {
       fetchComments();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -236,7 +236,7 @@ function ArticleView() {
               minLength={2}
               maxLength={255}
               required
-              label="Review"
+              label="Comment"
               {...form.getInputProps("commentText")}
             ></Textarea>
 

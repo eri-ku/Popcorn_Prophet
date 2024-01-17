@@ -12,12 +12,13 @@ import {
   Modal,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Spinner from "../../Misc/Spinner";
-import { BASE_URL } from "../../../App";
+import { BASE_URL, getAuth } from "../../../App";
 
 import { IconThumbUp } from "@tabler/icons-react";
 import { is } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 function Comment({
   comment,
   editComment,
@@ -28,43 +29,48 @@ function Comment({
   fetchComments: Function;
 }) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  //TODO
-  const [isAlreadyLiked, setAlreadyLiked] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const [likedMembersUsernames, setLikedMembersUsernames] = useState<string[]>(
+    comment.likedMembersUsernames!
+  );
+  const [isAlreadyLiked, setAlreadyLiked] = useState<boolean>(
+    likedMembersUsernames.includes(getAuth()!)
+  );
 
   const [likes, setLikes] = useState<number>(comment.likes!);
 
   async function deleteReview(id: string) {
     try {
-      setIsLoading(true);
-
       const response = await axios.delete(
         `${BASE_URL}articles/articleComment/${id}`,
         { withCredentials: true }
       );
       fetchComments();
       close();
-      setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
+  useEffect(() => {
+    setAlreadyLiked(() => likedMembersUsernames.includes(getAuth()!));
+  }, [likedMembersUsernames]);
 
-  async function changeLike(alreadyLiked: boolean) {
+  async function changeLike() {
     try {
       const res = await axios.patch(
-        `${BASE_URL}articles/articleComment/${comment.id}/like?isAlreadyLiked=${alreadyLiked}`,
+        `${BASE_URL}articles/articleComment/${
+          comment.id
+        }/like?memberName=${getAuth()}`,
         { withCredentials: true }
       );
 
-      setAlreadyLiked((isAlreadyLiked) => !isAlreadyLiked);
-      setLikes((likes) => (isAlreadyLiked ? likes - 1 : likes + 1));
+      const data = res.data;
+      setLikedMembersUsernames(() => data.likedMembersUsernames);
+      setLikes(() => data.likes);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
-
-  if (isLoading) return <Spinner />;
 
   return (
     <Paper withBorder radius="md" className={styles.comment}>
@@ -72,9 +78,9 @@ function Comment({
         <Button
           size="xs"
           color={isAlreadyLiked ? "lime" : "gray"}
-          onClick={() => changeLike(isAlreadyLiked)}
+          onClick={() => changeLike()}
         >
-          {isAlreadyLiked ? <IconThumbUp /> : <IconThumbUp fill="black" />}
+          <IconThumbUp fill={isAlreadyLiked ? "" : "black"} />
         </Button>
         <Text>{likes}</Text>
       </Flex>

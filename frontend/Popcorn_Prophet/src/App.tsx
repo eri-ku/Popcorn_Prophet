@@ -44,6 +44,8 @@ export function getXSRFToken() {
 export const BASE_URL = "http://localhost:8080/";
 
 import axios from "axios";
+import { NotFound } from "./components/Misc/NotFound";
+import { ErrorPage } from "./components/Misc/ErrorPage";
 
 axios.defaults.withCredentials = true;
 
@@ -87,10 +89,10 @@ function App() {
             element={<Api opened={opened} close={close} open={open} />}
           />
           <Route
-            path="api/:page"
+            path="api/products/:page"
             element={<Api opened={opened} close={close} open={open} />}
           />
-          <Route path="api/products/:productId" element={<ProductView />} />
+          <Route path="api/product/:productId" element={<ProductView />} />
           <Route path="api/cart" element={<Cart />} />
           <Route path="api/wishlist" element={<WishList />} />
           <Route path="adminpage" element={<AdminPage />} />
@@ -102,6 +104,9 @@ function App() {
           <Route path="user" element={<User />} />
           {/* children end */}
         </Route>
+        <Route path="error" element={<ErrorPage />} />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

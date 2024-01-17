@@ -5,6 +5,7 @@ import { BASE_URL, getCartID } from "../../App";
 import { ProductModel } from "./Api";
 import { CartItemModel } from "./Cart/Cart";
 import axiosPom from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Context = createContext<any>(null);
 
@@ -19,6 +20,8 @@ function ContextProvider({ children }: { children: any }) {
 
   const [itemIdToErase, setItemIdToErase] = useState<string>("");
   const [opened, { open, close }] = useDisclosure(false);
+
+  const navigate = useNavigate();
 
   const [
     isArticleFormOpened,
@@ -44,10 +47,9 @@ function ContextProvider({ children }: { children: any }) {
         {}
       );
 
-      const data = await res.data;
-      setCart(data);
+      fetchCart();
     } catch (err) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 
@@ -72,7 +74,7 @@ function ContextProvider({ children }: { children: any }) {
       }
       setCart(pro);
     } catch (err) {
-      throw new Error("Something went wrong!");
+      navigate("/error");
     }
   }
 

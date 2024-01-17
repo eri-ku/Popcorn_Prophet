@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Optional;
+
 @FeignClient(name = "product-service",url="http://www.omdbapi.com")
 
 public interface ProductProxy {
     @RequestMapping(method= RequestMethod.GET,value = "/" ,produces = "application/json")
-            Product getProduct(@RequestParam("apikey") String apiKey, @RequestParam("i") String i);
+    Optional<Product> getProduct(@RequestParam("apikey") String apiKey, @RequestParam("i") String i);
 }

@@ -11,12 +11,14 @@ import com.popcorn_prophet.popcorn_prophet.entity.ProductReview;
 import com.popcorn_prophet.popcorn_prophet.service.ArticleCommentService;
 import com.popcorn_prophet.popcorn_prophet.service.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,46 +28,56 @@ public class ArticleCommentController {
 
     @GetMapping({"/{articleId}"})
     public ResponseEntity<CommentPageResponse> getArticleComments(@PathVariable Long articleId, @RequestParam(defaultValue = "0") int page) {
-        CommentPageResponse commentPageResponse =  CommentPageResponse.builder()
-                .articleComment(articleCommentService.getArticleComments(articleId,page).getContent())
-                .totalPages(articleCommentService.getArticleComments(articleId,page).getTotalPages())
+        CommentPageResponse commentPageResponse = CommentPageResponse.builder()
+                .articleComment(articleCommentService.getArticleComments(articleId, page).getContent())
+                .totalPages(articleCommentService.getArticleComments(articleId, page).getTotalPages())
                 .build();
         return ResponseEntity.ok(commentPageResponse);
     }
 
-
-
-
     @PostMapping({"/{articleId}/{memberId}"})
-    public ResponseEntity<ArticleComment> addArticleComment(@RequestBody ArticleCommentDTO articleComment, @PathVariable Long articleId, @PathVariable Long memberId){
+    public ResponseEntity<ArticleComment> addArticleComment(@RequestBody ArticleCommentDTO articleComment, @PathVariable Long articleId, @PathVariable Long memberId) {
 
-        return ResponseEntity.ok(articleCommentService.addArticleComment(articleComment,articleId,memberId));
+        Optional<ArticleComment> articleCommentOptional = articleCommentService.addArticleComment(articleComment, articleId, memberId);
+        if (articleCommentOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return new ResponseEntity<>(articleCommentOptional.get(), HttpStatus.CREATED);
     }
 
 
-    @PreAuthorize("@securityService.hasAccessToModifyArticleComment(#articleComment.id) || hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
+    @PreAuthorize("@securityService.hasAccessToModifyArticleComment(#articleCommentId) || hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping({"/{articleCommentId}"})
-    public ResponseEntity<ArticleComment> deleteArticleComment(@PathVariable Long articleCommentId){
-        articleCommentService.deleteArticleComment(articleCommentId);
+    public ResponseEntity<ArticleComment> deleteArticleComment(@PathVariable Long articleCommentId) {
+        Optional<Boolean> isDeleted = articleCommentService.deleteArticleComment(articleCommentId);
+        if (isDeleted.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().build();
     }
-
 
 
     @PreAuthorize("@securityService.hasAccessToModifyArticleComment(#articleComment.id)")
     @PutMapping()
-    public ResponseEntity<ArticleComment> updateArticleComment(@RequestBody ArticleComment articleComment){
-        ArticleComment articleCommentToEdit = articleCommentService.getArticleComment(articleComment.getId());
-        articleCommentToEdit.setCommentText(articleComment.getCommentText());
-        return ResponseEntity.ok(articleCommentService.updateArticleComment(articleCommentToEdit));
+    public ResponseEntity<ArticleComment> updateArticleComment(@RequestBody ArticleComment articleComment) {
+        Optional<ArticleComment> articleCommentOptional = articleCommentService.updateArticleComment(articleComment);
+        if (articleCommentOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(articleCommentOptional.get());
     }
 
 
-    //TODO
     @PatchMapping("/{commentId}/like")
-    public ResponseEntity<Article> likeComment(@PathVariable Long commentId, @RequestParam boolean isAlreadyLiked){
-        articleCommentService.likeComment(commentId, isAlreadyLiked);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ArticleComment> likeComment(@PathVariable Long commentId, @RequestParam String memberName) {
+        Optional<ArticleComment> articleCommentOptional = articleCommentService.likeComment(commentId, memberName);
+        if (articleCommentOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok().body(articleCommentOptional.get());
     }
+
 
 }

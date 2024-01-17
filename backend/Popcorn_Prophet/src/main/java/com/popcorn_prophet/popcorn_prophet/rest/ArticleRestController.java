@@ -21,6 +21,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Objects;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,51 +32,74 @@ public class ArticleRestController {
     private final ArticleService articleService;
 
     @GetMapping
-    public ResponseEntity<ArticlePageResponse> getArticles(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "1") int size) {
+    public ResponseEntity<ArticlePageResponse> getArticles(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "1") int size) {
         ArticlePageResponse articlePageResponse = ArticlePageResponse.builder()
-                .articles(articleService.getArticles(page,size).getContent())
-                .totalPages(articleService.getArticles(page,size).getTotalPages())
+                .articles(articleService.getArticles(page, size).getContent())
+                .totalPages(articleService.getArticles(page, size).getTotalPages())
                 .build();
         return ResponseEntity.ok(articlePageResponse);
     }
 
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadImage(@PathVariable("id") Long id) throws IOException {
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(articleService.getImageType(id))).body(articleService.getImage(id));
+        String imgType = articleService.getImageType(id);
+        byte[] image = articleService.getImage(id);
+        if (Objects.isNull(imgType) || Objects.isNull(image)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(imgType)).body(image);
 
     }
 
     @GetMapping("/{articleId}")
     public ResponseEntity<Article> getArticle(@PathVariable Long articleId) {
-        return ResponseEntity.ok(articleService.getArticle(articleId));
+        Optional<Article> article = articleService.getArticle(articleId);
+        if (article.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(article.get());
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("/{memberId}")
     public ResponseEntity<Article> addArticle(@PathVariable Long memberId, @ModelAttribute ArticleDTO article, @RequestParam("img") MultipartFile file) throws IOException {
 
-        return new ResponseEntity<>(articleService.addArticle(memberId, article,file), HttpStatus.CREATED);
+        Optional<Article> newArticle = articleService.addArticle(memberId, article, file);
+        if (newArticle.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>(newArticle.get(), HttpStatus.CREATED);
     }
 
     @PreAuthorize("@securityService.hasAccessToModifyArticle(#articleId)")
     @PutMapping("/{articleId}")
     public ResponseEntity<Article> updateArticle(@PathVariable Long articleId, @ModelAttribute ArticleDTO article, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException {
-        return ResponseEntity.ok(articleService.updateArticle(articleId, article,file));
+        Optional<Article> articleToUpdate = articleService.updateArticle(articleId, article, file);
+        if (articleToUpdate.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(articleToUpdate.get());
     }
 
     @PreAuthorize("@securityService.hasAccessToModifyArticle(#articleId) || hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping("/{articleId}")
     public ResponseEntity<Void> deleteArticle(@PathVariable Long articleId) throws IOException {
-        articleService.deleteArticle(articleId);
+        Optional<Boolean> article = articleService.deleteArticle(articleId);
+        if (article.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().build();
     }
 
 
-    //TODO
     @PatchMapping("/{articleId}/like")
-    public ResponseEntity<Article> likeArticle(@PathVariable Long articleId,@RequestParam boolean isAlreadyLiked){
-        articleService.likeArticle(articleId,isAlreadyLiked);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Article> likeArticle(@PathVariable Long articleId, @RequestParam String memberName) {
+        Optional<Article> article = articleService.likeArticle(articleId, memberName);
+        if (article.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(article.get());
     }
 
 

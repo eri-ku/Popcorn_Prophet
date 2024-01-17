@@ -33,6 +33,7 @@ export interface CommentModel {
   commentText: string;
   likes?: number;
   member?: MemberModel;
+  likedMembersUsernames?: string[];
 }
 
 export interface ArticleModel {
@@ -44,6 +45,7 @@ export interface ArticleModel {
   likes: number;
   articleComments: CommentModel[];
   poster: string | File;
+  likedMembersUsernames?: string[];
 }
 
 function ArticlesPage() {
@@ -98,7 +100,7 @@ function ArticlesPage() {
       navigate(`/api/articles/${page}`);
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -121,7 +123,7 @@ function ArticlesPage() {
       getArticles();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -145,7 +147,7 @@ function ArticlesPage() {
       getArticles();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
@@ -158,7 +160,7 @@ function ArticlesPage() {
       getArticles();
       setIsLoading(false);
     } catch (error) {
-      throw new Error("Something went wrong");
+      navigate("/error");
     }
   }
 
