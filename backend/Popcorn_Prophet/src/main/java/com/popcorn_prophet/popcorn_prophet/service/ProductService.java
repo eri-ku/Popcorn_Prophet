@@ -7,6 +7,7 @@ import com.popcorn_prophet.popcorn_prophet.repo.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,8 +40,8 @@ public class ProductService {
         return Optional.empty();
     }
 
-    public Page<Product> productPagination(int page) {
-        return productRepository.findAll(PageRequest.of(page, 5));
+    public Page<Product> getProducts(int page) {
+        return productRepository.findAll(PageRequest.of(page, 5, Sort.by("createdAt").descending()));
     }
 
 
@@ -48,11 +49,13 @@ public class ProductService {
         return productRepository.findById(productId);
     }
 
+    @Transactional
     public Product saveOMDBProduct(Product product) {
         return productRepository.save(product);
     }
 
 
+    @Transactional
     public Product saveProduct(Product product, MultipartFile file) throws IOException {
         Image img = imageService.saveImage(file, "productsImages");
         product.setImage(img);
@@ -66,6 +69,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @Transactional
     public Optional<Product> updateProduct(Product product, MultipartFile file) throws IOException {
         Optional<Product> productToUpdate = productRepository.findById(product.getId());
         if (productToUpdate.isPresent()) {

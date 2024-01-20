@@ -19,17 +19,15 @@ import java.util.Set;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 
-public class Role  implements GrantedAuthority {
+public class Role extends BaseEntity implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String roleName;
-
     @Override
     public String getAuthority() {
         return this.roleName;
     }
-
-
 }

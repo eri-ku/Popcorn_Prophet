@@ -15,8 +15,8 @@ import {
 import { useForm } from "@mantine/form";
 import styles from "./Login.module.css";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { BASE_URL, getCookie } from "../../App";
+import { useState } from "react";
+import { BASE_URL } from "../../App";
 import axios from "axios";
 import Spinner from "../Misc/Spinner";
 
@@ -27,7 +27,7 @@ const requirements = [
   { re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: "Includes special symbol" },
 ];
 
-function getStrength(password: string) {
+export function getStrength(password: string) {
   let multiplier = password.length > 5 ? 0 : 1;
 
   requirements.forEach((requirement) => {
@@ -39,7 +39,6 @@ function getStrength(password: string) {
   return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 10);
 }
 function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
-  const [validationErrors, setValidationErros] = useState<any>([]);
   const [validationMessage, setValidationMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const form = useForm({
@@ -70,30 +69,38 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
         withCredentials: false,
       });
       const data = await res.data;
-      console.log(data);
-      if (data) {
-        data.errors
-          ? setValidationErros([...data.errors])
-          : setValidationErros([]);
-        data.message
-          ? setValidationMessage(data.message)
-          : setValidationMessage("");
-      }
 
-      sessionStorage.setItem("cart", data.cartId);
+      sessionStorage.setItem("cartId", data.cartId);
       sessionStorage.setItem(
         "token",
         `Basic ${window.btoa(`${values.email}:${values.password}`)}`
       );
       sessionStorage.setItem("authMember", data.member.username);
       sessionStorage.setItem("memberId", data.member.id);
-
-      setIsLoading(false);
-      handlers.toggle();
-      navigate("/api");
-    } catch (err) {
-      navigate("/error");
+      sessionStorage.setItem(
+        "roles",
+        JSON.stringify(data.member.roles.map((role: any) => role.roleName))
+      );
+      cleanForm();
+      navigate("/api/products/1");
+    } catch (err: any) {
+      if (err.response.status == 400) {
+        setValidationMessage(() => err.response.data.join(".\n\n"));
+      } else if (err.response.status == 401) {
+        setValidationMessage(() => err.response.data.message);
+      } else if (err.response.status == 404) {
+        navigate("/notfound");
+      } else {
+        navigate("/error");
+      }
     }
+
+    setIsLoading(false);
+  }
+  function cleanForm() {
+    setValidationMessage("");
+    form.reset();
+    close();
   }
 
   if (isLoading) return <Spinner />;
@@ -132,21 +139,9 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
               required
               mt="md"
             />
-            <Group justify="space-between" mt="lg">
-              <Checkbox label="Remember me" />
-              <Anchor component="button" size="sm">
-                Forgot password?
-              </Anchor>
-            </Group>
             <Button type="submit" fullWidth mt="xl">
               Sign in
             </Button>
-            {validationErrors &&
-              validationErrors.map((error: any) => (
-                <Text mt={10} c={"red"} key={error}>
-                  {error}
-                </Text>
-              ))}
           </Paper>
         </form>
       </Modal>

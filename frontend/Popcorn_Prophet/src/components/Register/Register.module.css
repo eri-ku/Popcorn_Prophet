@@ -19,6 +19,7 @@
 
 .form {
   height: 63rem;
+  max-width: rem(545px);
 
   @media (max-width: $mantine-breakpoint-lg) {
     width: 65rem;

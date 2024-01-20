@@ -1,9 +1,11 @@
 package com.popcorn_prophet.popcorn_prophet.service;
 
+import com.popcorn_prophet.popcorn_prophet.DTO.BillingInfoDTO;
 import com.popcorn_prophet.popcorn_prophet.entity.BillingInfo;
 import com.popcorn_prophet.popcorn_prophet.entity.Member;
 import com.popcorn_prophet.popcorn_prophet.repo.BillingInfoRepository;
 import com.popcorn_prophet.popcorn_prophet.repo.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +25,14 @@ public class BillingInfoService {
         return Optional.ofNullable(member.get().getBillingInfo());
     }
 
-    public Optional<BillingInfo> changeBillingInfo(BillingInfo billingInfo, Long memberId) {
+    @Transactional
+    public Optional<BillingInfo> changeBillingInfo(BillingInfoDTO billingInfo, Long memberId) {
 
         Optional<Member> memberOptional = memberRepository.findById(memberId);
         if (memberOptional.isEmpty()) {
             return Optional.empty();
         }
         Member member = memberOptional.get();
-
         BillingInfo newBillingInfo = member.getBillingInfo();
         newBillingInfo.setFirstName(billingInfo.getFirstName());
         newBillingInfo.setLastName(billingInfo.getLastName());

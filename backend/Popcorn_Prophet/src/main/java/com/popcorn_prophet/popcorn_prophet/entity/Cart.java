@@ -13,10 +13,9 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Cart {
+public class Cart extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id;
 
     @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL, orphanRemoval = true)
@@ -24,13 +23,11 @@ public class Cart {
     @JsonIgnoreProperties("cart")
     private Map<Product, CartItem> cartItems = new HashMap<>();
 
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Member member;
     private int totalPriceOfCart = 0;
-
     public void addItem(Product product) {
         CartItem cartItem;
 
@@ -46,13 +43,11 @@ public class Cart {
         }
         this.totalPriceOfCart += cartItem.getPrice();
     }
-
     public void removeItem(Product key) {
         CartItem cartItem = cartItems.get(key);
         this.totalPriceOfCart-= cartItem.getPrice() * cartItem.getQuantity();
         this.cartItems.remove(key);
     }
-
     public void changeQuantity(Product key, int quantity) {
         CartItem cartItem = cartItems.get(key);
         this.totalPriceOfCart -= cartItem.getPrice() * cartItem.getQuantity();
@@ -65,10 +60,8 @@ public class Cart {
             this.totalPriceOfCart += cartItem.getPrice() * cartItem.getQuantity();
         }
     }
-
     public void clearCart() {
         this.totalPriceOfCart = 0;
         this.cartItems.clear();
     }
-
 }

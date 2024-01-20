@@ -1,8 +1,10 @@
 package com.popcorn_prophet.popcorn_prophet.rest;
 
 
+import com.popcorn_prophet.popcorn_prophet.DTO.BillingInfoDTO;
 import com.popcorn_prophet.popcorn_prophet.entity.BillingInfo;
 import com.popcorn_prophet.popcorn_prophet.service.BillingInfoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +29,7 @@ public class BillingInfoRestController {
 
     @PreAuthorize("@securityService.hasAccessToModifyBillingInfo(#billingInfo.id)")
     @PutMapping({"/{memberId}"})
-    public ResponseEntity<BillingInfo> changeBillingInfo(@RequestBody BillingInfo billingInfo, @PathVariable() Long memberId){
+    public ResponseEntity<BillingInfo> changeBillingInfo(@Valid @RequestBody BillingInfoDTO billingInfo, @PathVariable() Long memberId){
        Optional<BillingInfo> billingInfoOptional = billingInfoService.changeBillingInfo(billingInfo, memberId);
          if (billingInfoOptional.isEmpty()) {
               return ResponseEntity.notFound().build();

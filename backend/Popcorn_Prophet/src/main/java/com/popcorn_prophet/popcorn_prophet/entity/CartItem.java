@@ -13,11 +13,11 @@ import lombok.*;
 @Table(name = "cart_item")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 
-public class CartItem {
+public class CartItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int quantity =1;
+    private int quantity = 1;
 
     @ManyToOne()
     @JoinColumn(name = "cart_id")
@@ -25,10 +25,8 @@ public class CartItem {
     private Cart cart;
 
     @ManyToOne()
-    @JoinColumn(name = "product_id",referencedColumnName = "id",nullable = false)
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private Product product;
 
-private int price= (int) (Math.random() * 50) +10;
-
-
+    private int price = (int) (Math.random() * 50) + 10;
 }

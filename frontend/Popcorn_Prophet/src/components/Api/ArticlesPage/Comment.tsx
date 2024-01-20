@@ -13,12 +13,11 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
-import Spinner from "../../Misc/Spinner";
 import { BASE_URL, getAuth } from "../../../App";
 
 import { IconThumbUp } from "@tabler/icons-react";
-import { is } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { findRole } from "../ContextProvider";
 function Comment({
   comment,
   editComment,
@@ -47,8 +46,14 @@ function Comment({
       );
       fetchComments();
       close();
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        close();
+        navigate("/notfound");
+      } else {
+        close();
+        navigate("/error");
+      }
     }
   }
   useEffect(() => {
@@ -67,8 +72,10 @@ function Comment({
       const data = res.data;
       setLikedMembersUsernames(() => data.likedMembersUsernames);
       setLikes(() => data.likes);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
   }
 
@@ -95,10 +102,14 @@ function Comment({
       </Box>
 
       <Flex justify={"space-between"} mt={"1rem"}>
-        <Button color="blue" onClick={() => editComment(comment)}>
-          Edit
-        </Button>
-        <Button onClick={() => open()}>Delete</Button>
+        {getAuth() === comment.member?.username && (
+          <Button color="blue" onClick={() => editComment(comment)}>
+            Edit
+          </Button>
+        )}
+        {(findRole("ROLE_A&M") || getAuth() === comment.member?.username) && (
+          <Button onClick={() => open()}>Delete</Button>
+        )}
       </Flex>
 
       <Modal opened={opened} onClose={close} centered>

@@ -18,10 +18,13 @@ export function getAuth() {
 }
 
 export function getCartID() {
-  return sessionStorage.getItem("cart");
+  return sessionStorage.getItem("cartId");
 }
 export function getMemberID() {
   return sessionStorage.getItem("memberId");
+}
+export function getMemberRoles() {
+  return sessionStorage.getItem("roles");
 }
 
 function ProtectedRoute({ children }: { children: any }) {
@@ -40,6 +43,12 @@ export function removeCookie(name: string) {
 export function getXSRFToken() {
   return sessionStorage.getItem("XSRF-TOKEN");
 }
+// export function clean() {
+//   sessionStorage.clear();
+//   localStorage.clear();
+//   Cookies.remove("XSRF-TOKEN");
+//   Cookies.remove("JSESSIONID");
+// }
 
 export const BASE_URL = "http://localhost:8080/";
 
@@ -85,10 +94,6 @@ function App() {
         >
           {/* children start*/}
           <Route
-            path="api"
-            element={<Api opened={opened} close={close} open={open} />}
-          />
-          <Route
             path="api/products/:page"
             element={<Api opened={opened} close={close} open={open} />}
           />
@@ -105,6 +110,7 @@ function App() {
           {/* children end */}
         </Route>
         <Route path="error" element={<ErrorPage />} />
+        <Route path="notfound" element={<NotFound />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

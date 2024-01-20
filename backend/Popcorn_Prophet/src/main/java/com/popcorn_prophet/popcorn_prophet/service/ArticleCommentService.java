@@ -5,9 +5,12 @@ import com.popcorn_prophet.popcorn_prophet.entity.Article;
 import com.popcorn_prophet.popcorn_prophet.entity.ArticleComment;
 import com.popcorn_prophet.popcorn_prophet.entity.Member;
 import com.popcorn_prophet.popcorn_prophet.repo.ArticleCommentRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,12 +25,13 @@ public class ArticleCommentService {
     private final MemberService memberService;
 
     public Page<ArticleComment> getArticleComments(Long articleId, int page) {
-        return articleCommentRepository.findAllByArticleId(articleId, PageRequest.of(page, 5));
+        return articleCommentRepository.findAllByArticleId(articleId, PageRequest.of(page, 5, Sort.by("createdAt").descending()));
 
     }
 
 
-    public Optional<ArticleComment> addArticleComment(ArticleCommentDTO articleComment, Long articleId, Long memberId) {
+    @Transactional
+    public Optional<ArticleComment> addArticleComment(@Valid ArticleCommentDTO articleComment, Long articleId, Long memberId) {
         Optional<Article> articleOptional = articleService.getArticle(articleId);
         Optional<Member> memberOptional = memberService.getMember(memberId);
         if (articleOptional.isEmpty() || memberOptional.isEmpty()) {
@@ -43,6 +47,7 @@ public class ArticleCommentService {
         return Optional.of(articleCommentRepository.save(newArticleComment));
     }
 
+    @Transactional
     public Optional<Boolean> deleteArticleComment(Long articleCommentId) {
         Optional<ArticleComment> articleCommentOptional = articleCommentRepository.findById(articleCommentId);
         if (articleCommentOptional.isEmpty()) {
@@ -60,7 +65,8 @@ public class ArticleCommentService {
         return articleCommentOptional;
     }
 
-    public Optional<ArticleComment> updateArticleComment(ArticleComment articleComment) {
+    @Transactional
+    public Optional<ArticleComment> updateArticleComment(@Valid ArticleComment articleComment) {
         Optional<ArticleComment> articleCommentOptional = articleCommentRepository.findById(articleComment.getId());
         if (articleCommentOptional.isEmpty()) {
             return Optional.empty();
@@ -71,6 +77,7 @@ public class ArticleCommentService {
     }
 
 
+    @Transactional
     public Optional<ArticleComment> likeComment(Long commentId, String memberName) {
         Optional<ArticleComment> articleCommentOptional = articleCommentRepository.findById(commentId);
         if (articleCommentOptional.isEmpty()) {

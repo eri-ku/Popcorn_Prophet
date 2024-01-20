@@ -37,6 +37,7 @@ function Cart() {
   const { setCart, cart, itemIdToErase, opened, close, open } = useProvider();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const [validationMessage, setValidationMessage] = useState<string>("");
 
   const form = useForm({
     initialValues: {
@@ -48,6 +49,25 @@ function Cart() {
       address: "",
       country: "",
       paymentMethod: "",
+    },
+    validate: {
+      firstName: (value: string) =>
+        value ? null : "Please enter your first name",
+      lastName: (value: string) =>
+        value ? null : "Please enter your last name",
+      email: (value) =>
+        /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/.test(value)
+          ? value.length < 6
+            ? "Email is too short"
+            : null
+          : "Invalid email",
+      postalCode: (value: string) =>
+        value ? true : "Please enter your postal code",
+      city: (value: string) => (value ? null : "Please enter your city"),
+      address: (value: string) => (value ? null : "Please enter your address"),
+      country: (value: string) => (value ? null : "Please select your country"),
+      paymentMethod: (value: string) =>
+        value ? null : "Please select payment method",
     },
   });
 
@@ -69,10 +89,12 @@ function Cart() {
         cart.filter((el: CartItemModel) => el.product.id !== cartItemKey)
       );
       close();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
@@ -92,10 +114,12 @@ function Cart() {
         withCredentials: true,
       });
       const data = await res.data;
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   async function createBilling(billingInfo: BillingInfo) {
@@ -107,10 +131,14 @@ function Cart() {
         { withCredentials: true }
       );
       const data = await res.data;
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 400) {
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -128,10 +156,12 @@ function Cart() {
       }
 
       form.setValues(data);
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   if (isLoading) return <Spinner />;
@@ -166,7 +196,8 @@ function Cart() {
         {active == 0 && <FirstStep />}
         {active == 1 && <SecondStep form={form} />}
         {active == 2 && <ThirdStep form={form} />}
-        {active == 3 && <LastStep />}
+
+        {!validationMessage && active == 3 && <LastStep />}
 
         {active !== 3 && (
           <Group justify="center" mt="xl">
@@ -192,6 +223,12 @@ function Cart() {
               </Button>
             )}
           </Group>
+        )}
+
+        {validationMessage && (
+          <Flex justify="center" align="center">
+            <Text c="red">{validationMessage}</Text>
+          </Flex>
         )}
       </Flex>
       <Modal opened={opened} onClose={close} centered>

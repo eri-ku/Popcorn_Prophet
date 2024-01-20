@@ -3,6 +3,8 @@ import { IconArrowBarToRight, IconMovie } from "@tabler/icons-react";
 import styles from "./Homepage.module.css";
 import HeaderNav from "./HeaderNav";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { removeCookie } from "../../App";
 function Homepage() {
   const isAuth = sessionStorage.getItem("authMember") ? true : false;
 

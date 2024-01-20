@@ -32,6 +32,7 @@ function ArticleView() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const commentRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [validationMessage, setValidationMessage] = useState<string>("");
 
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false);
@@ -57,10 +58,13 @@ function ArticleView() {
 
       const data = await response.data;
       setArticle(data);
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -88,10 +92,13 @@ function ArticleView() {
       if (activePage > data.totalPages && data.totalPages != 0) {
         setActivePage(data.totalPages);
       }
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+
+    setIsLoading(false);
   }
 
   function handleClickOnShowComments() {
@@ -110,10 +117,20 @@ function ArticleView() {
       );
 
       fetchComments();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+
+      closeCommentModal();
+    } catch (error: any) {
+      if (error.response.status == 400) {
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 404) {
+        closeCommentModal();
+        navigate("/notfound");
+      } else {
+        closeCommentModal();
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
   }
 
   async function createComment(comment: CommentModel) {
@@ -125,14 +142,27 @@ function ArticleView() {
         { withCredentials: true }
       );
       fetchComments();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+      closeCommentModal();
+    } catch (error: any) {
+      if (error.response.status == 400) {
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 404) {
+        closeCommentModal();
+        navigate("/notfound");
+      } else {
+        closeCommentModal();
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
   }
 
   function handleComment(comment: CommentModel) {
     comment.id ? editComment(comment) : createComment(comment);
+  }
+
+  function closeCommentModal() {
+    setValidationMessage("");
     form.reset();
     closeModal();
   }
@@ -224,18 +254,20 @@ function ArticleView() {
           )}
         </Flex>
       </Flex>
-      <Modal opened={openedModal} onClose={closeModal} centered>
+      <Modal opened={openedModal} onClose={closeCommentModal} centered>
         <form onSubmit={form.onSubmit((values) => handleComment(values))}>
           <Flex direction={"column"} gap={"1rem"}>
             <Input {...form.getInputProps("id")} type="hidden" />
+            {validationMessage && (
+              <Flex justify="center" align="center">
+                <Text c="red">{validationMessage}</Text>
+              </Flex>
+            )}
             <Textarea
               placeholder="write your commentary"
               autosize
               minRows={3}
               maxRows={4}
-              minLength={2}
-              maxLength={255}
-              required
               label="Comment"
               {...form.getInputProps("commentText")}
             ></Textarea>

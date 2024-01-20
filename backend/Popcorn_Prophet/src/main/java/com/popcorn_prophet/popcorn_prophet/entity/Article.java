@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Article {
+public class Article extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,11 +32,10 @@ public class Article {
     @JsonIgnoreProperties("memberArticles")
     private Member author;
 
-
     private int likes;
 
-
     private String rating;
+
     private String poster;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -46,11 +47,8 @@ public class Article {
     @JoinColumn(name = "article_image_id", referencedColumnName = "id")
     private Image image;
 
-
     @ElementCollection
     private List<String> likedMembersUsernames;
-
-
     public boolean addLikedMemberUsername(String username) {
         if (this.likedMembersUsernames.contains(username)) {
             return false;
@@ -59,12 +57,8 @@ public class Article {
         this.likedMembersUsernames.add(username);
         return true;
     }
-
     public void removeLikedMemberUsername(String username) {
         this.likedMembersUsernames.remove(username);
         this.setLikes(this.getLikes() - 1);
     }
-
-
-
 }

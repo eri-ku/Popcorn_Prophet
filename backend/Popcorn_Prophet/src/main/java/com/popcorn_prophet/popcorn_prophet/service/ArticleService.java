@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -86,6 +87,7 @@ public class ArticleService {
 
     }
 
+    @Transactional
     public Optional<Boolean> deleteArticle(Long articleId) throws IOException {
 
         Optional<Article> articleToDelete = articleRepository.findById(articleId);
@@ -103,9 +105,10 @@ public class ArticleService {
 
 
     public Page<Article> getArticles(int page, int size) {
-        return articleRepository.findAll(PageRequest.of(page, size));
+        return articleRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
     }
 
+    @Transactional
     public Optional<Article> likeArticle(Long articleId, String memberName) {
         Optional<Article> articleOptional = articleRepository.findById(articleId);
         if (articleOptional.isEmpty()) {

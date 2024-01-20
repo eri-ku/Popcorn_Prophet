@@ -9,6 +9,7 @@ import com.popcorn_prophet.popcorn_prophet.entity.Image;
 import com.popcorn_prophet.popcorn_prophet.entity.Product;
 import com.popcorn_prophet.popcorn_prophet.service.ArticleService;
 import com.popcorn_prophet.popcorn_prophet.service.ImageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -63,7 +64,7 @@ public class ArticleRestController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("/{memberId}")
-    public ResponseEntity<Article> addArticle(@PathVariable Long memberId, @ModelAttribute ArticleDTO article, @RequestParam("img") MultipartFile file) throws IOException {
+    public ResponseEntity<Article> addArticle(@PathVariable Long memberId, @Valid @ModelAttribute ArticleDTO article, @RequestParam("img") MultipartFile file) throws IOException {
 
         Optional<Article> newArticle = articleService.addArticle(memberId, article, file);
         if (newArticle.isEmpty()) {
@@ -74,7 +75,7 @@ public class ArticleRestController {
 
     @PreAuthorize("@securityService.hasAccessToModifyArticle(#articleId)")
     @PutMapping("/{articleId}")
-    public ResponseEntity<Article> updateArticle(@PathVariable Long articleId, @ModelAttribute ArticleDTO article, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<Article> updateArticle(@PathVariable Long articleId,@Valid @ModelAttribute ArticleDTO article, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException {
         Optional<Article> articleToUpdate = articleService.updateArticle(articleId, article, file);
         if (articleToUpdate.isEmpty()) {
             return ResponseEntity.notFound().build();

@@ -19,6 +19,8 @@ import { useDisclosure } from "@mantine/hooks";
 
 import { IconWorld, IconMovie } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { getMemberRoles } from "../../../App";
+import { findRole } from "../ContextProvider";
 
 function Product({
   product,
@@ -155,22 +157,24 @@ function Product({
           </Text>
           {plot}
         </Card.Section>
-        <Card.Section
-          className={`${styles.section}  ${styles.last}`}
-          p="1.3rem"
-        >
-          <Group mt="sm" justify={"space-between"}>
-            <Button
-              color="teal"
-              onClick={() => {
-                editProduct(product);
-              }}
-            >
-              Update
-            </Button>
-            <Button onClick={() => open()}>Delete</Button>
-          </Group>
-        </Card.Section>
+        {findRole("ROLE_A&M") && (
+          <Card.Section
+            className={`${styles.section}  ${styles.last}`}
+            p="1.3rem"
+          >
+            <Group mt="sm" justify={"space-between"}>
+              <Button
+                color="teal"
+                onClick={() => {
+                  editProduct(product);
+                }}
+              >
+                Update
+              </Button>
+              <Button onClick={() => open()}>Delete</Button>
+            </Group>
+          </Card.Section>
+        )}
       </ScrollArea>
       <Modal opened={opened} onClose={close} centered>
         <Flex gap={10} justify="center" align="center">

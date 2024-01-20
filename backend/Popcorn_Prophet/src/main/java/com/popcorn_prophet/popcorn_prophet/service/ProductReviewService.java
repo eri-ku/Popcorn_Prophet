@@ -5,10 +5,13 @@ import com.popcorn_prophet.popcorn_prophet.entity.Member;
 import com.popcorn_prophet.popcorn_prophet.entity.Product;
 import com.popcorn_prophet.popcorn_prophet.entity.ProductReview;
 import com.popcorn_prophet.popcorn_prophet.repo.ProductReviewRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,11 +26,12 @@ public class ProductReviewService {
     private final MemberService memberService;
 
     public Page<ProductReview> getProductReviews(Long productId, int page) {
-        return productReviewRepository.findAllByProductId(productId, PageRequest.of(page, 5));
+        return productReviewRepository.findAllByProductId(productId, PageRequest.of(page, 5, Sort.by("createdAt").descending()));
 
     }
 
 
+    @Transactional
     public Optional<ProductReview> addProductReview(ProductReviewCreateDTO productReview, Long productId, Long memberId) {
         Optional<Product> product = productService.getProduct(productId);
         Optional<Member> member = memberService.getMember(memberId);
@@ -40,6 +44,7 @@ public class ProductReviewService {
         return Optional.of(productReviewRepository.save(newProductReview));
     }
 
+    @Transactional
     public Optional<Boolean> deleteProductReview(Long productReviewId) {
         Optional<ProductReview> productReview = productReviewRepository.findById(productReviewId);
         if (productReview.isEmpty()) {
@@ -57,6 +62,7 @@ public class ProductReviewService {
         return productReview;
     }
 
+    @Transactional
     public Optional<ProductReview> updateProductReview(ProductReview productReview) {
         Optional<ProductReview> productReviewOptional = productReviewRepository.findById(productReview.getId());
         if (productReviewOptional.isEmpty()) {

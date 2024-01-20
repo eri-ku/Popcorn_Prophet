@@ -62,6 +62,7 @@ public class CartService {
     }
 
 
+    @Transactional
     public Optional<Boolean> setItemQuantity(Long cartId, Long productId, int quantity) {
         Optional<Cart> cartOptional = this.cartRepository.findById(cartId);
         Optional<Product> productOptional = this.productRepository.findById(productId);
@@ -87,6 +88,7 @@ public class CartService {
         return Optional.ofNullable(cart.getCartItems().get(product));
     }
 
+    @Transactional
 
     public Cart createCart(Member member){
         Cart cart = new Cart();
@@ -103,6 +105,7 @@ public class CartService {
         this.cartRepository.saveAll(carts);
     }
 
+    @Transactional
     public Optional<Boolean> cleanCart(Long cartId) {
         Optional<Cart> cartOptional = this.cartRepository.findById(cartId);
         if (cartOptional.isEmpty()) {

@@ -16,7 +16,6 @@ public class SecurityService {
     private final ArticleCommentService articleCommentService;
     private final ArticleService articleService;
     private final MemberService memberService;
-    private final ProductService productService;
 
     public boolean hasAccessToModifyProductReview(Long productReviewId) {
         Optional<ProductReview> optionalProductReview = productReviewService.getProductReview(productReviewId);
@@ -74,5 +73,6 @@ public class SecurityService {
         Member member = optionalMember.get();
         return member.getId().equals(memberId);
     }
+
 
 }

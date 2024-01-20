@@ -5,10 +5,13 @@ import com.popcorn_prophet.popcorn_prophet.POJO.MemberResponse;
 import com.popcorn_prophet.popcorn_prophet.entity.*;
 import com.popcorn_prophet.popcorn_prophet.repo.MemberRepository;
 import com.popcorn_prophet.popcorn_prophet.repo.RoleRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,81 +25,102 @@ public class MemberService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartService cartService;
+
     public Optional<Member> getMember(Long memberId) {
         return this.memberRepository.findById(memberId);
     }
 
     public Page<Member> getMembers(int page) {
-        return memberRepository.findAll(PageRequest.of(page,5));
+        return memberRepository.findAll(PageRequest.of(page, 5, Sort.by("createdAt").descending()));
 
     }
 
+    @Transactional
     public Optional<Boolean> deleteMember(Long id) {
         Optional<Member> memberToDelete = memberRepository.findById(id);
-        if(memberToDelete.isPresent()){
+        if (memberToDelete.isPresent()) {
             memberRepository.deleteById(id);
             return Optional.of(true);
         }
         return Optional.empty();
     }
 
+    @Transactional
     public Optional<Member> updateRoles(Long id, JsonNode rolesNames) {
         Optional<Member> member = memberRepository.findById(id);
-        if(member.isEmpty()){
+        if (member.isEmpty()) {
             return Optional.empty();
         }
         Set<Role> roles = new HashSet<>();
         rolesNames.get("role").forEach(roleName -> {
             Optional<Role> role = roleRepository.findByRoleName(roleName.asText());
-            if(role.isPresent()){
+            if (role.isPresent()) {
                 roles.add(role.get());
             }
         });
-        if(!roles.isEmpty()){
+        if (!roles.isEmpty()) {
+            roles.add(roleRepository.findByRoleName("ROLE_USER").get());
             member.get().setRoles(roles);
         }
         return Optional.of(memberRepository.save(member.get()));
     }
 
 
-    public Optional<Member> updateEmail(Long memberId, JsonNode email) {
+    @Transactional
+    public ResponseEntity<MemberResponse> updateEmail(Long memberId, JsonNode email) {
 
         Optional<Member> member = memberRepository.findById(memberId);
-        if(member.isEmpty()){
-            return Optional.empty();
+        if (member.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!email.get("email").asText().contains("@") || !email.get("email").asText().contains(".") || email.get("email").asText().length() < 6) {
+            return new ResponseEntity<>(new MemberResponse("Email is not valid", null, null), HttpStatus.BAD_REQUEST);
+        }
+        if (memberRepository.findByEmail(email.get("email").asText()).isPresent()) {
+            return new ResponseEntity<>(new MemberResponse("Email already exists", null, null), HttpStatus.BAD_REQUEST);
         }
         member.get().setEmail(email.get("email").asText());
-        return Optional.of(memberRepository.save(member.get()));
+        return new ResponseEntity<>(new MemberResponse("Email updated", memberRepository.save(member.get()), member.get().getCart().getId()), HttpStatus.OK);
     }
 
-    public MemberResponse updatePassword(Long memberId, JsonNode password) {
+
+    @Transactional
+    public ResponseEntity<MemberResponse> updatePassword(Long memberId, JsonNode password) {
         Optional<Member> member = memberRepository.findById(memberId);
-        if(member.isEmpty()){
-            return new MemberResponse("Member not found", null, null, null);
+        if (member.isEmpty()) {
+            return new ResponseEntity<>(new MemberResponse("Member not found", null, null), HttpStatus.NOT_FOUND);
         }
         Member memberToUpdate = member.get();
 
-        if(!passwordEncoder.matches(password.get("oldPassword").asText(), memberToUpdate.getPassword())){
-            return new MemberResponse("Old password is incorrect", null, null, null);
+        if (!passwordEncoder.matches(password.get("oldPassword").asText(), memberToUpdate.getPassword())) {
+            return new ResponseEntity<>(new MemberResponse("Old password is not correct", null, null), HttpStatus.BAD_REQUEST);
         }
 
-        if(!(password.get("newPassword").asText().equals(password.get("repeatPassword").asText()))){
-            return new MemberResponse("New password and repeat password are not the same", null, null, null);
+        if (!(password.get("newPassword").asText().equals(password.get("repeatPassword").asText()))) {
+            return new ResponseEntity<>(new MemberResponse("Passwords do not match", null, null), HttpStatus.BAD_REQUEST);
+        }
+        if (password.get("newPassword").asText().length() < 6) {
+            return new ResponseEntity<>(new MemberResponse("New password must be at least 6 characters", null, null), HttpStatus.BAD_REQUEST);
+        }
+        if (!password.get("newPassword").asText().matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[$&+,:;=?@#|'<>.^*()%!-]).{6,}$"))
+        {
+            return new ResponseEntity<>(new MemberResponse("Password must match atleast: 1 uppercase, 1 lowercase, 1 number, 1 special character", null, null), HttpStatus.BAD_REQUEST);
         }
         memberToUpdate.setPassword(passwordEncoder.encode(password.get("newPassword").asText()));
 
-        return new MemberResponse("Password updated", memberRepository.save(memberToUpdate), memberToUpdate.getCart().getId(), null);
+        return new ResponseEntity<>(new MemberResponse("Password updated", memberRepository.save(memberToUpdate), memberToUpdate.getCart().getId()), HttpStatus.OK);
     }
 
-    public Optional<Member> getMemberByEmail(String email){
+    public Optional<Member> getMemberByEmail(String email) {
 
         return memberRepository.findByEmail(email);
     }
 
-    public boolean emailOrUsernameAlreadyExists(String email, String username){
+    public boolean emailOrUsernameAlreadyExists(String email, String username) {
         return memberRepository.findByEmail(email).isPresent() || memberRepository.findByUsername(username).isPresent();
     }
 
+    @Transactional
     public MemberResponse registerMember(Member member) {
         if (roleRepository.count() < 3) createBaseRoles();
 
@@ -117,7 +141,7 @@ public class MemberService {
         }
         member.setRoles(roles);
 
-        return new MemberResponse("Member registered", memberRepository.save(member), member.getCart().getId(), null);
+        return new MemberResponse("Member registered", memberRepository.save(member), member.getCart().getId());
     }
 
     public Optional<Member> findMemberByUsername(String username) {

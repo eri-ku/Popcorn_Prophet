@@ -6,7 +6,7 @@ import com.popcorn_prophet.popcorn_prophet.entity.Product;
 import com.popcorn_prophet.popcorn_prophet.proxy.ProductProxy;
 import com.popcorn_prophet.popcorn_prophet.service.ImageService;
 import com.popcorn_prophet.popcorn_prophet.service.ProductService;
-import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,9 +30,10 @@ public class ProductRestController {
 
     @GetMapping("/all")
     public ResponseEntity<ProductPageResponse> getProducts(@RequestParam(defaultValue = "0") int page) {
+        page = page < 0 ? 0 : page > productService.getProducts(page).getTotalPages() ? productService.getProducts(page).getTotalPages() : page;
         ProductPageResponse productPageResponse = ProductPageResponse.builder()
-                .products(productService.productPagination(page).getContent())
-                .totalPages(productService.productPagination(page).getTotalPages())
+                .products(productService.getProducts(page).getContent())
+                .totalPages(productService.getProducts(page).getTotalPages())
                 .build();
         return ResponseEntity.ok(productPageResponse);
     }
@@ -60,7 +61,7 @@ public class ProductRestController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
-    public ResponseEntity<Product> addProduct(@ModelAttribute Product product, @RequestParam("img") MultipartFile file) throws IOException, ParseException {
+    public ResponseEntity<Product> addProduct(@Valid @ModelAttribute Product product, @RequestParam("img") MultipartFile file) throws IOException, ParseException {
 
         return new ResponseEntity<>(productService.saveProduct(product, file), HttpStatus.CREATED);
     }
@@ -82,7 +83,7 @@ public class ProductRestController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PutMapping("/update")
-    public ResponseEntity<Product> updateProduct(@ModelAttribute Product product, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException, ParseException {
+    public ResponseEntity<Product> updateProduct(@Valid @ModelAttribute Product product, @RequestParam(value = "img", required = false) MultipartFile file) throws IOException, ParseException {
 
         Optional<Product> updatedProduct = this.productService.updateProduct(product, file);
         if (updatedProduct.isPresent()) {

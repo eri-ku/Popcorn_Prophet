@@ -3,8 +3,9 @@ import { useDisclosure } from "@mantine/hooks";
 import styles from "./HeaderNav.module.css";
 import NavbarLinks from "../Misc/NavbarLinks";
 import Icon from "../Misc/Icon";
-import { getAuth } from "../../App";
+import { BASE_URL, getAuth } from "../../App";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function HeaderNav() {
   const [opened, { toggle, close }] = useDisclosure();
@@ -24,6 +25,7 @@ function HeaderNav() {
           onClick={() => {
             sessionStorage.clear();
             sessionStorage.clear();
+            axios.post(`${BASE_URL}auth/logout`, {}, { withCredentials: true });
             navigate("/");
           }}
         >

@@ -47,7 +47,7 @@ function NavbarLinks({ burger }: { burger: boolean }) {
             Api
           </Button>
         ) : (
-          <NavButton to="/api">Api</NavButton>
+          <NavButton to="/api/products/1">Api</NavButton>
         )}
       </Flex>
       <Portal>{opened && <Login handlers={handlers} opened={opened} />}</Portal>

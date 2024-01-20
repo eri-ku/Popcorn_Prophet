@@ -60,10 +60,12 @@ function CartItem({ el }: { el: CartItemModel }) {
         });
         return newCart;
       });
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   function handleEraseCartItem(cartItemKey: string | undefined) {

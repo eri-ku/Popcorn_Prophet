@@ -15,10 +15,12 @@ function WishList() {
       setIsLoading(true);
       const res = await axios.post(`${BASE_URL}api/products/search?i=${id}`);
       const data = await res.data;
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   const form = useForm<any>({

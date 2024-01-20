@@ -8,6 +8,7 @@ import {
   Button,
   Input,
   FileInput,
+  Text,
 } from "@mantine/core";
 import Article from "./Article";
 import styles from "./ArticlesPage.module.css";
@@ -62,6 +63,7 @@ function ArticlesPage() {
   const navigate = useNavigate();
 
   const isSmall = useMediaQuery("(max-width: 992px)");
+  const [validationMessage, setValidationMessage] = useState<string>("");
 
   const form = useForm({
     initialValues: {
@@ -70,6 +72,10 @@ function ArticlesPage() {
       content: "",
       rating: "",
       poster: "",
+    },
+    validate: {
+      poster: (value: string) =>
+        value ? null : "Please upload poster for the article",
     },
   });
 
@@ -98,10 +104,15 @@ function ArticlesPage() {
       page < 1 && setPage(1);
 
       navigate(`/api/articles/${page}`);
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else {
+        navigate("/error");
+      }
     }
+
+    setIsLoading(false);
   }
 
   async function createArticle(article: any) {
@@ -121,10 +132,20 @@ function ArticlesPage() {
         }
       );
       getArticles();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+      closeModal();
+    } catch (error: any) {
+      if (error.response.status == 400) {
+        console.log(error.response.data);
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 404) {
+        closeModal();
+        navigate("/notfound");
+      } else {
+        closeModal();
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
   }
 
   async function updateArticle(article: any) {
@@ -145,10 +166,19 @@ function ArticlesPage() {
       );
 
       getArticles();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+      closeModal();
+    } catch (error: any) {
+      if (error.response.status == 400) {
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 404) {
+        closeModal();
+        navigate("/notfound");
+      } else {
+        closeModal();
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
   }
 
   async function deleteArticle(id: string) {
@@ -158,19 +188,21 @@ function ArticlesPage() {
       const res = await axios.delete(`${BASE_URL}articles/${id}`);
 
       getArticles();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+
+    setIsLoading(false);
   }
 
   function handleArticle(article: any) {
     article.id ? updateArticle(article) : createArticle(article);
-    form.reset();
-    closeArticleForm();
   }
 
   function closeModal() {
+    setValidationMessage("");
     form.reset();
     closeArticleForm();
   }
@@ -235,29 +267,35 @@ function ArticlesPage() {
           })}
         >
           <Input type="hidden" {...form.getInputProps("id")}></Input>
+          {validationMessage && (
+            <Flex justify="center" align="center">
+              <Text c="red">{validationMessage}</Text>
+            </Flex>
+          )}
+
           <TextInput
-            required
             label="Title"
-            maxLength={50}
+            required
             minLength={3}
+            maxLength={100}
             {...form.getInputProps("title")}
           />
           <Textarea
+            required
             autosize={true}
             minRows={3}
-            minLength={10}
             maxRows={5}
-            required
+            minLength={3}
             maxLength={1000}
             label="Content"
             {...form.getInputProps("content")}
           />
           <Select
-            required
             placeholder="Select rating"
             allowDeselect={false}
             nothingFoundMessage="Nothing found..."
             searchable
+            required
             label="Rating"
             data={["Outstanding", "Good", "Bad"]}
             {...form.getInputProps("rating")}

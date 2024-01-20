@@ -22,7 +22,7 @@ import java.util.Set;
 @Entity
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Member {
+public class Member extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -63,7 +63,6 @@ public class Member {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private BillingInfo billingInfo;
 
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonIgnoreProperties("member")
     private List<ProductReview> memberProductReviews;
@@ -76,9 +75,4 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonIgnoreProperties("member")
     private List<ArticleComment> memberArticleComments;
-
-
-
-
-
 }

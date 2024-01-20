@@ -3,31 +3,30 @@ package com.popcorn_prophet.popcorn_prophet.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ArticleComment {
+public class ArticleComment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank(message = "Comment cannot be blank")
+    @Size(min = 2, max = 255, message = "Comment must be between 2 and 255 characters")
     private String commentText;
     private int likes;
 
     @ElementCollection
     private List<String> likedMembersUsernames;
-
-
-
 
     @ManyToOne()
     @JsonIgnoreProperties("memberArticleComments")
@@ -40,8 +39,6 @@ public class ArticleComment {
     @JsonIgnore
     @JoinColumn(name = "article_id",referencedColumnName = "id",nullable = false)
     private Article article;
-
-
     public boolean addLikedMemberUsername(String username) {
         if (this.likedMembersUsernames.contains(username)) {
             return false;
@@ -50,7 +47,6 @@ public class ArticleComment {
         this.likedMembersUsernames.add(username);
         return true;
     }
-
     public void removeLikedMemberUsername(String username) {
         this.likedMembersUsernames.remove(username);
         this.setLikes(this.getLikes() - 1);

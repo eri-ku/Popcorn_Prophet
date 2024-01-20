@@ -21,6 +21,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL, getAuth } from "../../../App";
+import { findRole } from "../ContextProvider";
 function Article({
   article,
   updateArticle,
@@ -51,8 +52,10 @@ function Article({
       const data = res.data;
       setLikedMembersUsernames(() => data.likedMembersUsernames);
       setLikes(() => data.likes);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
   }
   useEffect(() => {
@@ -142,12 +145,16 @@ function Article({
           </Indicator>
         </Group>
       </Group>
+
       <Flex mt={"1.5rem"} justify={"space-between"}>
-        <Button onClick={() => open()}>Delete</Button>
-        <Button color="blue" onClick={() => updateArticle(article)}>
-          Edit
-        </Button>
+        {findRole("ROLE_A&M") && <Button onClick={() => open()}>Delete</Button>}
+        {getAuth() === article.author.username && (
+          <Button color="blue" onClick={() => updateArticle(article)}>
+            Edit
+          </Button>
+        )}
       </Flex>
+
       <Modal opened={opened} onClose={close} centered>
         <Flex gap={10} justify="center" align="center">
           <Text>Do you really want to delete this product?</Text>

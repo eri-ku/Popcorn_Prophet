@@ -7,12 +7,17 @@ import com.popcorn_prophet.popcorn_prophet.entity.ProductReview;
 import com.popcorn_prophet.popcorn_prophet.service.MemberService;
 import com.popcorn_prophet.popcorn_prophet.service.ProductReviewService;
 import com.popcorn_prophet.popcorn_prophet.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +40,8 @@ public class ProductReviewRestController {
 
 
     @PostMapping({"/{productId}/{memberId}"})
-    public ResponseEntity<ProductReview> addProductReview(@RequestBody ProductReviewCreateDTO productReview, @PathVariable Long productId, @PathVariable Long memberId) {
+    public ResponseEntity<ProductReview> addProductReview(@Valid @RequestBody ProductReviewCreateDTO productReview, @PathVariable Long productId, @PathVariable Long memberId
+    ) {
         Optional<ProductReview> productReviewOptional = productReviewService.addProductReview(productReview, productId, memberId);
         if (productReviewOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -56,7 +62,7 @@ public class ProductReviewRestController {
 
     @PreAuthorize("@securityService.hasAccessToModifyProductReview(#productReview.id)")
     @PutMapping()
-    public ResponseEntity<ProductReview> updateProductReview(@RequestBody ProductReview productReview) {
+    public ResponseEntity<ProductReview> updateProductReview(@Valid @RequestBody ProductReview productReview) {
         Optional<ProductReview> productReviewOptional = productReviewService.updateProductReview(productReview);
         if (productReviewOptional.isEmpty()) {
             return ResponseEntity.notFound().build();

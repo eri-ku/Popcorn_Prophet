@@ -16,7 +16,7 @@ import {
 } from "@mantine/core";
 import { ProductModel } from "../Api";
 import Review from "./Review";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { useProvider } from "../ContextProvider";
 import { BASE_URL, getMemberID } from "../../../App";
 import { MemberModel } from "../AdminPage/AdminPage";
@@ -41,6 +41,7 @@ function ProductView() {
   const [opened, { open, close }] = useDisclosure(false);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [validationMessage, setValidationMessage] = useState<string>("");
 
   const [activePage, setActivePage] = useState(1);
 
@@ -78,10 +79,12 @@ function ProductView() {
       const pro: ProductModel = { ...data };
 
       setProduct(() => pro);
-      setIsLoading(false);
     } catch (error: any) {
-      navigate("/error");
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   async function fetchReviews() {
@@ -99,26 +102,34 @@ function ProductView() {
       if (activePage > data.totalPages && data.totalPages != 0) {
         setActivePage(data.totalPages);
       }
-      setIsLoading(false);
     } catch (error: any) {
-      navigate("/error");
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
-  async function createReview(ProductReview: ReviewModel) {
+  async function createReview(productReview: ReviewModel) {
     try {
       setIsLoading(true);
       const res = await axios.post(
         `${BASE_URL}products/productReview/${productId}/${getMemberID()}`,
-        ProductReview,
+        productReview,
         { withCredentials: true }
       );
 
       fetchReviews();
-      setIsLoading(false);
+      cleanForm();
     } catch (error: any) {
-      navigate("/error");
+      if (error.response.status == 400) {
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+
+    setIsLoading(false);
   }
 
   if (!product) {
@@ -174,18 +185,30 @@ function ProductView() {
 
   async function editReview(review: ReviewModel) {
     try {
+      setIsLoading(true);
       const res = await axios.put(`${BASE_URL}products/productReview`, review);
-
+      cleanForm();
       fetchReviews();
     } catch (error: any) {
-      navigate("/error");
+      if (error.response.status == 400) {
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 404) {
+        navigate("/notfound");
+      } else {
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
+  }
+
+  function cleanForm() {
+    setValidationMessage("");
+    form.reset();
+    close();
   }
 
   function handleReview(review: ReviewModel) {
     review.id ? editReview(review) : createReview(review);
-    form.reset();
-    close();
   }
 
   function handleClickOnShowReviews() {
@@ -294,6 +317,12 @@ function ProductView() {
       <Modal opened={opened} onClose={close} centered>
         <form onSubmit={form.onSubmit((values) => handleReview(values))}>
           <Flex direction={"column"} gap={"1rem"}>
+            {validationMessage && (
+              <Flex justify="center" align="center">
+                <Text c="red">{validationMessage}</Text>
+              </Flex>
+            )}
+
             <Flex justify={"space-between"} align={"center"}>
               <Text>Rating</Text>
               <Rating
@@ -309,8 +338,8 @@ function ProductView() {
               autosize
               minRows={3}
               maxRows={4}
-              minLength={2}
               maxLength={255}
+              minLength={2}
               required
               label="Review"
               {...form.getInputProps("review")}

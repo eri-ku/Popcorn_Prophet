@@ -24,7 +24,7 @@ export interface MemberModel {
   username: string;
   email: string;
   roles: any[];
-  password: string;
+  password?: string;
 }
 
 function AccordionLabel({ username, email }: MemberModel) {
@@ -79,10 +79,12 @@ function AdminPage() {
       const res = await axios.delete(`${BASE_URL}auth/${id}`);
       fetchMembers();
       close();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   async function fetchMembers() {
@@ -100,7 +102,6 @@ function AdminPage() {
           username: data.members[key].username,
           email: data.members[key].email,
           roles: data.members[key].roles,
-          password: "",
         });
       }
       setMembers(newMembers);
@@ -108,10 +109,13 @@ function AdminPage() {
       if (activePage > data.totalPages && data.totalPages != 0) {
         setActivePage(data.totalPages);
       }
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+
+    setIsLoading(false);
   }
 
   const items = members.map((item) => (
@@ -178,8 +182,18 @@ function AdminPage() {
       fetchMembers();
       closeChangeRoleModal();
       setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+      localStorage.clear();
+      sessionStorage.clear();
+      await axios.post(`${BASE_URL}auth/logout`, {}, { withCredentials: true });
+      navigate("/homepage");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        closeChangeRoleModal();
+        navigate("/notfound");
+      } else {
+        closeChangeRoleModal();
+        navigate("/error");
+      }
     }
   }
 
@@ -229,7 +243,7 @@ function AdminPage() {
                 searchable
                 clearable
                 label="Roles"
-                data={["ADMIN", "USER", "MODERATOR"]}
+                data={["ROLE_ADMIN", "ROLE_USER", "ROLE_MODERATOR"]}
                 {...form.getInputProps("role")}
               />
             </Flex>

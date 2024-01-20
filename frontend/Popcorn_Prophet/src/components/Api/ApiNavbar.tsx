@@ -10,6 +10,10 @@ import {
 } from "@tabler/icons-react";
 import styles from "./ApiNavbar.module.css";
 import { Link, useLocation } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL, getMemberRoles } from "../../App";
+import NavbarLinks from "../Misc/NavbarLinks";
+import { findRole } from "./ContextProvider";
 
 interface ApiLinkProps {
   icon: typeof IconHome2;
@@ -17,6 +21,12 @@ interface ApiLinkProps {
   to?: string;
   active?: boolean;
   onClick?(): void;
+}
+
+export function clean() {
+  axios.post(`${BASE_URL}auth/logout`, {}, { withCredentials: true });
+  sessionStorage.clear();
+  localStorage.clear();
 }
 
 function NavbarLink({ icon: Icon, label, to, active, onClick }: ApiLinkProps) {
@@ -40,7 +50,6 @@ const contentLinks = [
   { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api/products/1" },
   { icon: IconNews, label: "Articles", to: "/api/articles/1" },
   { icon: IconGift, label: "WishList", to: "/api/wishlist" },
-  { icon: IconUsers, label: "Adminpage", to: "/adminPage" },
 ];
 
 export function ApiNavbar() {
@@ -67,16 +76,18 @@ export function ApiNavbar() {
     />
   ));
 
-  function clean() {
-    sessionStorage.clear();
-    localStorage.clear();
-  }
-
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbarMain}>
         <Stack justify="center" gap={0}>
           {links}
+          {findRole("ROLE_ADMIN") && (
+            <NavbarLink
+              icon={IconUsers}
+              label={"Adminpage"}
+              to={"/adminPage"}
+            />
+          )}
         </Stack>
       </div>
 

@@ -17,6 +17,5 @@ public class MemberResponse {
     private String message;
     private Member member;
     private Long cartId;
-    private List<String> errors;;
 
 }

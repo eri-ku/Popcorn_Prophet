@@ -13,6 +13,7 @@ import {
   Text,
   Flex,
   Anchor,
+  List,
 } from "@mantine/core";
 import styles from "./Register.module.css";
 import { useNavigate } from "react-router-dom";
@@ -75,7 +76,6 @@ function Register() {
   const [opened, handlers] = useDisclosure(false);
   const [popoverOpened, setPopoverOpened] = useState(false);
   const navigate = useNavigate();
-  const [validationErrors, setValidationErros] = useState<any>([]);
   const [validationMessage, setValidationMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -129,27 +129,39 @@ function Register() {
         withCredentials: false,
       });
       const data = await res.data;
-      if (data) {
-        data.errors
-          ? setValidationErros([...data.errors])
-          : setValidationErros([]);
-        data.message
-          ? setValidationMessage(data.message)
-          : setValidationMessage("");
-      }
-      sessionStorage.setItem("cart", data.cartId);
+      sessionStorage.setItem("cartId", data.cartId);
       sessionStorage.setItem(
         "token",
         `Basic ${window.btoa(`${values.email}:${values.password}`)}`
       );
       sessionStorage.setItem("authMember", values.username);
       sessionStorage.setItem("memberId", data.member.id);
-      setIsLoading(false);
-
-      navigate("/api");
+      sessionStorage.setItem(
+        "roles",
+        JSON.stringify(data.member.roles.map((role: any) => role.roleName))
+      );
+      cleanForm();
+      navigate("/api/products/1");
     } catch (error: any) {
-      navigate("/error");
+      if (error.response.status == 400) {
+        setValidationMessage(() => error.response.data.join(".\n\n"));
+      } else if (error.response.status == 409) {
+        setValidationMessage(() => error.response.data.message);
+      } else if (error.response.status == 404) {
+        navigate("/notfound");
+      } else if (error.response.status == 404) {
+        navigate("/notfound");
+      } else {
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
+  }
+
+  function cleanForm() {
+    setValidationMessage("");
+    form.reset();
+    close();
   }
 
   if (isLoading) return <Spinner />;
@@ -164,86 +176,86 @@ function Register() {
         <Flex justify={"center"} className={styles.dirChange}>
           <form onSubmit={form.onSubmit((values) => createUser(values))}>
             <Paper className={styles.form} radius={0} p={30}>
-              <Title order={2} className={styles.title} ta="center" mb={50}>
-                Welcome back to Popcorn Prophet!
-              </Title>
+              <Flex direction={"column"}>
+                <Title order={2} className={styles.title} ta="center" mb={50}>
+                  Welcome back to Popcorn Prophet!
+                </Title>
+                {validationMessage && (
+                  <Flex justify="center" align="center">
+                    <List>
+                      {validationMessage.split("\n").map((line, index) => (
+                        <List.Item c="red" key={index}>
+                          {line}
+                        </List.Item>
+                      ))}
+                    </List>
+                  </Flex>
+                )}
 
-              {validationMessage && (
-                <Flex justify="center" align="center">
-                  <Text c="red">{validationMessage}</Text>
-                </Flex>
-              )}
+                <TextInput
+                  required
+                  label="Username"
+                  placeholder="Your Username"
+                  size="md"
+                  {...form.getInputProps("username")}
+                />
 
-              <TextInput
-                required
-                label="Username"
-                placeholder="Your Username"
-                size="md"
-                {...form.getInputProps("username")}
-              />
-
-              <TextInput
-                required
-                label="Email address"
-                placeholder="hello@gmail.com"
-                size="md"
-                mt="md"
-                {...form.getInputProps("email")}
-              />
-              <Popover
-                opened={popoverOpened}
-                position="bottom"
-                width="target"
-                transitionProps={{ transition: "pop" }}
-              >
-                <Popover.Target>
-                  <div
-                    onFocusCapture={() => setPopoverOpened(true)}
-                    onBlurCapture={() => setPopoverOpened(false)}
-                  >
-                    <PasswordInput
-                      required
-                      label="Password"
-                      placeholder="Your password"
-                      mt="md"
-                      size="md"
-                      {...form.getInputProps("password")}
+                <TextInput
+                  required
+                  label="Email address"
+                  placeholder="hello@gmail.com"
+                  size="md"
+                  mt="md"
+                  {...form.getInputProps("email")}
+                />
+                <Popover
+                  opened={popoverOpened}
+                  position="bottom"
+                  width="target"
+                  transitionProps={{ transition: "pop" }}
+                >
+                  <Popover.Target>
+                    <div
+                      onFocusCapture={() => setPopoverOpened(true)}
+                      onBlurCapture={() => setPopoverOpened(false)}
+                    >
+                      <PasswordInput
+                        required
+                        label="Password"
+                        placeholder="Your password"
+                        mt="md"
+                        size="md"
+                        {...form.getInputProps("password")}
+                      />
+                    </div>
+                  </Popover.Target>
+                  <Popover.Dropdown>
+                    <Progress color={color} value={strength} size={5} mb="xs" />
+                    <PasswordRequirement
+                      label="Includes at least 6 characters"
+                      meets={form.values.password.length > 5}
                     />
-                  </div>
-                </Popover.Target>
-                <Popover.Dropdown>
-                  <Progress color={color} value={strength} size={5} mb="xs" />
-                  <PasswordRequirement
-                    label="Includes at least 6 characters"
-                    meets={form.values.password.length > 5}
-                  />
-                  {checks}
-                </Popover.Dropdown>
-              </Popover>
+                    {checks}
+                  </Popover.Dropdown>
+                </Popover>
 
-              <PasswordInput
-                required
-                label="Repeat Password"
-                placeholder="Your password again"
-                mt="md"
-                size="md"
-                {...form.getInputProps("confirmPassword")}
-              />
-              <Button type="submit" fullWidth mt="xl" size="md">
-                Register
-              </Button>
+                <PasswordInput
+                  required
+                  label="Repeat Password"
+                  placeholder="Your password again"
+                  mt="md"
+                  size="md"
+                  {...form.getInputProps("confirmPassword")}
+                />
+                <Button type="submit" fullWidth mt="xl" size="md">
+                  Register
+                </Button>
 
-              <Text ta="center" mt="md">
-                Already have an account?{" "}
-                <Anchor onClick={handlers.toggle}>Login</Anchor>
-              </Text>
-
-              {validationErrors &&
-                validationErrors.map((error: any) => (
-                  <Text mt={10} c={"red"} key={error}>
-                    {error}
-                  </Text>
-                ))}
+                <Text ta="center" mt="md">
+                  Already have an account?{" "}
+                  <Anchor onClick={handlers.toggle}>Login</Anchor>
+                </Text>
+              </Flex>
             </Paper>
           </form>
           <Box>

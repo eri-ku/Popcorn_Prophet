@@ -10,6 +10,7 @@ import com.popcorn_prophet.popcorn_prophet.entity.ArticleComment;
 import com.popcorn_prophet.popcorn_prophet.entity.ProductReview;
 import com.popcorn_prophet.popcorn_prophet.service.ArticleCommentService;
 import com.popcorn_prophet.popcorn_prophet.service.ImageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +37,7 @@ public class ArticleCommentController {
     }
 
     @PostMapping({"/{articleId}/{memberId}"})
-    public ResponseEntity<ArticleComment> addArticleComment(@RequestBody ArticleCommentDTO articleComment, @PathVariable Long articleId, @PathVariable Long memberId) {
+    public ResponseEntity<ArticleComment> addArticleComment(@Valid @RequestBody ArticleCommentDTO articleComment, @PathVariable Long articleId, @PathVariable Long memberId) {
 
         Optional<ArticleComment> articleCommentOptional = articleCommentService.addArticleComment(articleComment, articleId, memberId);
         if (articleCommentOptional.isEmpty()) {
@@ -60,7 +61,7 @@ public class ArticleCommentController {
 
     @PreAuthorize("@securityService.hasAccessToModifyArticleComment(#articleComment.id)")
     @PutMapping()
-    public ResponseEntity<ArticleComment> updateArticleComment(@RequestBody ArticleComment articleComment) {
+    public ResponseEntity<ArticleComment> updateArticleComment(@Valid @RequestBody ArticleComment articleComment) {
         Optional<ArticleComment> articleCommentOptional = articleCommentService.updateArticleComment(articleComment);
         if (articleCommentOptional.isEmpty()) {
             return ResponseEntity.notFound().build();

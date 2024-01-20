@@ -11,10 +11,11 @@ import styles from "./Review.module.css";
 import { ReviewModel } from "./ProductView";
 import { useDisclosure } from "@mantine/hooks";
 import axios from "axios";
-import { BASE_URL, getMemberID } from "../../../App";
+import { BASE_URL, getAuth, getMemberID } from "../../../App";
 import { useState } from "react";
 import Spinner from "../../Misc/Spinner";
 import { useNavigate } from "react-router-dom";
+import { findRole } from "../ContextProvider";
 
 function Review({
   review,
@@ -40,10 +41,12 @@ function Review({
       fetchReviews();
 
       close();
-      setIsLoading(false);
-    } catch (error) {
-      navigate("/error");
+    } catch (error: any) {
+      if (error.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+    setIsLoading(false);
   }
 
   if (isLoading) return <Spinner />;
@@ -68,12 +71,16 @@ function Review({
         </Text>
       </Flex>
       <Flex justify={"space-between"}>
-        <Button size="xs" onClick={() => open()}>
-          Delete
-        </Button>
-        <Button color="blue" size="xs" onClick={() => handleEdit(review)}>
-          Edit
-        </Button>
+        {(getAuth() === review.member?.username || findRole("ROLE_A&M")) && (
+          <Button size="xs" onClick={() => open()}>
+            Delete
+          </Button>
+        )}
+        {getAuth() === review.member?.username && (
+          <Button color="blue" size="xs" onClick={() => handleEdit(review)}>
+            Edit
+          </Button>
+        )}
       </Flex>
       <Modal opened={opened} onClose={close} centered>
         <Flex gap={10} justify="center" align="center">

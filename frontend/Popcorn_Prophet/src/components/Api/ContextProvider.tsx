@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 
-import { BASE_URL, getCartID } from "../../App";
+import { BASE_URL, getCartID, getMemberRoles } from "../../App";
 import { ProductModel } from "./Api";
 import { CartItemModel } from "./Cart/Cart";
 import axiosPom from "axios";
@@ -11,6 +11,22 @@ const Context = createContext<any>(null);
 
 export function getXSRFToken() {
   return sessionStorage.getItem("XSRF-TOKEN");
+}
+
+export function findRole(search: string) {
+  if (search === "ROLE_A&M") {
+    return (
+      getMemberRoles()?.includes("ROLE_ADMIN") ||
+      getMemberRoles()?.includes("ROLE_MODERATOR")
+    );
+  }
+  if (search === "ROLE_ADMIN") {
+    return getMemberRoles()?.includes("ROLE_ADMIN");
+  }
+  if (search === "ROLE_MODERATOR") {
+    return getMemberRoles()?.includes("ROLE_MODERATOR");
+  }
+  return false;
 }
 
 function ContextProvider({ children }: { children: any }) {
@@ -48,8 +64,10 @@ function ContextProvider({ children }: { children: any }) {
       );
 
       fetchCart();
-    } catch (err) {
-      navigate("/error");
+    } catch (err: any) {
+      if (err.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
   }
 
@@ -73,8 +91,10 @@ function ContextProvider({ children }: { children: any }) {
         });
       }
       setCart(pro);
-    } catch (err) {
-      navigate("/error");
+    } catch (err: any) {
+      if (err.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
   }
 

@@ -13,7 +13,7 @@ import {
 import Icon from "../Misc/Icon";
 import { getAuth } from "../../App";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useProvider } from "./ContextProvider";
+import { findRole, useProvider } from "./ContextProvider";
 import NavButton from "../Misc/NavButton";
 
 function ApiHeader({ open }: { open: any }) {
@@ -61,7 +61,9 @@ function ApiHeader({ open }: { open: any }) {
                     <NavButton to="/api/products/1">Api</NavButton>
                     <NavButton to="api/articles/1">Articles</NavButton>
                     <NavButton to="/api/wishlist">WishList</NavButton>
-                    <NavButton to="/adminPage">Adminpage</NavButton>
+                    {findRole("ROLE_ADMIN") && (
+                      <NavButton to="/adminPage">Adminpage</NavButton>
+                    )}
                   </Flex>
                 </Drawer.Body>
               </Drawer.Content>
@@ -82,7 +84,7 @@ function ApiHeader({ open }: { open: any }) {
 
         <Flex className={styles.actionHeader} align={"center"}>
           {/* :page v App route*/}
-          {page && (
+          {page && findRole("ROLE_A&M") && (
             <Button
               variant="outline"
               color="red.2"
@@ -94,17 +96,18 @@ function ApiHeader({ open }: { open: any }) {
             </Button>
           )}
 
-          {/^\/api\/articles\/\d+$/.test(location.pathname) && (
-            <Button
-              variant="outline"
-              color="red.2"
-              radius="lg"
-              size="compact-xl"
-              onClick={openArticleForm}
-            >
-              Create Article
-            </Button>
-          )}
+          {/^\/api\/articles\/\d+$/.test(location.pathname) &&
+            findRole("ROLE_A&M") && (
+              <Button
+                variant="outline"
+                color="red.2"
+                radius="lg"
+                size="compact-xl"
+                onClick={openArticleForm}
+              >
+                Create Article
+              </Button>
+            )}
 
           <Anchor component={Link} to="/api/cart" onClick={handleClick}>
             <Indicator

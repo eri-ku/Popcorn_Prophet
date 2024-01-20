@@ -14,6 +14,7 @@ import {
   MultiSelect,
   NumberInput,
   Pagination,
+  Text,
 } from "@mantine/core";
 import Product from "./Product/Product";
 import styles from "./Api.module.css";
@@ -26,6 +27,7 @@ import { BASE_URL } from "../../App";
 import { useProvider } from "./ContextProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { clean } from "./ApiNavbar";
 export interface ProductModel {
   id?: string;
   title: string;
@@ -57,11 +59,13 @@ function Api({
   const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState<number>(0);
 
+  const [validationMessage, setValidationMessage] = useState<string>("");
+
   const form = useForm<ProductModel>({
     initialValues: {
       title: "",
       type: "",
-      released: "",
+      released: new Date(),
       genre: [],
       language: [],
       country: [],
@@ -73,13 +77,31 @@ function Api({
     },
     validate: {
       type: (value: any, values: any) =>
-        value?.toLowerCase() == "movie"
+        !value
+          ? "Type is required"
+          : value.toLowerCase() == "movie"
           ? movieRatings.items.includes(values.rated)
             ? null
             : "Type Movie must be rated from Movie Ratings group"
           : seriesRatings.items.includes(values?.rated)
           ? null
           : "Type Series must be rated from Series Ratings group",
+      title: (value: any) =>
+        value.length < 2
+          ? "Title must be at least 3 characters"
+          : value.length > 100
+          ? "Title must be less than 150 characters"
+          : null,
+      plot: (value: any) =>
+        value.length < 2
+          ? "Plot must be at least 3 characters"
+          : value.length > 255
+          ? "Plot must be less than 255 characters"
+          : null,
+      poster: (value: any) => (!value ? "Poster is required" : null),
+      runtime: (value: any) =>
+        value < 1 ? "Runtime must be at least 1 minute" : null,
+      released: (value: any) => (!value ? "Released is required" : null),
     },
   });
 
@@ -90,7 +112,6 @@ function Api({
   async function fetchProducts() {
     if (!page || Number(page) < 1) {
       navigate(`/api/products/1`);
-      setActivePage(1);
       return;
     }
     try {
@@ -119,18 +140,19 @@ function Api({
 
       setProds(pro);
       setTotalPages(() => data.totalPages);
-      activePage > data.totalPages && setActivePage(data.totalPages);
-      activePage < 1 && setActivePage(1);
-
-      setIsLoading(false);
 
       navigate(`/api/products/${activePage}`);
-    } catch (err) {
-      navigate("/error");
+    } catch (err: any) {
+      if (err.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+
+    setIsLoading(false);
   }
 
   function closeModal() {
+    setValidationMessage("");
     form.reset();
     close();
   }
@@ -141,10 +163,13 @@ function Api({
       const res = await axios.delete(`${BASE_URL}api/products/delete/${id}`);
 
       fetchProducts();
-      setIsLoading(false);
-    } catch (err) {
-      navigate("/error");
+    } catch (err: any) {
+      if (err.response.status == 404) {
+        navigate("/notfound");
+      } else navigate("/error");
     }
+
+    setIsLoading(false);
   }
 
   async function createProduct(product: ProductModel) {
@@ -158,11 +183,27 @@ function Api({
       const res = await axios.post(`${BASE_URL}api/products`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      cleanForm();
       fetchProducts();
-      setIsLoading(false);
-    } catch (err) {
-      navigate("/error");
+    } catch (err: any) {
+      if (err.response.status == 400) {
+        setValidationMessage(() => err.response.data.join(".\n\n"));
+      } else if (err.response.status == 404) {
+        cleanForm();
+        navigate("/notfound");
+      } else {
+        cleanForm();
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
+  }
+
+  function cleanForm() {
+    setValidationMessage("");
+    form.reset();
+    close();
   }
 
   async function editProduct(product: ProductModel) {
@@ -176,24 +217,33 @@ function Api({
       const res = await axios.put(`${BASE_URL}api/products/update`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      cleanForm();
       fetchProducts();
-      setIsLoading(false);
-    } catch (err) {
-      navigate("/error");
+    } catch (err: any) {
+      if (err.response.status == 400) {
+        setValidationMessage(() => err.response.data.join(".\n\n"));
+      } else if (err.response.status == 404) {
+        cleanForm();
+        navigate("/notfound");
+      } else {
+        cleanForm();
+        navigate("/error");
+      }
     }
+    setIsLoading(false);
   }
 
   function handleProduct(product: ProductModel) {
     product.id ? editProduct(product) : createProduct(product);
-    form.reset();
-    close();
   }
 
   function handleEditModal(product: ProductModel) {
     form.setValues({
       ...product,
       released: new Date(product.released.toString()),
-      type: product.type.charAt(0).toUpperCase() + product.type.slice(1),
+      type: product.type
+        ? product.type.charAt(0).toUpperCase() + product.type.slice(1)
+        : "",
     });
     open();
   }
@@ -242,17 +292,22 @@ function Api({
           })}
         >
           <Input type="hidden" {...form.getInputProps("id")} />
+          {validationMessage && (
+            <Flex justify="center" align="center">
+              <Text c="red">{validationMessage}</Text>
+            </Flex>
+          )}
 
           <TextInput
-            required
             label="Title"
+            required
             maxLength={150}
             {...form.getInputProps("title")}
           />
           <NumberInput
-            required
             label="Runtime"
             suffix=" min"
+            required
             mt="md"
             allowNegative={false}
             {...form.getInputProps("runtime")}
@@ -265,12 +320,12 @@ function Api({
           />
 
           <DateInput
-            required
             clearable
             minDate={new Date(1888, 9, 14)}
             maxDate={new Date()}
             valueFormat="DD MMM YYYY"
             label="Released"
+            required
             {...form.getInputProps("released")}
           />
 
@@ -306,14 +361,14 @@ function Api({
           <Textarea
             autosize={true}
             minRows={3}
-            required
             maxLength={255}
             label="Plot"
+            required
             {...form.getInputProps("plot")}
           />
           <Select
-            required
             label="Rated"
+            required
             {...form.getInputProps("rated")}
             data={[movieRatings, seriesRatings]}
           />
@@ -321,8 +376,7 @@ function Api({
             required
             clearable
             accept="image/png,image/jpg,image/jpeg"
-            label="Upload files"
-            placeholder="Upload poster"
+            label="Upload poster"
             {...form.getInputProps("poster")}
           />
           <Flex justify={"end"}>
