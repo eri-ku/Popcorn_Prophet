@@ -22,4 +22,5 @@ public class ArticleDTO {
     private String rating;
 
 
+
 }

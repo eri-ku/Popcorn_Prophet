@@ -75,4 +75,12 @@ public class SecurityService {
     }
 
 
+    public boolean isNotTheSame(Long memberId) {
+        Optional<Member> optionalMember = memberService.getMemberByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (optionalMember.isEmpty()) {
+            return false;
+        }
+        Member member = optionalMember.get();
+        return !member.getId().equals(memberId);
+    }
 }

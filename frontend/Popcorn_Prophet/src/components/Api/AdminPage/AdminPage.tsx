@@ -19,6 +19,7 @@ import { BASE_URL, getMemberID } from "../../../App";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
 import { useNavigate } from "react-router-dom";
+import { notifications } from "@mantine/notifications";
 export interface MemberModel {
   id: string;
   username: string;
@@ -77,6 +78,13 @@ function AdminPage() {
     try {
       setIsLoading(true);
       const res = await axios.delete(`${BASE_URL}auth/${id}`);
+      notifications.show({
+        title: "Success",
+        message: "Member deleted",
+        withBorder: true,
+        color: "gray",
+        icon: "🗑️",
+      });
       fetchMembers();
       close();
     } catch (error: any) {
@@ -152,14 +160,16 @@ function AdminPage() {
             >
               Change role
             </Button>
-            <Button
-              onClick={() => {
-                setId(item.id);
-                open();
-              }}
-            >
-              Delete User
-            </Button>
+            {item.id != getMemberID() && (
+              <Button
+                onClick={() => {
+                  setId(item.id);
+                  open();
+                }}
+              >
+                Delete User
+              </Button>
+            )}
           </Flex>
         </Flex>
       </Accordion.Panel>
@@ -168,24 +178,31 @@ function AdminPage() {
 
   async function updateRoles(id: string, role: string[]) {
     try {
+      console.log(id);
       setIsLoading(true);
 
       const res = await axios.patch(
-        `${BASE_URL}auth/role/${getMemberID()}`,
+        `${BASE_URL}auth/role/${id}`,
         {
           role: role,
           memberId: id,
         },
         { withCredentials: true }
       );
-
       fetchMembers();
       closeChangeRoleModal();
-      setIsLoading(false);
-      localStorage.clear();
-      sessionStorage.clear();
-      await axios.post(`${BASE_URL}auth/logout`, {}, { withCredentials: true });
-      navigate("/homepage");
+      console.log(id);
+      console.log(getMemberID());
+      if (id == getMemberID()) {
+        localStorage.clear();
+        sessionStorage.clear();
+        await axios.post(
+          `${BASE_URL}auth/logout`,
+          {},
+          { withCredentials: true }
+        );
+        navigate("/homepage");
+      }
     } catch (error: any) {
       if (error.response.status == 404) {
         closeChangeRoleModal();
@@ -195,6 +212,7 @@ function AdminPage() {
         navigate("/error");
       }
     }
+    setIsLoading(false);
   }
 
   if (isLoading) return <Spinner />;

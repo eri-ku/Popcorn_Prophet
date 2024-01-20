@@ -50,6 +50,20 @@ public class CartService {
         return Optional.of(true);
     }
 
+    public Optional<Boolean> removeItemFromAllCarts(Long productId) {
+        Optional<Product> productOptional = this.productRepository.findById(productId);
+        if (productOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Product product = productOptional.get();
+        List<Cart> carts = this.cartRepository.findAll();
+        for (Cart cart : carts) {
+            cart.removeItem(product);
+        }
+        this.cartRepository.saveAll(carts);
+        return Optional.of(true);
+    }
+
 
 
     public Optional<Collection<CartItem>> getCartItems(Long id) {

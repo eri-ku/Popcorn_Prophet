@@ -27,7 +27,10 @@ import { BASE_URL } from "../../App";
 import { useProvider } from "./ContextProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { Notification } from "@mantine/core";
+
 import { clean } from "./ApiNavbar";
+import { notifications } from "@mantine/notifications";
 export interface ProductModel {
   id?: string;
   title: string;
@@ -162,6 +165,13 @@ function Api({
       setIsLoading(true);
       const res = await axios.delete(`${BASE_URL}api/products/delete/${id}`);
 
+      notifications.show({
+        title: "Success",
+        message: "Product deleted",
+        withBorder: true,
+        color: "gray",
+        icon: "😢",
+      });
       fetchProducts();
     } catch (err: any) {
       if (err.response.status == 404) {
@@ -185,6 +195,14 @@ function Api({
       });
 
       cleanForm();
+      notifications.show({
+        title: "Success",
+        message: "Product created",
+        withBorder: true,
+        color: "gray",
+        icon: "😍",
+      });
+
       fetchProducts();
     } catch (err: any) {
       if (err.response.status == 400) {
@@ -218,6 +236,13 @@ function Api({
         headers: { "Content-Type": "multipart/form-data" },
       });
       cleanForm();
+      notifications.show({
+        title: "Success",
+        message: "Product updated",
+        color: "gray",
+        withBorder: true,
+        icon: "👍",
+      });
       fetchProducts();
     } catch (err: any) {
       if (err.response.status == 400) {

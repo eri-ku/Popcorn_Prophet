@@ -18,6 +18,7 @@ import { BASE_URL, getAuth } from "../../../App";
 import { IconThumbUp } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { findRole } from "../ContextProvider";
+import { notifications } from "@mantine/notifications";
 function Comment({
   comment,
   editComment,
@@ -44,6 +45,13 @@ function Comment({
         `${BASE_URL}articles/articleComment/${id}`,
         { withCredentials: true }
       );
+      notifications.show({
+        title: "Success",
+        message: "Comment deleted successfully",
+        color: "gray",
+        withBorder: true,
+        icon: "😭",
+      });
       fetchComments();
       close();
     } catch (error: any) {

@@ -50,6 +50,7 @@ const contentLinks = [
   { icon: IconDeviceDesktopAnalytics, label: "Api", to: "/api/products/1" },
   { icon: IconNews, label: "Articles", to: "/api/articles/1" },
   { icon: IconGift, label: "WishList", to: "/api/wishlist" },
+  { icon: IconUsers, label: "Adminpage", to: "/adminPage" },
 ];
 
 export function ApiNavbar() {
@@ -80,14 +81,11 @@ export function ApiNavbar() {
     <nav className={styles.navbar}>
       <div className={styles.navbarMain}>
         <Stack justify="center" gap={0}>
-          {links}
-          {findRole("ROLE_ADMIN") && (
-            <NavbarLink
-              icon={IconUsers}
-              label={"Adminpage"}
-              to={"/adminPage"}
-            />
-          )}
+          {links[0]}
+          {links[1]}
+          {links[2]}
+          {links[3]}
+          {findRole("ROLE_ADMIN") && links[4]}
         </Stack>
       </div>
 

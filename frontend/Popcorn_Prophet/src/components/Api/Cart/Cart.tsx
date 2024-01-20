@@ -14,6 +14,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
 import { useNavigate } from "react-router-dom";
+import { notifications } from "@mantine/notifications";
 export interface BillingInfo {
   firstName: string;
   lastName: string;
@@ -88,6 +89,13 @@ function Cart() {
       setCart(() =>
         cart.filter((el: CartItemModel) => el.product.id !== cartItemKey)
       );
+      notifications.show({
+        title: "Success",
+        message: "Product removed from cart",
+        color: "gray",
+        withBorder: true,
+        icon: "🥹",
+      });
       close();
     } catch (error: any) {
       if (error.response.status == 404) {
@@ -102,8 +110,6 @@ function Cart() {
   function handleSubmit() {
     nextStep();
     createBilling(form.values);
-    setCart([]);
-    cleanCart();
   }
 
   async function cleanCart() {
@@ -131,6 +137,15 @@ function Cart() {
         { withCredentials: true }
       );
       const data = await res.data;
+      notifications.show({
+        title: "Success",
+        message: "Order completed, billing info submited",
+        color: "gray",
+        withBorder: true,
+        icon: "🛍️",
+      });
+      setCart([]);
+      cleanCart();
     } catch (error: any) {
       if (error.response.status == 400) {
         setValidationMessage(() => error.response.data.join(".\n\n"));

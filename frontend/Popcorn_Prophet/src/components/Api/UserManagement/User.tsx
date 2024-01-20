@@ -24,6 +24,7 @@ import { BASE_URL, getMemberID } from "../../../App";
 import { useDisclosure } from "@mantine/hooks";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
+import { notifications } from "@mantine/notifications";
 function PasswordRequirement({
   meets,
   label,
@@ -161,13 +162,21 @@ function User() {
 
   async function updateEmail(email: string) {
     try {
+      setIsLoading(true);
       const res = await axios.patch(
         `${BASE_URL}auth/email/${getMemberID()}`,
         { email },
         { withCredentials: true }
       );
-      fetchMember();
+      notifications.show({
+        title: "Success",
+        message: "Email changed successfully",
+        color: "grey",
+        withBorder: true,
+        icon: "📩",
+      });
       cleanForm();
+      axios.post(`${BASE_URL}auth/logout`, {}, { withCredentials: true });
       localStorage.clear();
       sessionStorage.clear();
 
@@ -181,6 +190,7 @@ function User() {
         navigate("/error");
       }
     }
+    setIsLoading(false);
   }
 
   async function updatePassword(
@@ -199,8 +209,15 @@ function User() {
         },
         { withCredentials: true }
       );
-      fetchMember();
+      notifications.show({
+        title: "Success",
+        message: "Password changed successfully",
+        color: "grey",
+        withBorder: true,
+        icon: "🔑",
+      });
       cleanForm();
+      axios.post(`${BASE_URL}auth/logout`, {}, { withCredentials: true });
       localStorage.clear();
       sessionStorage.clear();
 

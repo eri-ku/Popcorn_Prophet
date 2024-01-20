@@ -6,6 +6,7 @@ import { ProductModel } from "./Api";
 import { CartItemModel } from "./Cart/Cart";
 import axiosPom from "axios";
 import { useNavigate } from "react-router-dom";
+import { notifications } from "@mantine/notifications";
 
 const Context = createContext<any>(null);
 
@@ -62,6 +63,13 @@ function ContextProvider({ children }: { children: any }) {
         `${BASE_URL}cart/${id}/${getCartID()}`,
         {}
       );
+      notifications.show({
+        title: "Success",
+        message: "Product added to cart",
+        color: "gray",
+        withBorder: true,
+        icon: "🛒",
+      });
 
       fetchCart();
     } catch (err: any) {

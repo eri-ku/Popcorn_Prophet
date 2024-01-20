@@ -70,7 +70,7 @@ public class MemberRestController {
     }
 
 
-    @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId) || hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("@securityService.hasAccessToModifyMember(#memberId)")
     @GetMapping("/{memberId}")
     public ResponseEntity<Member> getMember(@PathVariable Long memberId) {
         Optional<Member> member = memberService.getMember(memberId);
@@ -80,7 +80,7 @@ public class MemberRestController {
         return ResponseEntity.ok(member.get());
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("@securityService.isNotTheSame(#memberId) ||hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long memberId) {
         Optional<Boolean> success = this.memberService.deleteMember(memberId);

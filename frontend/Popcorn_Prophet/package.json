@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@mantine/carousel": "^7.3.2",
-    "@mantine/dates": "^7.3.1",
-    "@mantine/form": "^7.3.0",
+    "@mantine/dates": "^7.3.2",
+    "@mantine/form": "^7.3.2",
+    "@mantine/hooks": "^7.3.2",
+    "@mantine/notifications": "^7.3.2",
     "@tabler/icons-react": "^2.42.0",
     "axios": "^1.6.5",
     "date-fns": "^2.30.0",

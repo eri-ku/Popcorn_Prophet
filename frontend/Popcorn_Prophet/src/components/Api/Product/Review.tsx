@@ -16,6 +16,7 @@ import { useState } from "react";
 import Spinner from "../../Misc/Spinner";
 import { useNavigate } from "react-router-dom";
 import { findRole } from "../ContextProvider";
+import { notifications } from "@mantine/notifications";
 
 function Review({
   review,
@@ -38,6 +39,13 @@ function Review({
         { withCredentials: true }
       );
       const data = await res.data;
+      notifications.show({
+        title: "Success",
+        message: "Review deleted successfully",
+        color: "gray",
+        withBorder: true,
+        icon: "😿",
+      });
       fetchReviews();
 
       close();

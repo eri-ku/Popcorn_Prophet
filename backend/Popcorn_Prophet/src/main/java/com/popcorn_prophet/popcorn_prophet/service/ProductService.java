@@ -32,6 +32,9 @@ public class ProductService {
             if (productToDelete.get().getImage() != null) {
                 imageService.deleteImage(productToDelete.get().getImage().getId());
             }
+            if(cartService.removeItemFromAllCarts(id).isEmpty()){
+                return Optional.empty();
+            }
             productRepository.deleteById(id);
 
             cartService.recalculateCartsTotal();

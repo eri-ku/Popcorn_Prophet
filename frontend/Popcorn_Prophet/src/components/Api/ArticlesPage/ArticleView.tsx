@@ -20,6 +20,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { BASE_URL, getMemberID } from "../../../App";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
+import { notifications } from "@mantine/notifications";
 function ArticleView() {
   const navigate = useNavigate();
   const [toggleComments, setToggleComments] = useState<boolean>(false);
@@ -115,6 +116,13 @@ function ArticleView() {
         comment,
         { withCredentials: true }
       );
+      notifications.show({
+        title: "Success",
+        message: "Comment edited",
+        withBorder: true,
+        color: "gray",
+        icon: "📝",
+      });
 
       fetchComments();
 
@@ -141,6 +149,13 @@ function ArticleView() {
         comment,
         { withCredentials: true }
       );
+      notifications.show({
+        title: "Success",
+        message: "Comment created",
+        withBorder: true,
+        color: "gray",
+        icon: "✍️",
+      });
       fetchComments();
       closeCommentModal();
     } catch (error: any) {

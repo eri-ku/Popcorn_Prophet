@@ -24,6 +24,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
+import { notifications } from "@mantine/notifications";
 export interface ReviewModel {
   id?: string;
   product?: ProductModel;
@@ -118,6 +119,13 @@ function ProductView() {
         productReview,
         { withCredentials: true }
       );
+      notifications.show({
+        title: "Success",
+        message: "Review added",
+        color: "gray",
+        withBorder: true,
+        icon: "📜",
+      });
 
       fetchReviews();
       cleanForm();
@@ -188,6 +196,13 @@ function ProductView() {
       setIsLoading(true);
       const res = await axios.put(`${BASE_URL}products/productReview`, review);
       cleanForm();
+      notifications.show({
+        title: "Success",
+        message: "Review edited",
+        color: "gray",
+        withBorder: true,
+        icon: "📌",
+      });
       fetchReviews();
     } catch (error: any) {
       if (error.response.status == 400) {

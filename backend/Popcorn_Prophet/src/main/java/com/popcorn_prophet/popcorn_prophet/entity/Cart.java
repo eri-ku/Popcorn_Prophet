@@ -45,6 +45,7 @@ public class Cart extends BaseEntity{
     }
     public void removeItem(Product key) {
         CartItem cartItem = cartItems.get(key);
+        if(cartItem == null) return;
         this.totalPriceOfCart-= cartItem.getPrice() * cartItem.getQuantity();
         this.cartItems.remove(key);
     }

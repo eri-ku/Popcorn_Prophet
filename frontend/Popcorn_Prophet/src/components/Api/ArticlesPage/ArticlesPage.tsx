@@ -28,6 +28,7 @@ import { useProvider } from "../ContextProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Spinner from "../../Misc/Spinner";
+import { notifications } from "@mantine/notifications";
 
 export interface CommentModel {
   id?: string;
@@ -47,6 +48,7 @@ export interface ArticleModel {
   articleComments: CommentModel[];
   poster: string | File;
   likedMembersUsernames?: string[];
+  [key: string]: any;
 }
 
 function ArticlesPage() {
@@ -96,8 +98,27 @@ function ArticlesPage() {
         { withCredentials: true }
       );
 
+      console.log(res);
       const data = await res.data;
-      setArticles(data.articles);
+
+      const newArticles: ArticleModel[] = [];
+      for (const key in data.articles) {
+        newArticles.push({
+          id: data.articles[key].id,
+          title: data.articles[key].title,
+          content: data.articles[key].content,
+          rating: data.articles[key].rating,
+          likes: data.articles[key].likes,
+          articleComments: data.articles[key].articleComments,
+          poster: data.articles[key].poster,
+          likedMembersUsernames: data.articles[key].likedMembersUsernames,
+          author: data.articles[key].author,
+        });
+      }
+
+      setArticles(() => newArticles);
+      setArticles(newArticles);
+
       setTotalPages(data.totalPages);
 
       page > data.totalPages && setPage(data.totalPages);
@@ -131,6 +152,13 @@ function ArticlesPage() {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
+      notifications.show({
+        title: "Success",
+        message: "Article created",
+        color: "gray",
+        withBorder: true,
+        icon: "📰",
+      });
       getArticles();
       closeModal();
     } catch (error: any) {
@@ -164,7 +192,14 @@ function ArticlesPage() {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
+      notifications.show({
+        title: "Success",
+        message: "Article updated",
+        color: "gray",
+        withBorder: true,
+        icon: "📎",
+      });
+      console.log("updated");
       getArticles();
       closeModal();
     } catch (error: any) {
@@ -186,6 +221,13 @@ function ArticlesPage() {
       setIsLoading(true);
 
       const res = await axios.delete(`${BASE_URL}articles/${id}`);
+      notifications.show({
+        title: "Success",
+        message: "Article deleted",
+        color: "gray",
+        withBorder: true,
+        icon: "🚮",
+      });
 
       getArticles();
     } catch (error: any) {
@@ -244,6 +286,7 @@ function ArticlesPage() {
           {articles.map((article) => (
             <Article
               article={article}
+              getArticles={getArticles}
               key={article.id}
               updateArticle={handleEditModal}
               deleteArticle={deleteArticle}

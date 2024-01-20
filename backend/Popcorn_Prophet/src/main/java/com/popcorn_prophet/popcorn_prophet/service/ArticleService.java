@@ -36,7 +36,7 @@ public class ArticleService {
         if (article.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(articleRepository.findById(articleId).get());
+        return article;
     }
 
     @Transactional

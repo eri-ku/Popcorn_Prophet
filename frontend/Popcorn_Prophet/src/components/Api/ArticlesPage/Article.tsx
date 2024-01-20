@@ -26,15 +26,19 @@ function Article({
   article,
   updateArticle,
   deleteArticle,
+  getArticles,
 }: {
   article: ArticleModel;
   updateArticle: Function;
   deleteArticle: Function;
+  getArticles: Function;
 }) {
   const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
 
   const [likes, setLikes] = useState<number>(article.likes);
+  console.log("article");
+  console.log(article.likes);
   const [likedMembersUsernames, setLikedMembersUsernames] = useState<string[]>(
     article.likedMembersUsernames!
   );
@@ -50,8 +54,9 @@ function Article({
       );
 
       const data = res.data;
-      setLikedMembersUsernames(() => data.likedMembersUsernames);
-      setLikes(() => data.likes);
+      setLikes(data.likes);
+      setLikedMembersUsernames(data.likedMembersUsernames);
+      getArticles();
     } catch (error: any) {
       if (error.response.status == 404) {
         navigate("/notfound");
@@ -83,7 +88,7 @@ function Article({
             className={styles.title}
             fw={500}
             component={Link}
-            to={`/api/articles/${1}`}
+            to={`/api/articles/article/${article.id}`}
           >
             {article.title}
           </Text>

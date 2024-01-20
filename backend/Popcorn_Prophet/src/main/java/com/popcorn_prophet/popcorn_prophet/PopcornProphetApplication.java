@@ -9,8 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 @SpringBootApplication
 @EnableFeignClients(basePackages = "com.popcorn_prophet.popcorn_prophet.proxy")
-//not for production
-@EnableWebSecurity(debug = true)
 @EnableJpaAuditing(auditorAwareRef = "auditorAwareComponent")
 @EnableMethodSecurity(prePostEnabled = true)
 public class PopcornProphetApplication {

@@ -12,6 +12,8 @@ import {
   CSSVariablesResolver,
   createTheme,
 } from "@mantine/core";
+import "@mantine/notifications/styles.css";
+import { Notifications } from "@mantine/notifications";
 
 const theme = createTheme({
   primaryColor: "red",
@@ -40,6 +42,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       cssVariablesResolver={resolver}
       theme={theme}
     >
+      <Notifications />
       <App />
     </MantineProvider>
   </React.StrictMode>

@@ -6,6 +6,7 @@ import { BASE_URL } from "../../../App";
 import { useState } from "react";
 import Spinner from "../../Misc/Spinner";
 import { useNavigate } from "react-router-dom";
+import { notifications } from "@mantine/notifications";
 function WishList() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -15,6 +16,13 @@ function WishList() {
       setIsLoading(true);
       const res = await axios.post(`${BASE_URL}api/products/search?i=${id}`);
       const data = await res.data;
+      notifications.show({
+        title: "Success",
+        message: "Product added successfully",
+        color: "grey",
+        withBorder: true,
+        icon: "🤩",
+      });
     } catch (error: any) {
       if (error.response.status == 404) {
         navigate("/notfound");
