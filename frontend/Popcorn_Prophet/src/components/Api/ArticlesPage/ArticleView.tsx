@@ -73,6 +73,7 @@ function ArticleView() {
       commentRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [toggleComments]);
+
   useEffect(() => {
     fetchComments();
   }, [activePage]);
@@ -125,7 +126,6 @@ function ArticleView() {
       });
 
       fetchComments();
-
       closeCommentModal();
     } catch (error: any) {
       if (error.response.status == 400) {

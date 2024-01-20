@@ -178,7 +178,6 @@ function AdminPage() {
 
   async function updateRoles(id: string, role: string[]) {
     try {
-      console.log(id);
       setIsLoading(true);
 
       const res = await axios.patch(
@@ -191,8 +190,6 @@ function AdminPage() {
       );
       fetchMembers();
       closeChangeRoleModal();
-      console.log(id);
-      console.log(getMemberID());
       if (id == getMemberID()) {
         localStorage.clear();
         sessionStorage.clear();

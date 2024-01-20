@@ -98,7 +98,6 @@ function ArticlesPage() {
         { withCredentials: true }
       );
 
-      console.log(res);
       const data = await res.data;
 
       const newArticles: ArticleModel[] = [];
@@ -163,7 +162,6 @@ function ArticlesPage() {
       closeModal();
     } catch (error: any) {
       if (error.response.status == 400) {
-        console.log(error.response.data);
         setValidationMessage(() => error.response.data.join(".\n\n"));
       } else if (error.response.status == 404) {
         closeModal();

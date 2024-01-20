@@ -80,6 +80,9 @@ function Comment({
       const data = res.data;
       setLikedMembersUsernames(() => data.likedMembersUsernames);
       setLikes(() => data.likes);
+
+      comment.likes = data.likes;
+      comment.likedMembersUsernames = data.likedMembersUsernames;
     } catch (error: any) {
       if (error.response.status == 404) {
         navigate("/notfound");

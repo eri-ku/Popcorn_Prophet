@@ -134,7 +134,8 @@ public class MemberService {
         Set<Role> roles = new HashSet<>();
 
         roles.add(roleRepository.findByRoleName("ROLE_USER").get());
-        if (member.getUsername().equals("Admin")) {
+        //FOR TESTING PURPOSES
+        if (member.getUsername().contains("Admin")) {
             roles.add(roleRepository.findByRoleName("ROLE_ADMIN").get());
             roles.add(roleRepository.findByRoleName("ROLE_MODERATOR").get());
             roles.add(roleRepository.findByRoleName("ROLE_USER").get());

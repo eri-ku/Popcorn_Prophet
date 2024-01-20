@@ -82,6 +82,7 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
         JSON.stringify(data.member.roles.map((role: any) => role.roleName))
       );
       cleanForm();
+      setIsLoading(false);
       navigate("/api/products/1");
     } catch (err: any) {
       if (err.response.status == 400) {

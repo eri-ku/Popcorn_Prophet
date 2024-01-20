@@ -26,7 +26,6 @@ function Article({
   article,
   updateArticle,
   deleteArticle,
-  getArticles,
 }: {
   article: ArticleModel;
   updateArticle: Function;
@@ -54,7 +53,8 @@ function Article({
       const data = res.data;
       setLikes(data.likes);
       setLikedMembersUsernames(data.likedMembersUsernames);
-      getArticles();
+      article.likes = data.likes;
+      article.likedMembersUsernames = data.likedMembersUsernames;
     } catch (error: any) {
       if (error.response.status == 404) {
         navigate("/notfound");

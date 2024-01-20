@@ -41,6 +41,7 @@ public class DataInsertion implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        //FOR TESTING PURPOSES
         ObjectMapper objectMapper = new ObjectMapper();
 
         File file = new File(Objects.requireNonNull(getClass().getResource("/insertProductData.json")).getFile());

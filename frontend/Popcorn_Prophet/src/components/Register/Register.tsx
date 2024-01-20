@@ -141,6 +141,8 @@ function Register() {
         JSON.stringify(data.member.roles.map((role: any) => role.roleName))
       );
       cleanForm();
+
+      setIsLoading(false);
       navigate("/api/products/1");
     } catch (error: any) {
       if (error.response.status == 400) {
@@ -155,6 +157,7 @@ function Register() {
         navigate("/error");
       }
     }
+
     setIsLoading(false);
   }
 
