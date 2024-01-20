@@ -37,8 +37,6 @@ function Article({
   const navigate = useNavigate();
 
   const [likes, setLikes] = useState<number>(article.likes);
-  console.log("article");
-  console.log(article.likes);
   const [likedMembersUsernames, setLikedMembersUsernames] = useState<string[]>(
     article.likedMembersUsernames!
   );

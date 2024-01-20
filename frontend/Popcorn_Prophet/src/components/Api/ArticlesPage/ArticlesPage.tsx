@@ -199,7 +199,6 @@ function ArticlesPage() {
         withBorder: true,
         icon: "📎",
       });
-      console.log("updated");
       getArticles();
       closeModal();
     } catch (error: any) {
