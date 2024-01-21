@@ -7,7 +7,7 @@
   padding-top: 0 !important;
   width: 44rem !important;
 
-  @media (max-width: $mantine-breakpoint-XS) {
+  @media (max-width: $mantine-breakpoint-xs) {
     width: 37rem !important;
   }
 }
