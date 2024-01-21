@@ -5,7 +5,11 @@
     rgba(0, 0, 0, 0.5)
   );
   padding-top: 0 !important;
-  width: 50rem !important;
+  width: 44rem !important;
+
+  @media (max-width: $mantine-breakpoint-XS) {
+    width: 37rem !important;
+  }
 }
 
 .content {
