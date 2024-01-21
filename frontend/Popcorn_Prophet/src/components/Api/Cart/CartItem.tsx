@@ -18,6 +18,7 @@ function CartItem({ el }: { el: CartItemModel }) {
   const { setCart, setItemIdToErase, open } = useProvider();
 
   const firstRender = useRef(true);
+  const secondRender = useRef(true);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -25,6 +26,11 @@ function CartItem({ el }: { el: CartItemModel }) {
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
+      return;
+    }
+    // because debug react mode
+    if (secondRender.current) {
+      secondRender.current = false;
       return;
     }
 
