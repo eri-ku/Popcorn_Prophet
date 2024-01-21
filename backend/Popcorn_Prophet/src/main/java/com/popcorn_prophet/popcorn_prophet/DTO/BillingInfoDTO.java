@@ -18,7 +18,7 @@ public class BillingInfoDTO {
     @NotBlank(message = "Last name is required")
     private String lastName;
 
-    @Email(message = "Please enter a valid email", regexp = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
+    @Email(message = "Please enter a valid email", regexp = "^[^@]+@[^@]+\\.[^@]+$")
     @NotBlank(message = "Email is required")
     @Size(min = 6, message = "Email must be at least 6 characters")
     private String email;

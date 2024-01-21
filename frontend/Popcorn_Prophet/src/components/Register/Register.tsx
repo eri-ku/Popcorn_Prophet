@@ -90,7 +90,7 @@ function Register() {
 
     validate: {
       email: (value) =>
-        /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/.test(value)
+        /^[^@]+@[^@]+\.[^@]+$/.test(value)
           ? value.length < 6
             ? "Email is too short"
             : null
