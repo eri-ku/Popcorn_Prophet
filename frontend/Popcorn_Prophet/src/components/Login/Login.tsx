@@ -65,9 +65,7 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
   async function login(values: any) {
     try {
       setIsLoading(true);
-      const res = await axios.post(`${BASE_URL}auth/login`, values, {
-        withCredentials: false,
-      });
+      const res = await axios.post(`${BASE_URL}auth/login`, values);
       const data = await res.data;
 
       sessionStorage.setItem("cartId", data.cartId);
@@ -81,8 +79,6 @@ function Login({ opened, handlers }: { opened: boolean; handlers: any }) {
         "roles",
         JSON.stringify(data.member.roles.map((role: any) => role.roleName))
       );
-      cleanForm();
-      setIsLoading(false);
       navigate("/api/products/1");
     } catch (err: any) {
       if (err.response.status == 400) {
